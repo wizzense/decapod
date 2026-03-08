@@ -42,6 +42,27 @@ fn is_inside_git_work_tree(repo_root: &Path) -> bool {
         .unwrap_or(false)
 }
 
+fn container_signal_reasons(repo_root: &Path) -> Vec<&'static str> {
+    [
+        (
+            std::env::var("DECAPOD_CONTAINER").ok().as_deref() == Some("1"),
+            "DECAPOD_CONTAINER=1",
+        ),
+        (repo_root.join(".dockerenv").exists(), ".dockerenv marker"),
+        (
+            repo_root.join(".devcontainer").exists(),
+            ".devcontainer marker",
+        ),
+        (
+            std::env::var("DOCKER_CONTAINER").is_ok(),
+            "DOCKER_CONTAINER env",
+        ),
+    ]
+    .into_iter()
+    .filter_map(|(signal, name)| signal.then_some(name))
+    .collect()
+}
+
 /// Spawn a validation gate in a rayon scope with timing and error capture.
 ///
 /// Replaces ~10 lines of boilerplate per gate with a single invocation.
@@ -3433,36 +3454,17 @@ fn validate_git_workspace_context(
         return Ok(());
     }
 
-    let signals_container = [
-        (
-            std::env::var("DECAPOD_CONTAINER").ok().as_deref() == Some("1"),
-            "DECAPOD_CONTAINER=1",
-        ),
-        (repo_root.join(".dockerenv").exists(), ".dockerenv marker"),
-        (
-            repo_root.join(".devcontainer").exists(),
-            ".devcontainer marker",
-        ),
-        (
-            std::env::var("DOCKER_CONTAINER").is_ok(),
-            "DOCKER_CONTAINER env",
-        ),
-    ];
-
-    let in_container = signals_container.iter().any(|(signal, _)| *signal);
-    if in_container {
-        let reasons: Vec<&str> = signals_container
-            .iter()
-            .filter(|(signal, _)| *signal)
-            .map(|(_, name)| *name)
-            .collect();
-        pass(
+    let container_reasons = container_signal_reasons(repo_root);
+    if !container_reasons.is_empty() {
+        skip(
             &format!(
-                "Running in container workspace (signals: {})",
-                reasons.join(", ")
+                "Container-detected: git workspace gates skipped (signals: {}; validate verifies build only - commit/push/PR happens on host after container exit)",
+                container_reasons.join(", ")
             ),
             ctx,
         );
+        validate_commit_often_gate(ctx, repo_root)?;
+        return Ok(());
     } else {
         fail(
             "Not running in container workspace - git-tracked work must execute in Docker-isolated workspace (claim.git.container_workspace_required)",
@@ -3478,11 +3480,6 @@ fn validate_git_workspace_context(
 
     if is_worktree {
         pass("Running in git worktree (isolated branch)", ctx);
-    } else if in_container {
-        pass(
-            "Container workspace detected (worktree check informational)",
-            ctx,
-        );
     } else {
         fail(
             "Not running in isolated git worktree - must use container workspace for implementation work",
@@ -3645,6 +3642,18 @@ fn validate_git_protected_branch(
     if !is_inside_git_work_tree(repo_root) {
         skip(
             "Git protected branch gate skipped: initialized project is not a git repository",
+            ctx,
+        );
+        return Ok(());
+    }
+
+    let container_reasons = container_signal_reasons(repo_root);
+    if !container_reasons.is_empty() {
+        skip(
+            &format!(
+                "Git protected branch gate skipped inside container (signals: {}; host performs commit/push/PR checks after container exit)",
+                container_reasons.join(", ")
+            ),
             ctx,
         );
         return Ok(());
