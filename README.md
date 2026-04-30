@@ -37,7 +37,7 @@ Decapod doesn't replace your agent. It doesn't replace your workflow. Humans nev
 
 **"The spec was vibes."** Your agent asks Decapod what the user actually meant. Decapod forces intent to crystallize — constraints, boundaries, acceptance criteria — before a single line is generated. The agent stops hallucinating requirements.
 
-**"Three agents, one repo, total chaos."** Decapod coordinates shared state across parallel runs. No silent overwrites. No drift. Each agent gets an isolated workspace with a provenance trail.
+**"Multiple agents, one repo, total chaos."** Decapod coordinates shared state across parallel runs. No silent overwrites. No drift. Each agent gets an isolated workspace with a provenance trail.
 
 **"It passes CI but is it *done*?"** Decapod gates completion on proof artifacts, not narrative claims. `VERIFIED` means every gate in the proof plan actually passed — not "the agent said it looks good."
 
