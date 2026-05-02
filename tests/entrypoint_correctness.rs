@@ -113,6 +113,37 @@ fn test_validate_passes_after_init() {
 }
 
 #[test]
+fn test_validate_passes_after_init_without_git_repo() {
+    let temp_dir = TempDir::new().expect("Failed to create temp dir");
+    let temp_path = temp_dir.path().to_path_buf();
+
+    let init = run_raw(&temp_path, &["init", "--force"], &[]);
+    assert!(
+        init.status.success(),
+        "decapod init should succeed. Output:\n{}{}",
+        String::from_utf8_lossy(&init.stdout),
+        String::from_utf8_lossy(&init.stderr)
+    );
+
+    let validate = run_raw(&temp_path, &["validate"], &[]);
+    let output = format!(
+        "{}{}",
+        String::from_utf8_lossy(&validate.stdout),
+        String::from_utf8_lossy(&validate.stderr)
+    );
+    assert!(
+        validate.status.success(),
+        "decapod validate should pass immediately after init in a non-git directory. Output:\n{}",
+        output
+    );
+    assert!(
+        !output.contains("requires isolated git worktree"),
+        "fresh non-git validation should not be rejected by workspace preflight. Output:\n{}",
+        output
+    );
+}
+
+#[test]
 fn test_agent_session_requires_password() {
     let temp_dir = TempDir::new().expect("Failed to create temp dir");
     let temp_path = temp_dir.path().to_path_buf();

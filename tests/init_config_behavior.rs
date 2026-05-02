@@ -52,6 +52,69 @@ fn init_with_writes_config_toml_with_schema_and_diagram_style() {
 }
 
 #[test]
+fn init_project_dir_creates_directory_and_initializes_inside_it() {
+    let tmp = tempdir().expect("tempdir");
+    let out = run_decapod(
+        tmp.path(),
+        &[
+            "init",
+            "--project-dir",
+            "pincher",
+            "--product-name",
+            "pincher",
+            "--force",
+        ],
+    );
+    assert!(
+        out.status.success(),
+        "decapod init --project-dir failed: {}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+
+    let project = tmp.path().join("pincher");
+    assert!(project.is_dir(), "expected project directory to be created");
+    assert!(
+        project.join(".decapod/config.toml").exists(),
+        "expected .decapod/config.toml in project directory"
+    );
+    assert!(
+        !tmp.path().join(".decapod").exists(),
+        "parent directory should not be initialized"
+    );
+}
+
+#[test]
+fn init_with_project_dir_creates_directory_and_initializes_inside_it() {
+    let tmp = tempdir().expect("tempdir");
+    let out = run_decapod(
+        tmp.path(),
+        &[
+            "init",
+            "with",
+            "--project-dir",
+            "pincher-with",
+            "--product-summary",
+            "Initialize a named project directory.",
+            "--force",
+        ],
+    );
+    assert!(
+        out.status.success(),
+        "decapod init with --project-dir failed: {}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+
+    let project = tmp.path().join("pincher-with");
+    assert!(project.is_dir(), "expected project directory to be created");
+    let intent = fs::read_to_string(project.join(".decapod/generated/specs/INTENT.md"))
+        .expect("read .decapod/generated/specs/INTENT.md");
+    assert!(
+        intent.contains("Initialize a named project directory."),
+        "intent spec should be written under the created project directory"
+    );
+}
+
+#[test]
 fn init_uses_existing_config_for_noninteractive_defaults() {
     let tmp = tempdir().expect("tempdir");
     let out1 = run_decapod(
