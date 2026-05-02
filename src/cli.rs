@@ -96,6 +96,9 @@ pub(crate) struct InitGroupCli {
     /// Directory to initialize (defaults to current working directory).
     #[clap(short, long)]
     pub dir: Option<PathBuf>,
+    /// Create this project directory if needed, enter it for initialization, and scaffold there.
+    #[clap(long)]
+    pub project_dir: Option<PathBuf>,
     /// Overwrite existing files by archiving them under `<dir>/.decapod_archive/`.
     #[clap(long)]
     pub force: bool,
@@ -161,6 +164,9 @@ pub(crate) struct InitWithCli {
     /// Directory to initialize (defaults to current working directory).
     #[clap(short, long)]
     pub dir: Option<PathBuf>,
+    /// Create this project directory if needed, enter it for initialization, and scaffold there.
+    #[clap(long)]
+    pub project_dir: Option<PathBuf>,
     /// Overwrite existing files by archiving them under `<dir>/.decapod_archive/`.
     #[clap(long)]
     pub force: bool,

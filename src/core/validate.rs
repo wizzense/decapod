@@ -33,6 +33,15 @@ use std::sync::Mutex;
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::time::{Duration, Instant};
 
+fn is_inside_git_work_tree(repo_root: &Path) -> bool {
+    std::process::Command::new("git")
+        .args(["rev-parse", "--is-inside-work-tree"])
+        .current_dir(repo_root)
+        .output()
+        .map(|output| output.status.success())
+        .unwrap_or(false)
+}
+
 /// Spawn a validation gate in a rayon scope with timing and error capture.
 ///
 /// Replaces ~10 lines of boilerplate per gate with a single invocation.
@@ -3416,6 +3425,14 @@ fn validate_git_workspace_context(
         return Ok(());
     }
 
+    if !is_inside_git_work_tree(repo_root) {
+        skip(
+            "Git workspace gates skipped: initialized project is not a git repository",
+            ctx,
+        );
+        return Ok(());
+    }
+
     let signals_container = [
         (
             std::env::var("DECAPOD_CONTAINER").ok().as_deref() == Some("1"),
@@ -3620,6 +3637,14 @@ fn validate_git_protected_branch(
     if std::env::var("DECAPOD_VALIDATE_SKIP_GIT_GATES").is_ok() {
         skip(
             "Git protected branch gate skipped (DECAPOD_VALIDATE_SKIP_GIT_GATES set)",
+            ctx,
+        );
+        return Ok(());
+    }
+
+    if !is_inside_git_work_tree(repo_root) {
+        skip(
+            "Git protected branch gate skipped: initialized project is not a git repository",
             ctx,
         );
         return Ok(());
