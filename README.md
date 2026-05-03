@@ -90,9 +90,9 @@ But nobody built the **governance layer** for agents. The layer that says:
 
 That's Decapod. The kernel your agent checkpoints with.
 
-### How it hijacks your project
+### Your project interface
 
-Decapod mounts a **constitution** into your repo:
+Your interface with Decapod is `.decapod/OVERRIDE.md` — plain English overrides to your project:
 
 ```text
 .decapod/
@@ -100,18 +100,12 @@ Decapod mounts a **constitution** into your repo:
     core/DECAPOD.md         # core contract
     interfaces/             # interfaces
     plugins/                # plugin policies
-  OVERRIDE.md               # your project overrides
+  OVERRIDE.md               # YOUR overrides
 ```
 
-This **overrides** your agent's instruction files:
-
-- `AGENTS.md` → becomes the universal contract
-- `CLAUDE.md` → augmented with context
-- `CODEX.md`, `GEMINI.md` → same pattern
+This mounts into your agent's instruction files (`AGENTS.md`, `CLAUDE.md`, `CODEX.md`, `GEMINI.md`) — augmenting what your agent sees without editing the original files.
 
 Your agent doesn't load 50-page specs every session. Decapod resolves only what's relevant, binds it to a session lease, and enforces that the agent use it — not the raw file again.
-
-**Your project, your rules, your agent.**
 
 ---
 
