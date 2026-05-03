@@ -29,18 +29,7 @@ cargo install decapod
 decapod init
 ```
 
-That's it. `decapod init` asks about your project (name, intent, architecture direction) and scaffolds specs.
-
-For deeper scaffolding with guided questions:
-
-```bash
-decapod workspace ensure --branch agent/scaffold
-cd .decapod/workspaces/agent-scaffold
-decapod rpc --op scaffold.next_question --params '{"project_name":"your-project"}'
-decapod rpc --op scaffold.apply_answer --params '{"question_id":"one_liner","value":"your answer"}'
-# ... continue until done
-decapod rpc --op scaffold.generate_artifacts
-```
+That's it. `decapod init` asks about your project (name, intent, language, architecture direction) and scaffolds industry-grade specs.
 
 Your workflow doesn't change. Your agent calls Decapod before:
 
