@@ -120,6 +120,17 @@ Override the embedded constitution with `.decapod/OVERRIDE.md`. Plain English ru
 
 Your overrides augment the constitution automatically.
 
+### Project config
+
+`.decapod/config.toml` is your project's control plane configuration. Think of it like an ansible.cfg or pyproject.toml — it captures the high-level scope and details of your project:
+
+- Project name and summary
+- Primary language(s)
+- Architecture type (webapp, microservice, library, etc.)
+- Entrypoints for different agents (CLAUDE.md, GEMINI.md, etc.)
+
+You can edit this file directly or let init update it as your project evolves. The agent reads it to understand your project context.
+
 ---
 
 ## Proof lives in the repo
