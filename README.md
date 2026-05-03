@@ -67,15 +67,19 @@ You never see it. Your agent does all the work.
 ## What Decapod does
 
 1. **Clarifies intent** — What's the goal?
-2. **Bounds context** — Only relevant files.
+2. **Bounds context** — Only what's needed. Not the whole repo.
 3. **Enforces proof** — VERIFIED means gates passed.
 4. **Protects boundaries** — No direct writes to master.
+
+Decapoid resolves only what's relevant to the user's intent — no context poisoning. Your agent gets surgical context, not the entire codebase.
 
 ### The constitution (embedded)
 
 Your agent carries the entire software industry in its head.
 
 94 documents. Architecture. Security. Performance. Testing. Knowledge graphs. Claims. Proof surfaces. Interfaces. Evaluation criteria. Workflows. Everything you've spent decades building into your engineering org — now code-executable.
+
+> Decapod was built months before ETH Zurich proved that AI coding agents waste context on irrelevant files. We've been doing this since before it was a research paper. — [arXiv:2602.11988](https://arxiv.org/pdf/2602.11988)
 
 Your agent doesn't guess. It reads the constitution. It cites claim IDs. It follows enforced gates. It produces proof.
 
