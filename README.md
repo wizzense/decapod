@@ -53,16 +53,16 @@ Not another tool. Not a prompt. Not a daemon. Just the layer that holds the agen
         │  User   │◄───────│  Agent  │
         └────┬────┘        └────┬────┘
              │                  │
-             │      ┌───────────▼────────┐
-             │      │    Decapod         │◄── Intent?
-             │      │   (govern)         │    Boundary?
-             │      │                    │    Context?
-             │      │                    │    Proof?
-             │      └─────────▲──────────┘
-             │                │
-      ┌──────▼──────┐         │    ┌─────────┐
-      │   Agent     │─────────┴────│  Model  │
-      └─────────────┘              └─────────┘
+             │      ┌───────────▼────┐
+             │      │    Decapod     │◄── Intent?
+             │      │    (govern)    │    Boundary?
+             │      │                │    Context?
+             │      │                │    Proof?
+             │      └────────▲───────┘
+             │               │
+      ┌──────▼─────┐         │    ┌─────────┐
+      │   Agent    │─────────┴────│  Model  │
+      └────────────┘              └─────────┘
              │                       │
              └─────────┬─────────────┘
                        ▼
