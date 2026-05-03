@@ -55,7 +55,7 @@ Decapod is designed to stay out of the human workflow. The agent checks in. You 
        │         │
        ├─────────┤
        │         │
-    Model      Agent
+     Model     Agent
        │         │
        └────┬────┘
             ▼
@@ -88,9 +88,9 @@ Decapod absorbs agent deficiencies: ambiguity, context waste, boundary drift, fo
 ```
 decapod/
   generated/
-    specs/           # INTENT.md, ARCHITECTURE.md, etc.
-    context/        # deterministic context capsules
-    artifacts/      # proof artifacts, provenance
+    specs/         # INTENT.md, ARCHITECTURE.md, etc.
+    context/       # deterministic context capsules
+    artifacts/     # proof artifacts, provenance
   governance/      # todos, claims, workunits
   data/            # durable state
 ```
