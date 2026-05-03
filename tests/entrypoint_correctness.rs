@@ -137,6 +137,31 @@ fn test_validate_passes_after_init_without_git_repo() {
         output
     );
     assert!(
+        output.contains("validation passed"),
+        "validate should emit a clean success marker. Output:\n{}",
+        output
+    );
+    assert!(
+        !output.contains("Error:"),
+        "validate should not emit an error while succeeding. Output:\n{}",
+        output
+    );
+    assert!(
+        !output.contains("warn:"),
+        "validate should not emit warnings after fresh init. Output:\n{}",
+        output
+    );
+    assert!(
+        !output.contains("repair"),
+        "validate should not require self-heal/repair after fresh init. Output:\n{}",
+        output
+    );
+    assert!(
+        !output.contains("self-heal"),
+        "validate should not report self-heal after fresh init. Output:\n{}",
+        output
+    );
+    assert!(
         !output.contains("requires isolated git worktree"),
         "fresh non-git validation should not be rejected by workspace preflight. Output:\n{}",
         output
