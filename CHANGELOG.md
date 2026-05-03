@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.47.14](https://github.com/DecapodLabs/decapod/compare/v0.47.13...v0.47.14) - 2026-05-03
+
+### Added
+
+- *(ci)* add selective test automation
+
+### Other
+
+- Merge origin/master into feature/selective-test-automation
+
 ## [0.47.13](https://github.com/DecapodLabs/decapod/compare/v0.47.12...v0.47.13) - 2026-05-03
 
 ### Other
