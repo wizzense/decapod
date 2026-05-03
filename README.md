@@ -136,6 +136,19 @@ That directory is the proof surface. It can be inspected locally, reviewed in pu
 
 ---
 
+## Agent Workbench Gaps
+
+| What workbenches optimize | What Decapod preserves |
+|-------------------------|------------------------|
+| The current session | Reusable repo-native knowledge |
+| Worker throughput | Shared substrate quality |
+| Provider-specific context | Explicit intent, boundaries, proof |
+| Session-scoped memory | `.decapod/` durable state |
+
+**Multi-provider continuity**: A task started by Claude Code should be auditable by Codex, resumable by Gemini CLI, and verifiable by Kilo. The source of truth is `.decapod/`, not chat history, IDE state, or provider memory.
+
+---
+
 ## Integrations
 
 Decapod works with any shell-capable agent through simple entrypoints:
@@ -146,11 +159,12 @@ Decapod works with any shell-capable agent through simple entrypoints:
 | Codex | `CODEX.md` | `decapod session acquire` |
 | Gemini CLI | `GEMINI.md` | `decapod session acquire` |
 | Cursor | `CLAUDE.md` | `decapod session acquire` |
+| Kilo | `CLAUDE.md` | `decapod session acquire` |
 | Custom | `AGENTS.md` | `decapod session acquire` |
 
 Each entrypoint calls Decapod at key moments: before acting (intent), before inference (context), before committing (proof), before touching protected code (boundaries).
 
-See [constitution/core/ENGINEERING_EXCELLENCE.md](constitution/core/ENGINEERING_EXCELLENCE.md) for the full operational contract.
+See [AGENTS.md](AGENTS.md) for the universal agent contract.
 
 ---
 
