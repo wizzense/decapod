@@ -1109,6 +1109,9 @@ pub fn run() -> Result<(), error::DecapodError> {
                 Command::Impact(impact_cli) => {
                     run_impact_command(impact_cli, &project_root)?;
                 }
+                Command::Infer(infer_cli) => {
+                    run_infer_command(infer_cli, &project_root)?;
+                }
                 Command::Trace(trace_cli) => {
                     run_trace_command(trace_cli, &project_root)?;
                 }
@@ -6561,6 +6564,204 @@ fn run_impact_command(cli: ImpactCli, project_root: &Path) -> Result<(), error::
         if !changed_files.is_empty() {
             println!("Changed files: {:?}", changed_files);
         }
+    }
+
+    Ok(())
+}
+
+fn run_infer_command(cli: InferCli, project_root: &Path) -> Result<(), error::DecapodError> {
+    let project_root = project_root.to_path_buf();
+
+    match cli.command {
+        InferCommand::Init(init_cli) => run_infer_init(init_cli, &project_root)?,
+        InferCommand::Validate(validate_cli) => run_infer_validate(validate_cli)?,
+        InferCommand::Budget(budget_cli) => run_infer_budget(budget_cli, &project_root)?,
+    }
+
+    Ok(())
+}
+
+fn run_infer_init(cli: InferInitCli, project_root: &Path) -> Result<(), error::DecapodError> {
+    use std::fs;
+
+    let intent = cli.intent.trim().to_lowercase();
+    let context_files: Vec<String> = cli
+        .context
+        .as_ref()
+        .map(|s| s.split(',').map(|s| s.trim().to_string()).collect())
+        .unwrap_or_default();
+
+    let mut selected_context = Vec::new();
+    let mut excluded_context = Vec::new();
+    let excluded_extensions = ["md", "lock", "toml", "json", "yml", "yaml", "git"];
+
+    let critical_keywords = ["fix", "bug", "error", "panic", "crash"];
+    let docs_keywords = ["docs", "readme", "documentation", "guide"];
+    let refactor_keywords = ["refactor", "rename", "restructure", "cleanup"];
+
+    let intent_type = if critical_keywords.iter().any(|k| intent.contains(*k)) {
+        "fix"
+    } else if refactor_keywords.iter().any(|k| intent.contains(*k)) {
+        "refactor"
+    } else if docs_keywords.iter().any(|k| intent.contains(*k)) {
+        "docs"
+    } else {
+        "unknown"
+    };
+
+    for file in &context_files {
+        let path = project_root.join(file);
+        if path.exists() {
+            let ext = path.extension().and_then(|e| e.to_str()).unwrap_or("");
+            if excluded_extensions.contains(&ext) && intent_type != "docs" {
+                excluded_context.push(file.clone());
+                continue;
+            }
+            if file.contains("/tests/") && !intent.contains("test") {
+                excluded_context.push(file.clone());
+                continue;
+            }
+            selected_context.push(file.clone());
+        }
+    }
+
+    if context_files.is_empty() {
+        if let Ok(entries) = fs::read_dir(project_root.join("src")) {
+            for entry in entries.flatten() {
+                if let Ok(name) = entry.file_name().into_string()
+                    && name.ends_with(".rs")
+                    && !name.contains("_test")
+                {
+                    selected_context.push(format!("src/{}", name));
+                }
+            }
+        }
+        excluded_context = vec![
+            "target/".to_string(),
+            "build/".to_string(),
+            ".git/".to_string(),
+        ];
+    }
+
+    let token_budget = (selected_context.len() as u64 * 500).min(100_000);
+    let clarification_required = intent.len() < 20 || intent_type == "unknown";
+
+    let response = serde_json::json!({
+        "intent": cli.intent,
+        "intent_type": intent_type,
+        "confidence": if clarification_required { "low" } else { "high" },
+        "clarification_required": clarification_required,
+        "clarification_question": if clarification_required {
+            Some("Could you clarify what you'd like me to do?".to_string())
+        } else { None },
+        "selected_context": selected_context,
+        "excluded_context": excluded_context,
+        "selected_policies": ["default"],
+        "token_budget": token_budget,
+        "proof_required": intent_type == "fix",
+        "boundaries": { "max_tokens": 100000, "context_files_limit": 20 }
+    });
+
+    if cli.format == "json" {
+        println!("{}", serde_json::to_string_pretty(&response).unwrap());
+    } else {
+        println!("=== Inference Context ===");
+        println!("Intent: {}", cli.intent);
+        println!("Type: {}", intent_type);
+        if clarification_required {
+            println!("⚠ Clarification needed");
+        }
+        println!(
+            "Selected files: {}",
+            response["selected_context"]
+                .as_array()
+                .map(|a| a.len())
+                .unwrap_or(0)
+        );
+        println!("Token budget: ~{}", token_budget);
+    }
+
+    Ok(())
+}
+
+fn run_infer_validate(cli: InferValidateCli) -> Result<(), error::DecapodError> {
+    let result = cli.result.trim();
+    let intent = cli.intent.trim().to_lowercase();
+
+    let proof_provided =
+        result.contains("fn ") || result.contains("struct ") || result.contains("impl ");
+    let mut issues = Vec::new();
+
+    if result.contains("error") || result.contains("panic") {
+        issues.push("Potential error/panic in output");
+    }
+
+    let intent_match = if intent.contains("fix") || intent.contains("bug") {
+        result.contains("fix") || result.contains("change")
+    } else {
+        true
+    };
+
+    let response = serde_json::json!({
+        "intent": cli.intent,
+        "intent_match": intent_match,
+        "proof_provided": proof_provided,
+        "issues": issues,
+        "advisory": if issues.is_empty() { "ok" } else { "review recommended" }
+    });
+
+    if cli.format == "json" {
+        println!("{}", serde_json::to_string_pretty(&response).unwrap());
+    } else {
+        println!("=== Validation ===");
+        println!("Intent match: {}", if intent_match { "✓" } else { "✗" });
+        println!("Proof provided: {}", if proof_provided { "✓" } else { "✗" });
+    }
+
+    Ok(())
+}
+
+fn run_infer_budget(cli: InferBudgetCli, project_root: &Path) -> Result<(), error::DecapodError> {
+    use std::fs;
+
+    let context_files: Vec<String> = cli
+        .context
+        .as_ref()
+        .map(|s| s.split(',').map(|s| s.trim().to_string()).collect())
+        .unwrap_or_default();
+
+    let mut total_tokens = 0u64;
+    for file in &context_files {
+        let path = project_root.join(file);
+        if let Ok(content) = fs::read_to_string(&path) {
+            total_tokens += content.lines().count() as u64 * 8;
+        }
+    }
+
+    let base_tokens = 500u64;
+    let response = serde_json::json!({
+        "intent": cli.intent,
+        "context_tokens": total_tokens,
+        "base_tokens": base_tokens,
+        "estimated_total": total_tokens + base_tokens,
+        "within_budget": total_tokens + base_tokens < 100000,
+        "token_budget": { "soft_limit": 100000, "recommended": 80000 }
+    });
+
+    if cli.format == "json" {
+        println!("{}", serde_json::to_string_pretty(&response).unwrap());
+    } else {
+        println!("=== Token Budget ===");
+        println!("Context: ~{} tokens", total_tokens);
+        println!("Total: ~{} tokens", total_tokens + base_tokens);
+        println!(
+            "Within 100k: {}",
+            if total_tokens + base_tokens < 100000 {
+                "✓"
+            } else {
+                "⚠"
+            }
+        );
     }
 
     Ok(())

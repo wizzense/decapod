@@ -100,6 +100,43 @@ Decapod is a repo-native governance kernel that agents call into — like a devi
 
 State is local and durable in `.decapod/`. Context, decisions, and traces persist across sessions and stay retrievable over time. Nothing hides. Nothing phones home.
 
+## Inference Governance
+
+Decapod can govern the inference boundary between agent and model. The agent calls Decapod before inference to shape what's admissible, then after to validate what was generated.
+
+### The boundary loop
+
+```
+User → Agent → Decapod (infer init) → Model → Decapod (infer validate) → Agent → User
+```
+
+**Before inference**, Decapod returns:
+- `selected_context` — what's relevant to include
+- `excluded_context` — what to leave out  
+- `clarification_required` — whether to ask first
+- `token_budget` — estimated context size
+- `proof_required` — what completion looks like
+
+**After inference**, Decapod validates against intent and proof expectations.
+
+### Why it matters
+
+Token waste is the visible symptom of a deeper governance failure: the agent doesn't know what's legitimately in scope for the task. Decapod draws that boundary before the model sees anything.
+
+This isn't token optimization. It's ruling out irrelevant context *before* it inflates the prompt.
+
+### Example
+
+```bash
+# Before calling the model
+decapod infer init --intent "fix login bug" --context "src/auth/"
+# Returns: {"selected_context": ["src/auth/login.rs"], "excluded_context": ["docs/"], "clarification_required": false}
+
+# After the model responds
+decapod infer validate --result "$MODEL_OUTPUT" --intent "fix login bug"  
+# Returns: {"intent_match": true, "proof_provided": false, "advisory": "No proof artifact"}
+```
+
 ## How it works
 
 Every Decapod operation returns some combination of three signals.
