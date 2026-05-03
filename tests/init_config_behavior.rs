@@ -195,6 +195,60 @@ fn init_with_accepts_noninteractive_spec_seed_flags() {
 }
 
 #[test]
+fn init_with_architecture_seeds_ideal_language_when_unspecified() {
+    let tmp = tempdir().expect("tempdir");
+    let out = run_decapod(
+        tmp.path(),
+        &[
+            "init",
+            "with",
+            "--force",
+            "--architecture-direction",
+            "microservice",
+        ],
+    );
+    assert!(
+        out.status.success(),
+        "decapod init with architecture failed: {}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+
+    let config =
+        fs::read_to_string(tmp.path().join(".decapod/config.toml")).expect("read config.toml");
+    assert!(
+        config.contains("primary_languages = [\"Go\"]"),
+        "microservice architecture should seed Go as the default language: {config}"
+    );
+}
+
+#[test]
+fn init_with_architecture_can_recommend_zig() {
+    let tmp = tempdir().expect("tempdir");
+    let out = run_decapod(
+        tmp.path(),
+        &[
+            "init",
+            "with",
+            "--force",
+            "--architecture-direction",
+            "embedded systems",
+        ],
+    );
+    assert!(
+        out.status.success(),
+        "decapod init with embedded architecture failed: {}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+
+    let config =
+        fs::read_to_string(tmp.path().join(".decapod/config.toml")).expect("read config.toml");
+    assert!(
+        config.contains("primary_languages = [\"Zig\"]"),
+        "embedded systems architecture should seed Zig as the default language: {config}"
+    );
+}
+
+#[test]
 fn init_with_accepts_noninteractive_spec_seed_env() {
     let tmp = tempdir().expect("tempdir");
     let out = Command::new(env!("CARGO_BIN_EXE_decapod"))
