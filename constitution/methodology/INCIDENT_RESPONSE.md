@@ -73,12 +73,22 @@ When assisting with incidents:
 
 ---
 
-## 5. Escalation Contacts
+## 5. Default Configuration
 
-Defined in `.decapod/OVERRIDE.md`:
+Defaults embedded in constitution (override in `.decapod/OVERRIDE.md`):
+
+| Setting | Default | Override Key |
+|---------|---------|-------------|
+| Channel | `#incidents` | `channel` |
+| Severity Matrix | `incidents/severity.yaml` | `severity_matrix` |
+| On-Call | `oncall.yaml` | `on_call` |
+
+### Overriding
+
+In `.decapod/OVERRIDE.md`:
 ```text
 ### methodology/INCIDENT_RESPONSE.md
-  channel: "#incidents"
-  severity_matrix: "incidents/severity.yaml"
-  on_call: "oncall.yaml"
+  channel: "#your-incidents"
+  severity_matrix: "custom-severity.yaml"
+  on_call: "custom-oncall.yaml"
 ```
