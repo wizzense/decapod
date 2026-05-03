@@ -6,7 +6,7 @@
 
 <p align="center">
   <strong>Decapod</strong><br />
-  Daemonless, local-first control plane for AI coding agents.
+  Daemonless, repo-native control plane for AI coding agents.
 </p>
 
 <p align="center">
@@ -53,7 +53,7 @@ Decapod is designed to stay out of the human workflow. The agent checks in. You 
        │    │ (check) │
        │    └────┬────┘
        │         │
-       ├────────┤
+       ├─────────┤
        │         │
     Model    Agent
        │         │
@@ -151,7 +151,7 @@ cargo install decapod
 decapod init
 ```
 
-Use whatever agent. Claude. Codex. Gemini. Cursor.
+Use whatever agent you already use: Claude, Codex, Gemini, Cursor.
 
 ---
 
