@@ -6530,14 +6530,17 @@ fn run_infer_init(cli: InferInitCli, project_root: &Path) -> Result<(), error::D
     if context_files.is_empty() {
         if let Ok(entries) = fs::read_dir(project_root.join("src")) {
             for entry in entries.flatten() {
-                if let Ok(name) = entry.file_name().into_string() {
-                    if name.ends_with(".rs") && !name.contains("_test") {
-                        selected_context.push(format!("src/{}", name));
-                    }
+                if let Ok(name) = entry.file_name().into_string()
+                    && name.ends_with(".rs") && !name.contains("_test") {
+                    selected_context.push(format!("src/{}", name));
                 }
             }
         }
-        excluded_context = vec!["target/".to_string(), "build/".to_string(), ".git/".to_string()];
+        excluded_context = vec![
+            "target/".to_string(),
+            "build/".to_string(),
+            ".git/".to_string(),
+        ];
     }
 
     let token_budget = (selected_context.len() as u64 * 500).min(100_000);
@@ -6568,7 +6571,13 @@ fn run_infer_init(cli: InferInitCli, project_root: &Path) -> Result<(), error::D
         if clarification_required {
             println!("⚠ Clarification needed");
         }
-        println!("Selected files: {}", response["selected_context"].as_array().map(|a| a.len()).unwrap_or(0));
+        println!(
+            "Selected files: {}",
+            response["selected_context"]
+                .as_array()
+                .map(|a| a.len())
+                .unwrap_or(0)
+        );
         println!("Token budget: ~{}", token_budget);
     }
 
@@ -6579,7 +6588,8 @@ fn run_infer_validate(cli: InferValidateCli) -> Result<(), error::DecapodError> 
     let result = cli.result.trim();
     let intent = cli.intent.trim().to_lowercase();
 
-    let proof_provided = result.contains("fn ") || result.contains("struct ") || result.contains("impl ");
+    let proof_provided =
+        result.contains("fn ") || result.contains("struct ") || result.contains("impl ");
     let mut issues = Vec::new();
 
     if result.contains("error") || result.contains("panic") {
@@ -6644,7 +6654,14 @@ fn run_infer_budget(cli: InferBudgetCli, project_root: &Path) -> Result<(), erro
         println!("=== Token Budget ===");
         println!("Context: ~{} tokens", total_tokens);
         println!("Total: ~{} tokens", total_tokens + base_tokens);
-        println!("Within 100k: {}", if total_tokens + base_tokens < 100000 { "✓" } else { "⚠" });
+        println!(
+            "Within 100k: {}",
+            if total_tokens + base_tokens < 100000 {
+                "✓"
+            } else {
+                "⚠"
+            }
+        );
     }
 
     Ok(())
