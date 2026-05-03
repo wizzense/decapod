@@ -36,6 +36,7 @@ use std::io::IsTerminal;
 use std::io::Read;
 use std::io::Write;
 use std::path::{Path, PathBuf};
+use std::sync::OnceLock;
 use std::sync::mpsc;
 use std::thread;
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -57,6 +58,9 @@ fn find_decapod_project_root(start_dir: &Path) -> Result<PathBuf, error::Decapod
         }
     }
 }
+
+// Process-local session password - eliminates unsafe env::set_var
+static SESSION_PASSWORD: OnceLock<String> = OnceLock::new();
 
 fn clean_project(dir: Option<PathBuf>) -> Result<(), error::DecapodError> {
     let raw_dir = match dir {
@@ -1848,9 +1852,19 @@ fn ensure_session_valid() -> Result<(), error::DecapodError> {
         return auto_acquire_session(&project_root, &agent_id);
     }
 
-    let supplied_password = match std::env::var("DECAPOD_SESSION_PASSWORD") {
-        Ok(p) => p,
-        Err(_) => {
+    // Read from OnceLock first (process-local), fall back to env if not set
+    let supplied_password = SESSION_PASSWORD
+        .get()
+        .cloned()
+        .or_else(|| std::env::var("DECAPOD_SESSION_PASSWORD").ok())
+        .inspect(|p| {
+            // Cache it in OnceLock if found in env
+            let _ = SESSION_PASSWORD.get_or_init(|| p.clone());
+        });
+
+    let supplied_password = match supplied_password {
+        Some(p) => p,
+        None => {
             // No password in env - auto-acquire new session (entrypoint funnel)
             return auto_acquire_session(&project_root, &agent_id);
         }
@@ -1877,10 +1891,9 @@ fn auto_acquire_session(project_root: &Path, agent_id: &str) -> Result<(), error
     };
     write_agent_session(project_root, &rec)?;
 
-    // Set the password for subsequent operations in this process
-    // SAFETY: This is safe because we're only setting for the current process
-    // and the password was just generated in this process.
-    unsafe { std::env::set_var("DECAPOD_SESSION_PASSWORD", &password) }
+    // Set the password for subsequent operations in this process using process-local OnceLock
+    // Eliminates unsafe env::set_var and multi-threading UB
+    SESSION_PASSWORD.get_or_init(|| password);
 
     eprintln!("session: auto-acquired for agent '{}'.", agent_id);
 
