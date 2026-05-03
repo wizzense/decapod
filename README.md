@@ -149,13 +149,7 @@ That directory is the proof surface. It can be inspected locally, reviewed in pu
 
 ---
 
-## Integrations
-
-Decapod works with Claude Code, Codex, Gemini CLI, Cursor, Kilo, and any shell-capable agent through simple entrypoints.
-
-Each entrypoint calls Decapod at key moments: before acting (intent), before inference (context), before committing (proof), before touching protected code (boundaries).
-
-See [AGENTS.md](AGENTS.md) for the universal agent contract.
+Use whatever agent you already use: Claude, Codex, Gemini, Cursor, Kilo.
 
 ---
 
