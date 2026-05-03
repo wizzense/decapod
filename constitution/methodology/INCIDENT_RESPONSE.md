@@ -75,9 +75,9 @@ When assisting with incidents:
 
 ## 5. Escalation Contacts
 
-Defined in `config.yaml` (repo-specific override):
-```yaml
-incident_response:
+Defined in `.decapod/OVERRIDE.md`:
+```text
+### methodology/INCIDENT_RESPONSE.md
   channel: "#incidents"
   severity_matrix: "incidents/severity.yaml"
   on_call: "oncall.yaml"
