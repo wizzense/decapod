@@ -73,7 +73,13 @@ You never see it. Your agent does all the work.
 
 ### The constitution (embedded)
 
-Your agent reads the constitution automatically. You don't see it. You don't configure it. Just talk to your agent.
+Your agent carries the entire software industry in its head.
+
+94 documents. Architecture. Security. Performance. Testing. Knowledge graphs. Claims. Proof surfaces. Interfaces. Evaluation criteria. Workflows. Everything you've spent decades building into your engineering org — now code-executable.
+
+Your agent doesn't guess. It reads the constitution. It cites claim IDs. It follows enforced gates. It produces proof.
+
+You just talk to your agent.
 
 ---
 
