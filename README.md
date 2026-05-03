@@ -23,7 +23,7 @@
 
 ---
 
-## The prescription
+## Get running
 
 ```bash
 cargo install decapod
