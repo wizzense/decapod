@@ -2,7 +2,7 @@
 
 This is a Decapod-managed repository. **Strict Dependency: You are strictly bound to the Decapod control plane.**
 
-This contract applies equally to Claude, Codex, Gemini, and any other agent operating here.
+This contract applies equally to Claude, Codex, Gemini, Cursor, Kilo, and any other agent operating here.
 
 ## Mandatory Initialization
 
