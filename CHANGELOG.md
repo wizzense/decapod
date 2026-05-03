@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.47.18](https://github.com/DecapodLabs/decapod/compare/v0.47.17...v0.47.18) - 2026-05-03
+
+### Added
+
+- Add default configuration values in INCIDENT_RESPONSE.md
+
+### Fixed
+
+- Reference OVERRIDE.md instead of config.yaml
+- Remove invalid .decapod/ reference in INCIDENT_RESPONSE.md
+
+### Other
+
+- Add 5 new constitution files for metrics, incident response, API design, release management, cost optimization
+- Revise README for clarity and terminology updates
+- add OVERRIDE.md section
+
 ## [0.47.17](https://github.com/DecapodLabs/decapod/compare/v0.47.16...v0.47.17) - 2026-05-03
 
 ### Other
