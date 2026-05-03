@@ -10,8 +10,8 @@
 </p>
 
 <p align="center">
-  Called on demand inside agent loops to turn intent into context, then context into explicit specifications before inference.<br />
-  No daemon. No workflow tax. Just artifacts you can read, hash, and trust.
+  AI agents lose intent, skip dependencies, mutate context unsafely, and return vibes instead of proof.<br />
+  Decapod is the control plane that stops that.
 </p>
 
 <p align="center">
@@ -23,29 +23,60 @@
 
 ---
 
-## The idea
+## The problem
+
+AI coding agents don't fail because they lack tools. They fail because:
+
+1. **Intent drift** — The agent starts coding before understanding what the human actually asked for.
+2. **Dependency blindness** — Agents skip prerequisite tasks and assume linear workflows.
+3. **Context inflation** — Agents stuff every file into the prompt and burn tokens on irrelevant context.
+4. **Vibes over proof** — "Looks good to me" is treated as completion evidence.
+5. **Unsafe mutation** — Agents mutate protected branches, skip validations, and bypass boundaries.
+
+You can't solve this with better prompts, more tools, or smarter models. The agent needs a **governance layer** that enforces intent, boundaries, and proof.
+
+---
+
+## What Decapod is
+
+Decapod is a **daemonless, local-first, repo-native governance kernel** for AI coding agents. It's not:
+- An MCP server (no long-running daemon)
+- A prompt framework (no template management)
+- A workflow engine (no scheduled tasks)
+- Another Claude.md (no extra instruction files)
+
+It runs on-demand inside your agent's loop. The agent asks, Decapod answers, agent proceeds.
+
+### The core loop
+
+```
+User → Agent → Decapod (shape intent + context) → Model → Agent → Decapod (validate proof) → User
+```
+
+1. **Before inference**: Agent asks "what's in scope?" — Decapod returns selected context, excluded files, clarification needed, token budget.
+2. **After inference**: Agent asks "did I succeed?" — Decapod validates against intent and proof requirements.
+
+---
+
+## Why it exists
 
 Your agent writes code. Nobody checks its homework.
 
-Decapod is the invisible layer between your agents and your code—humans never see it. It forces agents to answer three questions before touching a single line: *What did the human actually ask for?* *What boundaries apply?* *How will we prove it's done?* The answers become cryptographically verifiable artifacts, so the code that lands in your repo is provably what was intended.
+Decapod forces agents to answer three questions before touching a single line:
 
-It ships with an embedded [constitution](constitution/core/DECAPOD.md): governance docs agents receive as just-in-time context so they query the rules on demand instead of guessing them.
+1. **What did the human actually ask for?** — Intent crystallization, not vibes.
+2. **What boundaries apply?** — Protected branches, validation gates, policy constraints.
+3. **How will we prove it's done?** — Artifact-backed completion, not narrative claims.
 
-Decapod doesn't replace your agent. It doesn't replace your workflow. Humans never interact with it—agents call it on demand, it enforces the rules, and exits. Two commands to adopt. Zero config to maintain.
+The answers become cryptographically verifiable artifacts. The code that lands in your repo is provably what was intended.
 
 ### When it clicks
 
-**"The spec was vibes."** Your agent asks Decapod what the user actually meant. Decapod forces intent to crystallize — constraints, boundaries, acceptance criteria — before a single line is generated. The agent stops hallucinating requirements.
+**"The spec was vibes."** Decapod forces intent to crystallize — constraints, boundaries, acceptance criteria — before a single line is generated.
 
-**"Multiple agents, one repo, total chaos."** Decapod coordinates shared state across parallel runs. No silent overwrites. No drift. Each agent gets an isolated workspace with a provenance trail.
+**"Multiple agents, one repo, total chaos."** Decapod coordinates shared state across parallel runs. No silent overwrites. Each agent gets an isolated workspace.
 
-**"It passes CI but is it *done*?"** Decapod gates completion on proof artifacts, not narrative claims. `VERIFIED` means every gate in the proof plan actually passed — not "the agent said it looks good."
-
-Related: [Evaluating AGENTS.md](https://arxiv.org/pdf/2602.11988) (ETH SRI, 2026) on context-file quality and agent cost/performance.
-
-<p align="center">
-  <a href="https://ko-fi.com/decapodlabs"><strong>Buy us a coffee</strong></a> ☕
-</p>
+**"It passes CI but is it *done*?"** Decapod gates completion on `VERIFIED` — every proof gate actually passed, not "the agent said so."
 
 ---
 
@@ -56,28 +87,26 @@ cargo install decapod
 decapod init
 ```
 
-That's it. Keep using Claude Code, Codex, Gemini CLI, Cursor — whatever you already use. Decapod gets called by your agent automatically when control-plane decisions are needed. Your workflow doesn't change; the agent just gets smarter about when to stop and think.
+That's it. Keep using Claude Code, Codex, Gemini CLI, Cursor — whatever you already use. Decapod gets called by your agent automatically.
 
 ### What lands in your repo
 
 ```text
 .decapod/
   config.toml                 # project configuration
-  data/                       # durable state (governance, memory, traces)
+  data/                       # durable state
   generated/
-    specs/                    # intent, architecture, validation specs
-    artifacts/                # proof artifacts, internalizations, provenance
-    sessions/                 # per-session provenance logs
-AGENTS.md                     # universal agent contract
-CLAUDE.md / CODEX.md / GEMINI.md  # tool-specific entrypoints
+    specs/                   # intent, architecture, validation specs
+    artifacts/                # proof artifacts, provenance
+  sessions/                   # per-session logs
+AGENTS.md                    # universal agent contract
 ```
-
-Every artifact lives as plain text in the repository. No external databases, no dashboards—the filesystem is the system of record.
 
 ### How to know it's working
 
-1. Ask your agent to make a real change. Watch `.decapod/generated/` populate with new specs and proof artifacts.
-2. Ask your agent to validate the work. It will report typed pass/fail gates, not "looks good to me."
+1. Ask your agent to make a change. Specs appear in `.decapod/generated/`.
+2. Ask your agent to validate. Typed pass/fail gates, not "looks good."
+3. Ask "what changed and why?" — Agent cites spec and proof artifacts.
 3. Ask the agent *"what did Decapod change about your plan?"* — it should cite spec and proof steps, not vibes.
 
 Agent integration: `AGENTS.md` and tool-specific entrypoints (`CLAUDE.md`, `CODEX.md`, `GEMINI.md`) define the full operational contract your agent follows.
@@ -96,9 +125,23 @@ The Unix philosophy ("do one thing well") breaks down the moment the "one thing"
 
 Right now, agent makers keep stuffing more into the agent: task management, memory, rules, planning, codegen, toolchains, browsers — until it's mediocre at everything. Agents shouldn't be responsible for control-plane work. They shouldn't be your TODO database. They shouldn't be the place you encode a team's behavioral expectations. They shouldn't be the system of record for "what got done" or "what's allowed." That belongs in infrastructure.
 
-Decapod is a repo-native governance kernel that agents call into — like a device driver for agent work. It makes intent explicit, boundaries explicit, and completion provable. The agent stays the brain. Decapod becomes the control plane that turns agent output into something shippable.
+Decapod is a repo-native governance kernel that agents call into — like a device driver for agent work. It makes intent explicit, boundaries explicit, and completion provable.
 
-State is local and durable in `.decapod/`. Context, decisions, and traces persist across sessions and stay retrievable over time. Nothing hides. Nothing phones home.
+State is local and durable in `.decapod/`. Context, decisions, and traces persist across sessions.
+
+### How Decapod differs from...
+
+| Approach | What it is | Why Decapod is different |
+|----------|-----------|------------------------|
+| **MCP servers** | Long-running daemons with tool exposure | No daemon — called on-demand, exits immediately |
+| **Prompt frameworks** | Template management systems | Governs inference boundaries, not prompt text |
+| **Claude skills** | Static instruction files | Context is resolved, not loaded wholesale |
+| **Task runners** | Scheduled job executors | Work is event-driven by agent decisions |
+| **Agent wrappers** | Agent enhancement layers | Decapod is a governance layer, not an agent |
+
+Decapod doesn't replace your agent. It holds the agent accountable to the three questions.
+
+---
 
 ## Inference Governance
 
@@ -166,7 +209,38 @@ AI Agent(s)  <---->  Decapod  <---->  Repository + Policy
 - **Fully auditable.** Every decision, trace, and proof artifact lives in `.decapod/` as plain files.
 - **Context internalization.** Turn long documents into mountable, verifiable context adapters with explicit source hashes, determinism labels, session-scoped attach leases, and explicit detach so agents stop re-ingesting the same 50-page spec every session.
 
-The deep surface area — interfaces, capsules, eval kernel, knowledge promotions, obligation graphs — lives in the embedded constitution. Ask your agent to explore it.
+The deep surface area — interfaces, capsules, eval kernel, knowledge promotions, obligation graphs — lives in the embedded constitution.
+
+---
+
+## Before / After
+
+### Before Decapod
+
+```
+User: "fix the login bug"
+Agent: [proceeds without clarification]
+  → burns tokens on entire codebase
+  → generates code based on vibes
+  → "looks good"
+  → commits
+```
+
+### After Decapod
+
+```
+User: "fix the login bug"
+Agent: decapod infer init --intent "fix login bug" --context src/auth/
+  → Decapod: {"selected_context": ["src/auth/login.rs"], "clarification_required": true}
+Agent: asks user: "which login flow — password reset or OAuth?"
+User: "password reset"
+Agent: [generates fix]
+Agent: decapod infer validate --result "$CODE" --intent "fix login bug"
+  → Decapod: {"intent_match": true, "proof_provided": true}
+  → commits with proof artifact
+```
+
+The difference: **intent** → **context** → **code** → **proof**.
 
 ---
 
