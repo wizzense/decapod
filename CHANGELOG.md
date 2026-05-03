@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.47.19](https://github.com/DecapodLabs/decapod/compare/v0.47.18...v0.47.19) - 2026-05-03
+
+### Added
+
+- Auto version check and update on session acquire
+- Auto version check and update on session acquire
+
+### Other
+
+- Merge pull request #510 from DecapodLabs/agent/feat/auto-version-update
+
 ## [0.47.18](https://github.com/DecapodLabs/decapod/compare/v0.47.17...v0.47.18) - 2026-05-03
 
 ### Added
