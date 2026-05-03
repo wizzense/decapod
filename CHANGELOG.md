@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.47.15](https://github.com/DecapodLabs/decapod/compare/v0.47.14...v0.47.15) - 2026-05-03
+
+### Added
+
+- *(cli)* add infer command for inference context governance
+
+### Fixed
+
+- format and clippy fixes for infer commands
+
+### Other
+
+- Merge pull request #501 from DecapodLabs/feature/infer-commands
+- fmt fix for long boolean expression
+- *(readme)* add Inference Governance section
+
 ## [0.47.14](https://github.com/DecapodLabs/decapod/compare/v0.47.13...v0.47.14) - 2026-05-03
 
 ### Added
