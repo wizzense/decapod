@@ -6531,7 +6531,9 @@ fn run_infer_init(cli: InferInitCli, project_root: &Path) -> Result<(), error::D
         if let Ok(entries) = fs::read_dir(project_root.join("src")) {
             for entry in entries.flatten() {
                 if let Ok(name) = entry.file_name().into_string()
-                    && name.ends_with(".rs") && !name.contains("_test") {
+                    && name.ends_with(".rs")
+                    && !name.contains("_test")
+                {
                     selected_context.push(format!("src/{}", name));
                 }
             }
