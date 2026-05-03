@@ -197,6 +197,13 @@ fn agent_entrypoint_body() -> &'static str {
     r#"You are working in a Decapod-managed repository.
 See `AGENTS.md` for the universal contract.
 
+## Project Context
+
+- Read `.decapod/config.toml` before planning; it captures project name, summary, architecture, primary languages, and entrypoint preferences.
+- Treat `.decapod/config.toml` as human-editable project context. You may update it when user intent or project direction changes.
+- Read `.decapod/OVERRIDE.md` when present; it is the repo-local place for constitution overrides.
+- Do not mutate Decapod-owned state under `.decapod/` directly; use Decapod CLI surfaces for generated specs, data, workspaces, and sessions.
+
 ## Quick Start
 
 ```bash
@@ -228,6 +235,8 @@ decapod data schema --deterministic
 - Call `decapod workspace status` at startup and before implementation work.
 - request elevated permissions before Docker/container workspace commands.
 - `.decapod files are accessed only via decapod CLI`.
+- Read and update `.decapod/config.toml` as project context; use Decapod CLI for other `.decapod/` state.
+- Read `.decapod/OVERRIDE.md` for repo-local constitution overrides when present.
 - `DECAPOD_SESSION_PASSWORD` is required for session-scoped operations.
 - Read canonical router: `decapod docs show core/DECAPOD.md`.
 - Use shared aptitude memory for human-taught preferences across sessions/providers: `decapod data memory add|get` (aliases: `decapod data aptitude`).
@@ -244,7 +253,7 @@ fn template_agents() -> String {
 
 This is a Decapod-managed repository. **Strict Dependency: You are strictly bound to the Decapod control plane.**
 
-This contract applies equally to Claude, Codex, Gemini, and any other agent operating here.
+This contract applies equally to Claude, Codex, Gemini, Cursor, Kilo, and any other agent operating here.
 
 ## Mandatory Initialization
 
@@ -284,7 +293,7 @@ decapod eval plan --task-set-id <id> --task-ref <task-id> --model-id <model> --p
 
 1. **MUST** refine intent with the user before inference-heavy work.
 2. **MUST NOT** work on main/master. **MUST** use `.decapod/workspaces/*`.
-3. **MUST** access `.decapod/*` files only via decapod CLI surfaces.
+3. **MUST** read `.decapod/config.toml` as user-editable project context and may update it when user intent changes.
 4. **MUST NOT** claim done without `decapod validate` passing.
 5. **MUST NOT** invent capabilities that are not exposed by the binary.
 6. **MUST** stop if requirements conflict, intent is ambiguous, or policy boundaries are unclear.
@@ -314,6 +323,10 @@ These invariants are directly enforced by tests. Violations will cause CI failur
 
 ## Operating Notes
 
+- Read `.decapod/config.toml` before planning; it captures project name, summary, architecture, primary languages, and agent entrypoint preferences.
+- Treat `.decapod/config.toml` as human-editable project context. You may update it when user intent or project direction changes.
+- Read `.decapod/OVERRIDE.md` when present; it is the repo-local place for constitution overrides.
+- Do not mutate Decapod-owned state under `.decapod/` directly; generated specs, data, workspaces, and sessions stay via decapod CLI.
 - Use `decapod docs show core/DECAPOD.md` and `decapod docs show core/INTERFACES.md` for binding contracts.
 - Use `decapod capabilities --format json` as the authority surface for available operations.
 - Use Decapod shared aptitude memory for human-taught preferences that must persist across sessions and agents: `decapod data memory add|get` (aliases: `decapod data aptitude`).

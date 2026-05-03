@@ -10,8 +10,8 @@
 </p>
 
 <p align="center">
-  Agents call it on demand to converge on human intent, shape context before inference,<br />
-  enforce boundaries, and deliver proof-backed completion across concurrent multi-agent work.
+Agents call it on demand to turn intent into context, then context into explicit specifications before inference,<br />
+enforce boundaries, and deliver proof-backed completion across concurrent multi-agent work.
 </p>
 
 <p align="center">
@@ -38,7 +38,7 @@ Your workflow doesn't change. Your agent calls Decapod before:
 - Committing — proof
 - Touching protected code — boundaries
 
-Decapod is designed to stay out of the human workflow. The agent checks in. You keep talking to your agent like normal.
+Decapod is designed to stay out of the human workflow. The agent checks in. You keep talking to your agent like normal. See the canonical router in [constitution/core/DECAPOD.md](constitution/core/DECAPOD.md).
 
 > AI agents do not fail because they lack tools. They fail because they lose intent, skip dependencies, mutate context unsafely, and return vibes instead of proof.
 
@@ -129,7 +129,9 @@ Your overrides augment the constitution automatically.
 - Architecture type (webapp, microservice, library, etc.)
 - Entrypoints for different agents (CLAUDE.md, GEMINI.md, etc.)
 
-You can edit this file directly or let init update it as your project evolves. The agent reads it to understand your project context.
+You can edit this file directly or let the agent update it as your project evolves. The generated agent entrypoints tell agents to read it before planning and keep it aligned when user intent or project direction changes.
+
+For rules that override the embedded Decapod constitution, use `.decapod/OVERRIDE.md`. Keep `.decapod/config.toml` focused on project context and setup preferences.
 
 ---
 

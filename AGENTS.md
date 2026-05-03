@@ -42,7 +42,7 @@ decapod eval plan --task-set-id <id> --task-ref <task-id> --model-id <model> --p
 
 1. **MUST** refine intent with the user before inference-heavy work.
 2. **MUST NOT** work on main/master. **MUST** use `.decapod/workspaces/*`.
-3. **MUST** access `.decapod/*` files only via decapod CLI surfaces.
+3. **MUST** read `.decapod/config.toml` as user-editable project context and may update it when user intent changes.
 4. **MUST NOT** claim done without `decapod validate` passing.
 5. **MUST NOT** invent capabilities that are not exposed by the binary.
 6. **MUST** stop if requirements conflict, intent is ambiguous, or policy boundaries are unclear.
@@ -72,6 +72,10 @@ These invariants are directly enforced by tests. Violations will cause CI failur
 
 ## Operating Notes
 
+- Read `.decapod/config.toml` before planning; it captures project name, summary, architecture, primary languages, and agent entrypoint preferences.
+- Treat `.decapod/config.toml` as human-editable project context. You may update it when user intent or project direction changes.
+- Read `.decapod/OVERRIDE.md` when present; it is the repo-local place for constitution overrides.
+- Do not mutate Decapod-owned state under `.decapod/` directly; generated specs, data, workspaces, and sessions stay via decapod CLI.
 - Use `decapod docs show core/DECAPOD.md` and `decapod docs show core/INTERFACES.md` for binding contracts.
 - Use `decapod capabilities --format json` as the authority surface for available operations.
 - Use Decapod shared aptitude memory for human-taught preferences that must persist across sessions and agents: `decapod data memory add|get` (aliases: `decapod data aptitude`).

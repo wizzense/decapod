@@ -391,7 +391,38 @@ fn prompt_line(prompt: &str) -> Result<String, error::DecapodError> {
     Ok(buf.trim().to_string())
 }
 
-const LANGUAGES: &[&str] = &["Rust", "TypeScript", "Python", "Go", "Java", "C/C++", "Ruby", "PHP", "Other"];
+const LANGUAGES: &[&str] = &[
+    "Rust",
+    "TypeScript",
+    "JavaScript",
+    "Python",
+    "Go",
+    "Java",
+    "Kotlin",
+    "Swift",
+    "C",
+    "C++",
+    "C#",
+    "Zig",
+    "Ruby",
+    "PHP",
+    "Elixir",
+    "Erlang",
+    "Scala",
+    "Clojure",
+    "Dart",
+    "Haskell",
+    "OCaml",
+    "F#",
+    "Lua",
+    "R",
+    "Julia",
+    "SQL",
+    "HCL",
+    "Shell",
+    "PowerShell",
+    "Other",
+];
 
 const ARCH_DIRECTIONS: &[(&str, &str)] = &[
     ("webapp", "Web application (TypeScript, React/Vue/Svelte)"),
@@ -406,59 +437,227 @@ const ARCH_DIRECTIONS: &[(&str, &str)] = &[
     ("data", "Data pipeline (Python, SQL)"),
 ];
 
-#[allow(non_snake_case)]
-fn prompt_languageChoice(current: &[String]) -> Result<Vec<String>, error::DecapodError> {
+fn normalize_language(input: &str) -> String {
+    match input.trim().to_lowercase().as_str() {
+        "ts" | "typescript" => "TypeScript".to_string(),
+        "js" | "javascript" => "JavaScript".to_string(),
+        "py" | "python" => "Python".to_string(),
+        "rs" | "rust" => "Rust".to_string(),
+        "golang" | "go" => "Go".to_string(),
+        "kt" | "kotlin" => "Kotlin".to_string(),
+        "swift" => "Swift".to_string(),
+        "c" => "C".to_string(),
+        "cpp" | "c++" | "cplusplus" => "C++".to_string(),
+        "csharp" | "c#" => "C#".to_string(),
+        "zig" => "Zig".to_string(),
+        "rb" | "ruby" => "Ruby".to_string(),
+        "php" => "PHP".to_string(),
+        "ex" | "elixir" => "Elixir".to_string(),
+        "erl" | "erlang" => "Erlang".to_string(),
+        "scala" => "Scala".to_string(),
+        "clj" | "clojure" => "Clojure".to_string(),
+        "dart" => "Dart".to_string(),
+        "hs" | "haskell" => "Haskell".to_string(),
+        "ml" | "ocaml" => "OCaml".to_string(),
+        "fs" | "fsharp" | "f#" => "F#".to_string(),
+        "lua" => "Lua".to_string(),
+        "r" => "R".to_string(),
+        "jl" | "julia" => "Julia".to_string(),
+        "sql" => "SQL".to_string(),
+        "terraform" | "tf" | "hcl" => "HCL".to_string(),
+        "bash" | "sh" | "shell" => "Shell".to_string(),
+        "pwsh" | "powershell" => "PowerShell".to_string(),
+        "other" => "Other".to_string(),
+        _ => input.trim().to_string(),
+    }
+}
+
+fn language_choice_seed(current: &[String], recommendation: &[String]) -> Vec<String> {
+    if !recommendation.is_empty() {
+        return recommendation
+            .iter()
+            .map(|s| normalize_language(s))
+            .collect();
+    }
+    current.iter().map(|s| normalize_language(s)).collect()
+}
+
+fn apply_architecture_language_recommendation(ctx: &mut RepoContext) {
+    if !ctx.primary_languages.is_empty() {
+        return;
+    }
+    if let Some(arch) = ctx.architecture_direction.as_deref() {
+        ctx.primary_languages = infer_language_from_architecture(arch);
+    }
+}
+
+struct TerminalModeGuard {
+    saved_mode: String,
+}
+
+impl Drop for TerminalModeGuard {
+    fn drop(&mut self) {
+        let _ = std::process::Command::new("stty")
+            .arg(&self.saved_mode)
+            .status();
+        println!();
+    }
+}
+
+fn enter_raw_terminal_mode() -> Option<TerminalModeGuard> {
+    let output = std::process::Command::new("stty").arg("-g").output().ok()?;
+    if !output.status.success() {
+        return None;
+    }
+    let saved_mode = String::from_utf8(output.stdout).ok()?.trim().to_string();
+    let status = std::process::Command::new("stty")
+        .args(["raw", "-echo"])
+        .status()
+        .ok()?;
+    if !status.success() {
+        return None;
+    }
+    Some(TerminalModeGuard { saved_mode })
+}
+
+fn prompt_language_terminal_choice(
+    default: &[String],
+) -> Result<Option<String>, error::DecapodError> {
     use crate::core::ansi::AnsiExt;
-    let inferred = if current.is_empty() { "None".to_string() } else { current.join(", ") };
-    
+
+    if !io::stdin().is_terminal() || default.is_empty() {
+        return Ok(None);
+    }
+    let mut selected = default
+        .first()
+        .and_then(|d| {
+            LANGUAGES
+                .iter()
+                .position(|lang| d.eq_ignore_ascii_case(lang))
+        })
+        .unwrap_or(0);
+    let Some(_guard) = enter_raw_terminal_mode() else {
+        return Ok(None);
+    };
+    let mut typed = String::new();
+    let mut stdin = io::stdin();
+    loop {
+        let shown = if typed.is_empty() {
+            LANGUAGES[selected].to_string()
+        } else {
+            typed.clone()
+        };
+        print!("\r{}", format!("    choice: {shown}").bright_cyan().bold());
+        print!("\x1b[K");
+        io::stdout().flush().map_err(error::DecapodError::IoError)?;
+
+        let mut byte = [0_u8; 1];
+        stdin
+            .read_exact(&mut byte)
+            .map_err(error::DecapodError::IoError)?;
+        match byte[0] {
+            b'\r' | b'\n' => return Ok(Some(shown)),
+            3 => {
+                return Err(error::DecapodError::ValidationError(
+                    "init prompt interrupted".to_string(),
+                ));
+            }
+            8 | 127 => {
+                typed.pop();
+            }
+            27 => {
+                let mut seq = [0_u8; 2];
+                if stdin.read_exact(&mut seq).is_ok() && seq[0] == b'[' {
+                    match seq[1] {
+                        b'A' => {
+                            typed.clear();
+                            selected = selected
+                                .checked_sub(1)
+                                .unwrap_or_else(|| LANGUAGES.len() - 1);
+                        }
+                        b'B' => {
+                            typed.clear();
+                            selected = (selected + 1) % LANGUAGES.len();
+                        }
+                        _ => {}
+                    }
+                }
+            }
+            byte if byte.is_ascii_graphic() || byte == b' ' => {
+                typed.push(byte as char);
+            }
+            _ => {}
+        }
+    }
+}
+
+fn prompt_language_choice(
+    current: &[String],
+    recommendation: &[String],
+) -> Result<Vec<String>, error::DecapodError> {
+    use crate::core::ansi::AnsiExt;
+    let inferred = if current.is_empty() {
+        "None".to_string()
+    } else {
+        current.join(", ")
+    };
+    let default = language_choice_seed(current, recommendation);
+    let default_label = if default.is_empty() {
+        "None".to_string()
+    } else {
+        default.join(", ")
+    };
+
     println!();
     println!("{}", "  Primary language(s)".bright_white().bold());
     println!("    inferred: {} (from project files)", inferred);
-    println!("    options: (type to select, comma-separated for multiple)");
+    println!("    ideal for architecture: {}", default_label);
+    println!("    options: up/down, type name or number, comma-separated for multiple");
     println!();
-    
+
     for (i, lang) in LANGUAGES.iter().enumerate() {
-        let marker = if current.iter().any(|c| c.eq_ignore_ascii_case(lang)) { "✓" } else { " " };
-        println!("    {}{}{}", marker, if i == 0 { " >" } else { "  " }, lang);
+        let marker = if default.iter().any(|c| c.eq_ignore_ascii_case(lang)) {
+            "✓"
+        } else {
+            " "
+        };
+        println!("    {} {:>2}. {}", marker, i + 1, lang);
     }
     println!();
-    println!("    type language(s), e.g., rust, python");
-    println!("    or press Enter to keep inferred");
-    
-    let choice = prompt_line("    choice: ")?;
-    
+    println!("    press Enter to use the ideal/default language(s)");
+
+    let choice = match prompt_language_terminal_choice(&default)? {
+        Some(choice) => choice,
+        None => prompt_line("    choice: ")?,
+    };
+
     if choice.is_empty() {
-        return Ok(current.to_vec());
+        return Ok(default);
     }
-    
+
     let selected: Vec<String> = choice
         .split(',')
-        .map(|s| s.trim().to_string())
-        .filter(|s| !s.is_empty())
         .map(|s| {
-            match s.to_lowercase().as_str() {
-                "ts" | "typescript" => "TypeScript",
-                "js" | "javascript" => "JavaScript",
-                "py" => "Python",
-                "rs" => "Rust",
-                "go" => "Go",
-                "c" | "cpp" => "C/C++",
-                "rb" => "Ruby",
-                "php" => "PHP",
-                "java" => "Java",
-                _ => &s,
-            }.to_string()
+            let trimmed = s.trim();
+            trimmed
+                .parse::<usize>()
+                .ok()
+                .and_then(|n| LANGUAGES.get(n.saturating_sub(1)))
+                .map(|lang| (*lang).to_string())
+                .unwrap_or_else(|| normalize_language(trimmed))
         })
+        .filter(|s| !s.is_empty())
         .collect();
-    
+
     Ok(selected)
 }
 
 fn infer_language_from_architecture(arch: &str) -> Vec<String> {
-    match arch.to_lowercase().as_str() {
+    let arch = arch.to_lowercase();
+    match arch.as_str() {
         "webapp" => vec!["TypeScript".to_string()],
         "microservice" => vec!["Go".to_string()],
-        "library" => vec![],
+        "library" => vec!["Rust".to_string()],
         "cli" => vec!["Rust".to_string()],
         "lambda" => vec!["Python".to_string()],
         "mobile-android" => vec!["Kotlin".to_string()],
@@ -466,34 +665,62 @@ fn infer_language_from_architecture(arch: &str) -> Vec<String> {
         "multiarch" => vec!["Rust".to_string()],
         "infra" => vec!["HCL".to_string()],
         "data" => vec!["Python".to_string()],
+        _ if arch.contains("web") || arch.contains("frontend") => vec!["TypeScript".to_string()],
+        _ if arch.contains("microservice") || arch.contains("backend") || arch.contains("api") => {
+            vec!["Go".to_string()]
+        }
+        _ if arch.contains("cli") || arch.contains("command-line") => vec!["Rust".to_string()],
+        _ if arch.contains("serverless") || arch.contains("lambda") => vec!["Python".to_string()],
+        _ if arch.contains("android") => vec!["Kotlin".to_string()],
+        _ if arch.contains("ios") => vec!["Swift".to_string()],
+        _ if arch.contains("embedded") || arch.contains("systems") => vec!["Zig".to_string()],
+        _ if arch.contains("infra") || arch.contains("terraform") => vec!["HCL".to_string()],
+        _ if arch.contains("data") || arch.contains("ml") => vec!["Python".to_string()],
         _ => vec![],
     }
 }
 
-#[allow(non_snake_case)]
-fn prompt_architectureChoice(current: Option<&str>) -> Result<Option<String>, error::DecapodError> {
+fn prompt_architecture_choice(
+    current: Option<&str>,
+) -> Result<Option<String>, error::DecapodError> {
     use crate::core::ansi::AnsiExt;
     let inferred = current.unwrap_or("None");
-    
+
     println!();
     println!("{}", "  Architecture".bright_white().bold());
     println!("    inferred: {}", inferred);
     println!("    common approaches:");
     println!();
-    
+
     for (i, (arch, desc)) in ARCH_DIRECTIONS.iter().enumerate() {
-        let marker = if current.map_or(false, |c| c.eq_ignore_ascii_case(arch)) { "✓" } else { " " };
-        println!("    {}{} {} -> {}", marker, if i == 0 { " >" } else { "  " }, arch, desc);
+        let marker = if current.is_some_and(|c| c.eq_ignore_ascii_case(arch)) {
+            "✓"
+        } else {
+            " "
+        };
+        println!(
+            "    {}{} {} -> {}",
+            marker,
+            if i == 0 { " >" } else { "  " },
+            arch,
+            desc
+        );
     }
     println!();
     println!("    or type your architecture");
-    
+
     let choice = prompt_line("    choice: ")?;
-    
+
     if choice.is_empty() {
         return Ok(current.map(|s| s.to_string()));
     }
-    
+
+    if let Ok(index) = choice.parse::<usize>()
+        && let Some((arch, _)) = ARCH_DIRECTIONS.get(index.saturating_sub(1))
+    {
+        return Ok(Some((*arch).to_string()));
+    }
+
     Ok(Some(choice.trim().to_string()))
 }
 
@@ -716,30 +943,29 @@ fn enrich_repo_context_interactive(repo: &mut RepoContext) -> Result<(), error::
         "Repository Context",
         "Review inferred intent before generating .decapod/generated/specs/.",
     );
-    
-    // Primary language prompt with options
-    repo.primary_languages = prompt_languageChoice(&repo.primary_languages)?;
-    
+
     let current_summary = repo.product_summary.clone().unwrap_or_else(|| {
         "Deliver the repository outcome against explicit user intent with proof-backed completion."
             .to_string()
     });
     repo.product_summary = Some(prompt_line_default("Intent outcome", &current_summary)?);
 
+    repo.architecture_direction =
+        prompt_architecture_choice(repo.architecture_direction.as_deref())?;
+
+    let recommended_languages = repo
+        .architecture_direction
+        .as_deref()
+        .map(infer_language_from_architecture)
+        .unwrap_or_default();
+    repo.primary_languages =
+        prompt_language_choice(&repo.primary_languages, &recommended_languages)?;
+
     let refine_now = prompt_yes_no(
-        "Refine architecture direction and done criteria now? (You can evolve .decapod/generated/specs/*.md later.)",
+        "Refine done criteria now? (You can evolve .decapod/config.toml and .decapod/generated/specs/*.md later.)",
         false,
     )?;
     if refine_now {
-        let current_arch = repo.architecture_direction.clone().unwrap_or_else(|| {
-            "Composable repository architecture with explicit boundaries and proof-backed delivery invariants."
-                .to_string()
-        });
-        repo.architecture_direction = Some(prompt_line_default(
-            "Architecture direction",
-            &current_arch,
-        )?);
-
         let current_done = repo.done_criteria.clone().unwrap_or_else(|| {
             "Decapod validate passes, required tests pass, and promotion-relevant artifacts are present."
                 .to_string()
@@ -1061,6 +1287,7 @@ pub fn run() -> Result<(), error::DecapodError> {
             let mut repo_ctx = infer_repo_context(&init_target);
             apply_repo_context_env_overrides(&mut repo_ctx);
             apply_repo_context_cli_overrides(&mut repo_ctx, &init_with);
+            apply_architecture_language_recommendation(&mut repo_ctx);
             if base_init_invocation && io::stdin().is_terminal() {
                 enrich_repo_context_interactive(&mut repo_ctx)?;
             }
@@ -2042,25 +2269,23 @@ fn check_and_update_version() -> Result<bool, error::DecapodError> {
         }
 
         if install_decapod().is_ok() {
-            eprintln!(
-                "{} Updated to v{}.",
-                "✓".bright_green(),
-                latest_version
-            );
-            
+            eprintln!("{} Updated to v{}.", "✓".bright_green(), latest_version);
+
             // Prompt to migrate/refresh config for new fields
             let project_root = std::env::current_dir()
                 .ok()
                 .and_then(|d| find_decapod_project_root(&d).ok());
-            
+
             if let Some(root) = project_root {
                 let config_path = root.join(".decapod").join("config.toml");
                 if config_path.exists() {
-                    eprintln!("{} Check for new config fields in .decapod/config.toml",
-                        "→".bright_cyan());
+                    eprintln!(
+                        "{} Check for new config fields in .decapod/config.toml",
+                        "→".bright_cyan()
+                    );
                 }
             }
-            
+
             return Ok(true);
         }
     }
