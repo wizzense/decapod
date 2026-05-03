@@ -10,8 +10,8 @@
 </p>
 
 <p align="center">
-  AI agents lose intent, skip dependencies, mutate context unsafely, and return vibes instead of proof.<br />
-  Decapod is the control plane that stops that.
+  The agent defers to Decapod. Your code stays aligned.<br />
+  Intent, boundaries, and proof — enforced, not hoped for.
 </p>
 
 <p align="center">
@@ -25,29 +25,38 @@
 
 ## The problem
 
-AI coding agents don't fail because they lack tools. They fail because:
+AI agents are powerful but unchecked:
 
-1. **Intent drift** — The agent starts coding before understanding what the human actually asked for.
-2. **Dependency blindness** — Agents skip prerequisite tasks and assume linear workflows.
-3. **Context inflation** — Agents stuff every file into the prompt and burn tokens on irrelevant context.
-4. **Vibes over proof** — "Looks good to me" is treated as completion evidence.
-5. **Unsafe mutation** — Agents mutate protected branches, skip validations, and bypass boundaries.
+1. **Intent drift** — Agent starts coding. Human asked for X. Agent delivers Y.
+2. **Dependencies skipped** — Agent assumes "just do it" includes all prerequisites.
+3. **Context bloat** — Agent dumps the whole repo in the prompt. Tokens burn.
+4. **Vibes as proof** — "Looks good" is treated as done.
+5. **Unsafe mutation** — Agent touches protected branches. Validation gets skipped.
 
-You can't solve this with better prompts, more tools, or smarter models. The agent needs a **governance layer** that enforces intent, boundaries, and proof.
+The agent doesn't know it's drifting. There's no governance layer telling it to stop.
 
 ---
 
 ## What Decapod is
 
-Decapod is a **daemonless, local-first, repo-native governance kernel** for AI coding agents. It's not:
-- An MCP server (no long-running daemon)
-- A prompt framework (no template management)
-- A workflow engine (no scheduled tasks)
-- Another Claude.md (no extra instruction files)
+Decapod is the layer your agent **defers to** — not an alternative, not another tool, just the source of truth:
 
-It runs on-demand inside your agent's loop. The agent asks, Decapod answers, agent proceeds.
+- The agent asks before it acts: "what's in scope?"
+- The agent asks before inference: "what context is relevant?"
+- The agent asks before it commits: "is this done?"
 
-### The core loop
+**Decapod answers. The agent proceeds.**
+
+It's daemonless: called on-demand, does its job, exits. No daemon, no background process, no stateful service to maintain.
+
+### The agent loop
+
+```
+User → Agent → Decapod (what's the intent?) → Agent → Model → Agent → 
+  → Decapod (did I succeed?) → Agent → User
+```
+
+Where it fits in the agent's natural workflow, not as a competitor but as the governance layer the agent trusts.
 
 ```
 User → Agent → Decapod (shape intent + context) → Model → Agent → Decapod (validate proof) → User
@@ -129,17 +138,7 @@ Decapod is a repo-native governance kernel that agents call into — like a devi
 
 State is local and durable in `.decapod/`. Context, decisions, and traces persist across sessions.
 
-### How Decapod differs from...
-
-| Approach | What it is | Why Decapod is different |
-|----------|-----------|------------------------|
-| **MCP servers** | Long-running daemons with tool exposure | No daemon — called on-demand, exits immediately |
-| **Prompt frameworks** | Template management systems | Governs inference boundaries, not prompt text |
-| **Claude skills** | Static instruction files | Context is resolved, not loaded wholesale |
-| **Task runners** | Scheduled job executors | Work is event-driven by agent decisions |
-| **Agent wrappers** | Agent enhancement layers | Decapod is a governance layer, not an agent |
-
-Decapod doesn't replace your agent. It holds the agent accountable to the three questions.
+It's not a tool the agent uses — it's the layer the agent checks with.
 
 ---
 
