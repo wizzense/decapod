@@ -610,6 +610,18 @@ fn enrich_repo_context_interactive(repo: &mut RepoContext) -> Result<(), error::
         "Repository Context",
         "Review inferred intent before generating .decapod/generated/specs/.",
     );
+    
+    // Primary language prompt
+    let current_langs = repo.primary_languages.join(", ");
+    repo.primary_languages = prompt_line_default(
+        "Primary language(s)",
+        &current_langs,
+    )?
+    .split(',')
+    .map(|s| s.trim().to_string())
+    .filter(|s| !s.is_empty())
+    .collect();
+    
     let current_summary = repo.product_summary.clone().unwrap_or_else(|| {
         "Deliver the repository outcome against explicit user intent with proof-backed completion."
             .to_string()
