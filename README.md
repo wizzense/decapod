@@ -71,19 +71,9 @@ You never see it. Your agent does all the work.
 3. **Enforces proof** — VERIFIED means gates passed.
 4. **Protects boundaries** — No direct writes to master.
 
-### Your interface
+### The constitution (embedded)
 
-Edit `.decapod/OVERRIDE.md` — plain English for your project.
-
-```text
-.decapod/
-  constitution/
-  OVERRIDE.md
-```
-
-Mounts into your agent's AGENTS.md, CLAUDE.md, CODEX.md automatically.
-
-### The constitution
+Decapod ships with an embedded engineering organization:
 
 Decapod ships with an embedded engineering organization:
 
