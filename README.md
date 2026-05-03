@@ -75,27 +75,23 @@ You never see it. Your agent does all the work.
 
 Decapod ships with an embedded engineering organization:
 
-Decapod ships with an embedded engineering organization:
-
-```text
-.decapod/constitution/
-  core/DECAPOD.md         # core governance contract
-  interfaces/            # interface definitions (CLAIMS, CONTROL_PLANE, etc.)
-  plugins/               # plugin policies (todo, health, eval, federation)
-  specs/                # engineering specifications
-  methodology/           # architectural methodology
+```
+constitution/
+  core/         # DECAPOD.md, ENGINEERING_EXCELLENCE.md, GAPS.md
+  interfaces/   # CLAIMS.md, CONTROL_PLANE.md, LCM.md
+  plugins/      # TODO.md, HEALTH.md, FEDERATION.md
+  specs/        # engineering standards
+  architecture/ # FRONTEND.md, BACKEND.md, SECURITY.md
+  methodology/ # engineering methodology
 ```
 
-This is your entire engineering organization, executable at runtime:
+This is your entire engineering organization, code:
 
-- **CLAIMS** — What's guaranteed and where it's proven
-- **CONTROL_PLANE** — How agents behave  
-- **INTERFACES** — What every subsystem contracts
-- **GATES** — Validation enforcement points
-- **EVALUATION** — Statistical promotion criteria
-- **WORKSPACE** — Isolated agent worktrees
-
-Every rule is deterministic. Every contract is auditable. Your agent doesn't guess — it reads the constitution.
+- **CLAIMS** — Guarantees and proof surfaces
+- **INTERFACES** — Subsystem contracts  
+- **GATES** — Validation enforcement
+- **WORKSPACE** — Agent isolation
+- Every rule is deterministic.
 
 ---
 
