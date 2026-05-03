@@ -55,7 +55,7 @@ Decapod is designed to stay out of the human workflow. The agent checks in. You 
        │         │
        ├─────────┤
        │         │
-    Model    Agent
+    Model      Agent
        │         │
        └────┬────┘
             ▼
@@ -71,17 +71,17 @@ Decapod is designed to stay out of the human workflow. The agent checks in. You 
 3. **Enforces proof** — VERIFIED means gates passed.
 4. **Protects boundaries** — No direct writes to master.
 
-Decapod resolves only what's relevant to the user's intent — no context poisoning. Your agent gets surgical context, not the entire codebase.
+Decapod resolves only what's relevant to the user's intent — no context poisoning. Your agent gets surgical context, not the entire constitution.
 
 ### The constitution
 
 Decapod ships with an embedded engineering constitution.
 
-94 documents covering architecture, security, performance, testing, knowledge graphs, claims, proof surfaces, interfaces, evaluation criteria, and workflows. Everything an engineering org usually keeps in scattered docs, tribal memory, and review culture becomes executable guidance your agent can consult.
+Over 100 industry-grade declarative documents covering architecture, security, performance, testing, knowledge graphs, claims, proof surfaces, interfaces, evaluation criteria, and workflows. Everything an engineering org usually keeps in scattered docs, tribal memory, and review culture becomes executable guidance your agent can consult.
 
 > Recent research has confirmed what Decapod was built around from the start: AI coding agents waste significant context on irrelevant files. — [arXiv:2602.11988](https://arxiv.org/pdf/2602.11988)
 
-Your agent doesn't guess. It reads the constitution. It cites claim IDs. It follows gates. It produces proof.
+Your agent doesn't guess. It reads the constitution. It cites claim IDs. It follows gates. It asks for clarification. It produces proof.
 
 ### Your interface
 
