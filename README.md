@@ -75,20 +75,16 @@ Every action: check intent → resolve context → enforce boundary → verify p
 
 ## Why this exists
 
-Every platform shift needs its defining layer:
+Agents execute. They don't verify. They generate. They don't validate. They commit. They don't prove.
 
-- Containers needed Docker → deployment became unit-based.
-- Web needed Rails → productivity became declarative.
-- JS needed Node → server-side became accessible.
-- Agents need Decapod → governance became explicit.
+There's no layer between your agent and your code that enforces:
 
-Before this, agents had tools. After this, agents have **control planes**.
+- Intent before action
+- Context before inference  
+- Proof before commit
+- Boundaries before mutation
 
-Decapod is the layer that says:
-
-- "Stop. What's the intent?"
-- "Wait. What's in scope?"
-- "Hold on. Did you prove it?"
+That's the gap. That's Decapod.
 
 ### Your project interface
 
