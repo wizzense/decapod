@@ -10,8 +10,8 @@
 </p>
 
 <p align="center">
-  Like Docker for containers. Like Rails for web.<br />
-  But for agentic code: intent, context, boundary, proof.
+  Intent, context, boundary, proof — enforced.<br />
+  The control plane your agent defers to.
 </p>
 
 <p align="center">
