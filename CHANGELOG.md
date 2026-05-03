@@ -7,6 +7,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.47.17](https://github.com/DecapodLabs/decapod/compare/v0.47.16...v0.47.17) - 2026-05-03
+
+### Other
+
+- Update README for clarity and terminology changes
+- add official description - daemonless local-first control plane
+- fix prescription spelling
+- full rewrite - killer positioning
+- Update README to specify local state storage
+- add context bounds + ETH Zurich reference
+- constitution - 94 docs, entire software industry
+- constitution embedded - user doesn't see it
+- fix constitution structure
+- fix constitution section - embedded not override
+- add constitution section
+- prescription README - install init done
+- Update diagram in README for clarity
+- alpha version - agents execute but dont verify
+- Update governance loop diagram in README.md
+- articulate why without namedrops
+- rename hijack section - OVERRIDE.md interface
+- finalize README - no comparisons, checksum updated
+- *(readme)* rewrite - Docker/Rails moment category positioning
+- *(readme)* governance loop diagram - minted fresh
+- *(readme)* refine - agent defers to Decapod, not competes
+- *(readme)* rewrite for category positioning
+
+## [0.47.16](https://github.com/DecapodLabs/decapod/compare/v0.47.15...v0.47.16) - 2026-05-03
+
+### Other
+
+- Merge pull request #503 from DecapodLabs/feature/urgent-fixes
+
+### Security
+
+- replace unsafe env::set_var with OnceLock
+
 ## [0.47.15](https://github.com/DecapodLabs/decapod/compare/v0.47.14...v0.47.15) - 2026-05-03
 
 ### Added
