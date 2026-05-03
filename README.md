@@ -47,23 +47,33 @@ Decapod is the layer your agent **defers to** — not an alternative, not anothe
 
 **Decapod answers. The agent proceeds.**
 
-It's daemonless: called on-demand, does its job, exits. No daemon, no background process, no stateful service to maintain.
-
-### The agent loop
+### The governance loop
 
 ```
-User → Agent → Decapod (what's the intent?) → Agent → Model → Agent → 
-  → Decapod (did I succeed?) → Agent → User
+         ┌──────────────┐         ┌──────────────┐
+         │    User      │◄────────│    Agent     │
+         └──────┬───────┘         └──────┬───────┘
+                │                      │
+                │         ┌─────────▼────────┐
+                │         │    Decapod       │◄──── Intent?
+                │         │    (govern)      │     Boundary?
+                │         │                 │     Context?
+                │         │                 │     Proof?
+                │         └─────────▲────────┘
+                │                   │
+         ┌──────▼───────┐         │        ┌──────────────┐
+         │    Agent     │─────────┴────────│    Model    │
+         └──────────────┘                  └──────────────┘
 ```
 
-Where it fits in the agent's natural workflow, not as a competitor but as the governance layer the agent trusts.
+Every non-trivial action:
 
-```
-User → Agent → Decapod (shape intent + context) → Model → Agent → Decapod (validate proof) → User
-```
+- **Where are we headed?** → *intent resolved*
+- **What territory?** → *context resolved*  
+- **Off-limits?** → *boundaries enforced*
+- **Arrived?** → *proof verified*
 
-1. **Before inference**: Agent asks "what's in scope?" — Decapod returns selected context, excluded files, clarification needed, token budget.
-2. **After inference**: Agent asks "did I succeed?" — Decapod validates against intent and proof requirements.
+The agent checkpoints with Decapod as many times as needed — iterates on intent, requests clarification, resolves context — until aligned. Then executes.
 
 ---
 
