@@ -36,6 +36,16 @@ Container subsystem runs agent actions in ephemeral Docker/Podman containers wit
 - Add only stack packages inferred from repo markers (`Cargo.toml`, `package.json`, `pyproject.toml`, `go.mod`).
 - Accept operator overrides via `DECAPOD_CONTAINER_APK_PACKAGES`.
 
+## Validation Scope Inside Container
+
+**Container validate is for build verification only.** When running `decapod validate` inside a Docker container:
+
+- **Intended purpose:** Verify code compiles, tests pass, lint passes - confirm the work is legitimate and built correctly
+- **NOT enforced inside container:** Git workspace context gates (container signals, worktree isolation, commit-often)
+- **Exit then push:** After validate passes inside container, exit the container and perform Git operations (commit, push, PR) on the host
+
+This ensures reproducible builds in the clean container environment while keeping Git operations (which require host git config, SSH keys, gh CLI) outside the container where they belong.
+
 ## Operator Runbook
 1. Run isolated task worktree from master:
    `decapod auto container run --agent clawdious --task-id R_01ABC --cmd "cargo test -q"`
