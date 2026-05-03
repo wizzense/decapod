@@ -53,7 +53,7 @@ You never see it. Your agent does all the work.
        │    │ (check) │
        │    └────┬────┘
        │         │
-       ├────────┤
+       ├──── ────┤
        │         │
     Model    Agent
        │         │
@@ -92,7 +92,7 @@ You just talk to your agent.
 - No config. No daemon. No workflow.
 - Install. Init. Done.
 - Production-grade code.
-- Full state in `.decapod/`.
+- Full state stored locally in `.decapod/`.
 
 ---
 
