@@ -119,6 +119,23 @@ fn write_project_config(
     Ok(())
 }
 
+fn seed_init_generated_state(target_dir: &Path, dry_run: bool) -> Result<(), error::DecapodError> {
+    if dry_run {
+        return Ok(());
+    }
+
+    let _ = docs_cli::sync_override_checksum(target_dir, false)?;
+    Ok(())
+}
+
+fn is_not_git_repository_error(err: &error::DecapodError) -> bool {
+    matches!(
+        err,
+        error::DecapodError::ValidationError(message)
+            if message.contains("Not in a git repository")
+    )
+}
+
 fn infer_repo_context(target_dir: &Path) -> RepoContext {
     let mut ctx = RepoContext {
         product_name: target_dir
@@ -427,6 +444,54 @@ fn prompt_yes_no(prompt: &str, default_yes: bool) -> Result<bool, error::Decapod
     Ok(matches!(normalized.as_str(), "y" | "yes"))
 }
 
+fn resolve_existing_init_dir(raw: &Path) -> Result<PathBuf, error::DecapodError> {
+    std::fs::canonicalize(raw).map_err(error::DecapodError::IoError)
+}
+
+fn resolve_or_create_project_dir(
+    current_dir: &Path,
+    raw: &Path,
+    dry_run: bool,
+) -> Result<PathBuf, error::DecapodError> {
+    let candidate = if raw.is_absolute() {
+        raw.to_path_buf()
+    } else {
+        current_dir.join(raw)
+    };
+    if candidate.exists() && !candidate.is_dir() {
+        return Err(error::DecapodError::ValidationError(format!(
+            "project directory target '{}' exists but is not a directory",
+            candidate.display()
+        )));
+    }
+    if !dry_run {
+        std::fs::create_dir_all(&candidate).map_err(error::DecapodError::IoError)?;
+    }
+    if candidate.exists() {
+        std::fs::canonicalize(&candidate).map_err(error::DecapodError::IoError)
+    } else {
+        Ok(candidate)
+    }
+}
+
+fn prompt_init_target_dir(current_dir: &Path) -> Result<PathBuf, error::DecapodError> {
+    if prompt_yes_no("Initialize the existing current directory?", true)? {
+        return resolve_existing_init_dir(current_dir);
+    }
+    let project_name = prompt_text_field(
+        "Project directory name",
+        "Decapod will create this directory and initialize inside it.",
+        "my-project",
+    )?;
+    let project_name = project_name.trim();
+    if project_name.is_empty() {
+        return Err(error::DecapodError::ValidationError(
+            "Project directory name cannot be empty".to_string(),
+        ));
+    }
+    resolve_or_create_project_dir(current_dir, Path::new(project_name), false)
+}
+
 fn prompt_diagram_style(
     default_style: InitDiagramStyle,
 ) -> Result<InitDiagramStyle, error::DecapodError> {
@@ -461,6 +526,7 @@ fn init_with_from_config(
         has("AGENTS.md") && has("CLAUDE.md") && has("GEMINI.md") && has("CODEX.md");
     InitWithCli {
         dir: Some(target_dir),
+        project_dir: None,
         force,
         dry_run,
         all: all_entrypoints,
@@ -582,7 +648,11 @@ fn run_init_apply(
         Some(d) => d.clone(),
         None => current_dir.to_path_buf(),
     };
-    let target_dir = std::fs::canonicalize(&target_dir).map_err(error::DecapodError::IoError)?;
+    let target_dir = if target_dir.exists() {
+        std::fs::canonicalize(&target_dir).map_err(error::DecapodError::IoError)?
+    } else {
+        target_dir
+    };
 
     let setup_decapod_root = target_dir.join(".decapod");
     if setup_decapod_root.exists() && !init_with.force {
@@ -766,13 +836,24 @@ pub fn run() -> Result<(), error::DecapodError> {
                 }
                 Some(InitCommand::With(with)) => with,
                 None => {
-                    let target = std::fs::canonicalize(
-                        init_group
-                            .dir
-                            .clone()
-                            .unwrap_or_else(|| current_dir.clone()),
-                    )
-                    .map_err(error::DecapodError::IoError)?;
+                    if init_group.dir.is_some() && init_group.project_dir.is_some() {
+                        return Err(error::DecapodError::ValidationError(
+                            "Use either --dir for an existing directory or --project-dir to create/select a project directory, not both.".to_string(),
+                        ));
+                    }
+                    let target = if let Some(project_dir) = init_group.project_dir.as_ref() {
+                        resolve_or_create_project_dir(
+                            &current_dir,
+                            project_dir,
+                            init_group.dry_run,
+                        )?
+                    } else if let Some(dir) = init_group.dir.as_ref() {
+                        resolve_existing_init_dir(dir)?
+                    } else if io::stdin().is_terminal() {
+                        prompt_init_target_dir(&current_dir)?
+                    } else {
+                        resolve_existing_init_dir(&current_dir)?
+                    };
                     let maybe_cfg = load_project_config_if_present(&target)?;
                     if let Some(cfg) = maybe_cfg {
                         let mut with = if io::stdin().is_terminal() {
@@ -831,6 +912,7 @@ pub fn run() -> Result<(), error::DecapodError> {
                     } else {
                         InitWithCli {
                             dir: Some(target),
+                            project_dir: None,
                             force: init_group.force,
                             dry_run: init_group.dry_run,
                             all: init_group.all,
@@ -851,9 +933,21 @@ pub fn run() -> Result<(), error::DecapodError> {
                 }
             };
 
-            let init_target =
-                std::fs::canonicalize(init_with.dir.clone().unwrap_or_else(|| current_dir.clone()))
-                    .map_err(error::DecapodError::IoError)?;
+            if init_with.dir.is_some() && init_with.project_dir.is_some() {
+                return Err(error::DecapodError::ValidationError(
+                    "Use either --dir for an existing directory or --project-dir to create/select a project directory, not both.".to_string(),
+                ));
+            }
+            let init_target = if let Some(project_dir) = init_with.project_dir.as_ref() {
+                resolve_or_create_project_dir(&current_dir, project_dir, init_with.dry_run)?
+            } else if let Some(dir) = init_with.dir.as_ref() {
+                resolve_existing_init_dir(dir)?
+            } else {
+                resolve_existing_init_dir(&current_dir)?
+            };
+            let mut init_with = init_with;
+            init_with.dir = Some(init_target.clone());
+            init_with.project_dir = None;
             let mut repo_ctx = infer_repo_context(&init_target);
             apply_repo_context_env_overrides(&mut repo_ctx);
             apply_repo_context_cli_overrides(&mut repo_ctx, &init_with);
@@ -863,6 +957,7 @@ pub fn run() -> Result<(), error::DecapodError> {
             let target_dir = run_init_apply(&init_with, &current_dir, &repo_ctx)?;
             let config = config_from_init_with(&init_with, repo_ctx);
             write_project_config(&target_dir, &config, init_with.dry_run)?;
+            seed_init_generated_state(&target_dir, init_with.dry_run)?;
         }
         Command::Session(session_cli) => {
             run_session_command(session_cli)?;
@@ -939,7 +1034,9 @@ pub fn run() -> Result<(), error::DecapodError> {
 
             // Best-effort hygiene: routinely scrub stale git worktree metadata/config.
             // This must not block primary command execution.
-            if let Err(e) = workspace::prune_stale_worktree_config(&project_root) {
+            if let Err(e) = workspace::prune_stale_worktree_config(&project_root)
+                && !is_not_git_repository_error(&e)
+            {
                 eprintln!("warn: worktree maintenance skipped: {e}");
             }
 
@@ -1138,6 +1235,7 @@ fn command_requires_worktree(command: &Command) -> bool {
         | Command::Setup(_)
         | Command::Session(_)
         | Command::Version
+        | Command::Validate(_)
         | Command::Workspace(_)
         | Command::Capabilities(_)
         | Command::Trace(_)
