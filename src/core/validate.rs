@@ -4898,19 +4898,36 @@ pub fn render_validation_report(report: &ValidationReport, verbose: bool) {
         report.elapsed_ms as f64 / 1000.0
     );
 
-    if !report.failures.is_empty() {
+    if !report.failures.is_empty() && verbose {
         println!(
             "  {} {}",
-            "failures".bright_red().bold(),
-            output::preview_messages(&report.failures, 3, 120)
+            "issues".bright_red().bold(),
+            output::preview_messages(&report.failures, 10, 160)
+        );
+    } else if let Some(first_failure) = report.failures.first() {
+        println!(
+            "  {} {} found; first item: {}",
+            "issues".bright_yellow().bold(),
+            report.failures.len().to_string().bright_red(),
+            output::compact_line(first_failure, 120)
+        );
+        println!(
+            "  {} run `decapod validate -v` or `decapod validate --format json` for the full list",
+            "details".bright_blue().bold()
         );
     }
 
-    if !report.warnings.is_empty() {
+    if !report.warnings.is_empty() && verbose {
         println!(
             "  {} {}",
             "warnings".bright_yellow().bold(),
-            output::preview_messages(&report.warnings, 3, 120)
+            output::preview_messages(&report.warnings, 10, 160)
+        );
+    } else if !report.warnings.is_empty() {
+        println!(
+            "  {} {} hidden; use `-v` for warning details",
+            "warnings".bright_yellow().bold(),
+            report.warnings.len().to_string().bright_yellow()
         );
     }
 
@@ -4919,6 +4936,12 @@ pub fn render_validation_report(report: &ValidationReport, verbose: bool) {
             "{} {}",
             "✓".bright_green().bold(),
             "validation passed".bright_green().bold()
+        );
+    } else {
+        println!(
+            "{} {}",
+            "!".bright_yellow().bold(),
+            "validation needs attention".bright_yellow().bold()
         );
     }
 }

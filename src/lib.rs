@@ -3751,17 +3751,25 @@ fn render_validation_text(
 
     validate::render_validation_report(report, verbose);
     if !actions.is_empty() {
-        println!(
-            "  {} {}",
-            "repair".bright_blue().bold(),
-            format!("{} action(s)", actions.len()).bright_white()
-        );
-        for action in actions {
+        if verbose {
             println!(
-                "  {} {} {}",
-                "↺".bright_blue(),
-                action.action.bright_cyan(),
-                action.detail
+                "  {} {}",
+                "repair".bright_blue().bold(),
+                format!("{} action(s)", actions.len()).bright_white()
+            );
+            for action in actions {
+                println!(
+                    "  {} {} {}",
+                    "↺".bright_blue(),
+                    action.action.bright_cyan(),
+                    action.detail
+                );
+            }
+        } else {
+            println!(
+                "  {} {} action(s) applied; use `-v` for repair details",
+                "repair".bright_blue().bold(),
+                actions.len().to_string().bright_white()
             );
         }
     }
@@ -3799,14 +3807,13 @@ fn run_validate_command(
             if validate_cli.format == "json" {
                 println!("{}", serde_json::to_string_pretty(&response).unwrap());
             } else {
-                eprintln!("❌ VALIDATION FAILED: Workspace Protection Gate");
-                eprintln!("   Error: {}", blocker.message);
-                eprintln!("   Hint: {}", blocker.resolve_hint);
+                eprintln!("validation needs attention: workspace protection");
+                eprintln!("  branch: {}", workspace_status.git.current_branch);
+                eprintln!("  reason: {}", blocker.message);
+                eprintln!("  next: {}", blocker.resolve_hint);
             }
 
-            return Err(error::DecapodError::ValidationError(
-                "Workspace protection gate failed".to_string(),
-            ));
+            std::process::exit(1);
         }
     }
 
@@ -3871,10 +3878,7 @@ fn run_validate_command(
     }
 
     if report.fail_count > 0 {
-        return Err(error::DecapodError::ValidationError(format!(
-            "{} test(s) failed after self-heal.",
-            report.fail_count
-        )));
+        std::process::exit(1);
     }
     mark_validation_completed(project_root)?;
     Ok(())
