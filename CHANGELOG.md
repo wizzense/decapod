@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.47.16](https://github.com/DecapodLabs/decapod/compare/v0.47.15...v0.47.16) - 2026-05-03
+
+### Other
+
+- Merge pull request #503 from DecapodLabs/feature/urgent-fixes
+
+### Security
+
+- replace unsafe env::set_var with OnceLock
+
 ## [0.47.15](https://github.com/DecapodLabs/decapod/compare/v0.47.14...v0.47.15) - 2026-05-03
 
 ### Added
