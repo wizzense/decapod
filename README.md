@@ -10,110 +10,87 @@
 </p>
 
 <p align="center">
-  Intent, context, boundary, proof — enforced.<br />
-  The control plane your agent defers to.
+  Install. Init. Use your agent as normal.<br />
+  That's the entire prescription.
 </p>
 
 <p align="center">
   <a href="https://github.com/DecapodLabs/decapod/actions"><img alt="CI" src="https://github.com/DecapodLabs/decapod/actions/workflows/ci.yml/badge.svg"></a>
   <a href="https://crates.io/crates/decapod"><img alt="crates.io" src="https://img.shields.io/crates/v/decapod.svg"></a>
   <a href="https://github.com/DecapodLabs/decapod/blob/master/LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
-  <a href="https://ko-fi.com/decapodlabs"><img alt="Ko-fi" src="https://img.shields.io/badge/Support-Ko--fi-ff5f5f?logo=ko-fi&logoColor=white"></a>
 </p>
 
 ---
 
-## The problem
+## The prescription
 
-Modern AI agents are ungoverned systems:
+```bash
+cargo install decapod
+decapod init
+```
 
-1. **Intent drift** — User says X, agent outputs Y.
-2. **Context explosion** — Full codebase in prompt. Tokens burn.
-3. **Proof-free completion** — "Looks good" = done.
-4. **Boundary violation** — Agent writes to protected branches.
+That's it. Walk away. Use your agent exactly as before.
 
-No controller. No contract. No proof.
+Decapod runs silently. Your agent checks in before:
+
+- Acting — intent
+- Calling the model — context  
+- Committing — proof
+- Touching protected code — boundaries
+
+You never see it. Your agent does all the work.
+
+### The loop
+
+```
+     User
+       │
+       ▼
+    Agent ───────┐
+       │         │
+       │    ┌────▼────┐
+       │    │ Decapod │
+       │    │ (check) │
+       │    └────┬────┘
+       │         │
+       ├────────┤
+       │         │
+    Model    Agent
+       │         │
+       └────┬────┘
+            ▼
+          User
+```
 
 ---
 
-## What Decapod is
+## What Decapod does
 
-The control plane your agent **defers to**:
+1. **Clarifies intent** — What's the goal?
+2. **Bounds context** — Only relevant files.
+3. **Enforces proof** — VERIFIED means gates passed.
+4. **Protects boundaries** — No direct writes to master.
 
-- Before action:   "what's the intent?"
-- Before inference: "what's relevant?"
-- Before commit:  "did this pass?"
+### Your interface
 
-Not another tool. Not a prompt. Not a daemon. Just the layer that holds the agent accountable.
-
-### The governance loop
-
-```
-        ┌─────────┐        ┌─────────┐
-        │  User   │◄───────│  Agent  │
-        └────┬────┘        └────┬────┘
-             │                  │
-             │      ┌───────────▼────┐
-             │      │    Decapod     │◄── Intent?
-             │      │    (govern)    │    Boundary?
-             │      │                │    Context?
-             │      │                │    Proof?
-             │      └────────▲───────┘
-             │               │
-      ┌──────▼─────┐         │    ┌─────────┐
-      │   Agent    │─────────┴────│  Model  │
-      └────────────┘              └─────────┘
-             │                       │
-             └─────────┬─────────────┘
-                       ▼
-                     User
-```
-
-Every action: check intent → resolve context → enforce boundary → verify proof.
-
----
-
-## Why this exists
-
-Agents execute. They don't verify. They generate. They don't validate. They commit. They don't prove.
-
-There's no layer between your agent and your code that enforces:
-
-- Intent before action
-- Context before inference  
-- Proof before commit
-- Boundaries before mutation
-
-That's the gap. That's Decapod.
-
-### Your project interface
-
-Your interface with Decapod is `.decapod/OVERRIDE.md` — plain English overrides to your project:
+Edit `.decapod/OVERRIDE.md` — plain English for your project.
 
 ```text
 .decapod/
-  constitution/             # governance rules
-    core/DECAPOD.md         # core contract
-    interfaces/             # interfaces
-    plugins/                # plugin policies
-  OVERRIDE.md               # YOUR overrides
+  constitution/
+  OVERRIDE.md
 ```
 
-This mounts into your agent's instruction files (`AGENTS.md`, `CLAUDE.md`, `CODEX.md`, `GEMINI.md`) — augmenting what your agent sees without editing the original files.
-
-Your agent doesn't load 50-page specs every session. Decapod resolves only what's relevant, binds it to a session lease, and enforces that the agent use it — not the raw file again.
+Mounts into your agent's AGENTS.md, CLAUDE.md, CODEX.md automatically.
 
 ---
 
 ## What you get
 
-- **Daemonless** — runs on-demand, exits immediately.
-- **Two commands** — install + init. Done.
-- **Agent-agnostic** — Claude, Codex, Gemini, Cursor, any shell-out.
-- **Parallel-safe** — multiple agents, one repo, no collisions.
-- **Proof-gated** — `VERIFIED` means gates passed.
-- **Auditable** — every decision in `.decapod/` as plain files.
-- **Constitutional** — your overrides take precedence.
+- No config. No daemon. No workflow.
+- Install. Init. Done.
+- Production-grade code.
+- Full state in `.decapod/`.
 
 ---
 
@@ -122,28 +99,24 @@ Your agent doesn't load 50-page specs every session. Decapod resolves only what'
 ### Before
 
 ```
-User:  "fix the login bug"
-Agent: [proceeds]
-       → burns tokens on full codebase
-       → generates code
-       → "looks good"
+User: "build auth"
+Agent: [full repo in prompt]
+       → generates
        → commits
 ```
 
 ### After
 
 ```
-User:  "fix the login bug"
-Agent: [checks with Decapod]
-       → intent: clarify login flow?
-       → asks user
-       → generates fix
-Agent: [checks with Decapod]
-       → proof: generated
-       → commits with artifact
+User: "build auth"
+Agent: [Decapod]
+       → intent: auth system
+       → context: src/auth/
+       → generates
+       → [Decapod]
+       → proof: verified
+       → commits
 ```
-
-The difference: **intent → context → code → proof**.
 
 ---
 
@@ -154,20 +127,16 @@ cargo install decapod
 decapod init
 ```
 
-Your workflow doesn't change. The agent calls Decapod. You just use your agent as normal.
+Use whatever agent. Claude. Codex. Gemini. Cursor.
 
 ---
 
 ## Guarantees
 
-Decapod enforces:
-
-1. **Daemonless** — no background process. [tests/daemonless_lifecycle.rs](tests/daemonless_lifecycle.rs)
-2. **Repo-native** — state in `.decapod/`, not external. [src/core/store.rs](src/core/store.rs)
-3. **Proof-gated** — `VERIFIED` only when gates pass. [tests/workunit_publish_gate.rs](tests/workunit_publish_gate.rs)
-4. **Workspace isolation** — no direct protected branch writes. [tests/workspace_interlock.rs](tests/workspace_interlock.rs)
-5. **Bounded validation** — no infinite hangs. [tests/validate_termination.rs](tests/validate_termination.rs)
-6. **Store boundary** — agents use CLI, not direct mutation.
+- **Daemonless** — runs on-demand
+- **Repo-native** — state in `.decapod/`
+- **Proof-gated** — VERIFIED means gates pass
+- **Boundaries enforced** — protected branches locked
 
 ---
 
@@ -176,8 +145,7 @@ Decapod enforces:
 ```bash
 git clone https://github.com/DecapodLabs/decapod
 cd decapod
-cargo build
-cargo test
+cargo build && cargo test
 ```
 
 ---
@@ -186,11 +154,9 @@ cargo test
 
 - [CONTRIBUTING.md](CONTRIBUTING.md)
 - [SECURITY.md](SECURITY.md)
-- [CHANGELOG.md](CHANGELOG.md)
 
 ---
 
 ## Support
 
 - [Issues](https://github.com/DecapodLabs/decapod/issues)
-- [Ko-fi](https://ko-fi.com/decapodlabs)
