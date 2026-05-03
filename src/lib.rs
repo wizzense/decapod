@@ -119,6 +119,23 @@ fn write_project_config(
     Ok(())
 }
 
+fn seed_init_generated_state(target_dir: &Path, dry_run: bool) -> Result<(), error::DecapodError> {
+    if dry_run {
+        return Ok(());
+    }
+
+    let _ = docs_cli::sync_override_checksum(target_dir, false)?;
+    Ok(())
+}
+
+fn is_not_git_repository_error(err: &error::DecapodError) -> bool {
+    matches!(
+        err,
+        error::DecapodError::ValidationError(message)
+            if message.contains("Not in a git repository")
+    )
+}
+
 fn infer_repo_context(target_dir: &Path) -> RepoContext {
     let mut ctx = RepoContext {
         product_name: target_dir
@@ -940,6 +957,7 @@ pub fn run() -> Result<(), error::DecapodError> {
             let target_dir = run_init_apply(&init_with, &current_dir, &repo_ctx)?;
             let config = config_from_init_with(&init_with, repo_ctx);
             write_project_config(&target_dir, &config, init_with.dry_run)?;
+            seed_init_generated_state(&target_dir, init_with.dry_run)?;
         }
         Command::Session(session_cli) => {
             run_session_command(session_cli)?;
@@ -1016,7 +1034,9 @@ pub fn run() -> Result<(), error::DecapodError> {
 
             // Best-effort hygiene: routinely scrub stale git worktree metadata/config.
             // This must not block primary command execution.
-            if let Err(e) = workspace::prune_stale_worktree_config(&project_root) {
+            if let Err(e) = workspace::prune_stale_worktree_config(&project_root)
+                && !is_not_git_repository_error(&e)
+            {
                 eprintln!("warn: worktree maintenance skipped: {e}");
             }
 
