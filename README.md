@@ -83,6 +83,30 @@ Edit `.decapod/OVERRIDE.md` — plain English for your project.
 
 Mounts into your agent's AGENTS.md, CLAUDE.md, CODEX.md automatically.
 
+### The constitution
+
+Decapod ships with an embedded engineering organization:
+
+```text
+.decapod/constitution/
+  core/DECAPOD.md         # core governance contract
+  interfaces/            # interface definitions (CLAIMS, CONTROL_PLANE, etc.)
+  plugins/               # plugin policies (todo, health, eval, federation)
+  specs/                # engineering specifications
+  methodology/           # architectural methodology
+```
+
+This is your entire engineering organization, executable at runtime:
+
+- **CLAIMS** — What's guaranteed and where it's proven
+- **CONTROL_PLANE** — How agents behave  
+- **INTERFACES** — What every subsystem contracts
+- **GATES** — Validation enforcement points
+- **EVALUATION** — Statistical promotion criteria
+- **WORKSPACE** — Isolated agent worktrees
+
+Every rule is deterministic. Every contract is auditable. Your agent doesn't guess — it reads the constitution.
+
 ---
 
 ## What you get
