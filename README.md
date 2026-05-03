@@ -6,13 +6,12 @@
 
 <p align="center">
   <strong>Decapod</strong><br />
-  Governance kernel for AI coding agents.
+  Daemonless, local-first control plane for AI coding agents.
 </p>
 
 <p align="center">
-  AI agents do not fail because they lack tools.<br />
-  They fail because they lose intent, skip dependencies, mutate context unsafely,<br />
-  and return vibes instead of proof.
+  Agents call it on demand to converge on human intent, shape context before inference,<br />
+  enforce boundaries, and deliver proof-backed completion across concurrent multi-agent work.
 </p>
 
 <p align="center">
@@ -38,6 +37,8 @@ That's it. Your workflow doesn't change. Your agent calls Decapod before:
 - Touching protected code — boundaries
 
 Decapod is designed to stay out of the human workflow. The agent checks in. You keep talking to your agent like normal.
+
+> AI agents do not fail because they lack tools. They fail because they lose intent, skip dependencies, mutate context unsafely, and return vibes instead of proof.
 
 ### The loop
 
