@@ -151,16 +151,7 @@ That directory is the proof surface. It can be inspected locally, reviewed in pu
 
 ## Integrations
 
-Decapod works with any shell-capable agent through simple entrypoints:
-
-| Provider | Entrypoint | Required |
-|----------|-----------|----------|
-| Claude Code | `CLAUDE.md` | `decapod session acquire` |
-| Codex | `CODEX.md` | `decapod session acquire` |
-| Gemini CLI | `GEMINI.md` | `decapod session acquire` |
-| Cursor | `CLAUDE.md` | `decapod session acquire` |
-| Kilo | `CLAUDE.md` | `decapod session acquire` |
-| Custom | `AGENTS.md` | `decapod session acquire` |
+Decapod works with Claude Code, Codex, Gemini CLI, Cursor, Kilo, and any shell-capable agent through simple entrypoints.
 
 Each entrypoint calls Decapod at key moments: before acting (intent), before inference (context), before committing (proof), before touching protected code (boundaries).
 
