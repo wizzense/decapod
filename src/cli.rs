@@ -772,6 +772,10 @@ pub(crate) enum Command {
     #[clap(name = "impact")]
     Impact(ImpactCli),
 
+    /// Inference governance: shape context before model, validate after
+    #[clap(name = "infer")]
+    Infer(InferCli),
+
     /// Local trace management
     #[clap(name = "trace")]
     Trace(TraceCli),
@@ -1070,6 +1074,62 @@ pub(crate) struct ImpactCli {
     /// Predict mode: don't actually run gates, just predict
     #[clap(long)]
     pub predict: bool,
+}
+
+#[derive(clap::Args, Debug)]
+pub(crate) struct InferCli {
+    /// Subcommand: init, validate, or budget
+    #[clap(subcommand)]
+    pub command: InferCommand,
+}
+
+#[derive(Subcommand, Debug)]
+pub(crate) enum InferCommand {
+    /// Initialize inference context: returns selected_context, excluded_context, token_budget
+    Init(InferInitCli),
+    /// Validate inference result against intent and proof expectations
+    Validate(InferValidateCli),
+    /// Estimate token budget for a given intent and context
+    Budget(InferBudgetCli),
+}
+
+#[derive(clap::Args, Debug)]
+pub(crate) struct InferInitCli {
+    /// Task intent (what the human asked for)
+    #[clap(long)]
+    pub intent: String,
+    /// Comma-separated list of relevant files/directories to consider
+    #[clap(long)]
+    pub context: Option<String>,
+    /// Format output: json | text
+    #[clap(long, default_value = "json")]
+    pub format: String,
+}
+
+#[derive(clap::Args, Debug)]
+pub(crate) struct InferValidateCli {
+    /// The model output to validate
+    #[clap(long)]
+    pub result: String,
+    /// Original intent
+    #[clap(long)]
+    pub intent: String,
+    /// Format output: json | text
+    #[clap(long, default_value = "json")]
+    pub format: String,
+}
+
+#[derive(clap::Args, Debug)]
+pub(crate) struct InferBudgetCli {
+    /// Task intent
+    #[clap(long)]
+    pub intent: String,
+    /// Files to include in context
+    #[clap(long)]
+    pub context: Option<String>,
+    /// Format output: json | text
+    #[clap(long, default_value = "json")]
+    pub format: String,
 }
 
 #[derive(clap::Args, Debug)]
