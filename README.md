@@ -75,20 +75,20 @@ Every action: check intent → resolve context → enforce boundary → verify p
 
 ## Why this exists
 
-Every generation has its defining infrastructure:
+Every platform shift needs its defining layer:
 
-- **Docker** made containers the unit of deployment.
-- **Rails** made web productive.
-- **Node** made JavaScript universal.
-- **Claude/Claude Code** made agentic coding possible.
+- Containers needed Docker → deployment became unit-based.
+- Web needed Rails → productivity became declarative.
+- JS needed Node → server-side became accessible.
+- Agents need Decapod → governance became explicit.
 
-But nobody built the **governance layer** for agents. The layer that says:
+Before this, agents had tools. After this, agents have **control planes**.
+
+Decapod is the layer that says:
 
 - "Stop. What's the intent?"
 - "Wait. What's in scope?"
 - "Hold on. Did you prove it?"
-
-That's Decapod. The kernel your agent checkpoints with.
 
 ### Your project interface
 
