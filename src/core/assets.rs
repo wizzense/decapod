@@ -311,7 +311,6 @@ These invariants are directly enforced by tests. Violations will cause CI failur
 - **INV-WORKSPACE-ISOLATION**: Protected branches (main/master) MUST NOT be directly mutated. (enforced by workspace validation)
 
 ## Safety Invariants
-
 - ✅ Router pointer: `core/DECAPOD.md`
 - ✅ Validation gate: `decapod validate`
 - ✅ Constitution ingestion gate: `decapod docs ingest`
@@ -321,16 +320,34 @@ These invariants are directly enforced by tests. Violations will cause CI failur
 - ✅ Workspace gate: Docker git workspaces
 - ✅ Privilege gate: request elevated permissions before Docker/container workspace commands
 
+## Universal Agent Operating Contract
+
+**Doctrine:** Establish intent, shape context, bound mutation, and define proof before implementation.
+
+**Before:** Determine what's asked; identify files/modules; define scope; surface assumptions; create dependency-aware todos.
+
+**During:** Avoid opportunistic rewrites; preserve behavior unless task requires change; stop before crossing subsystem boundaries; verify before completion.
+
+**After:** Report what changed, tested, not tested, and uncertainty. Ensure `decapod validate` passes.
+
+## Decapod Governance
+
+Decapod is the repo-native control plane agents call on demand. It reduces wasted inference, prevents scope drift, enforces boundaries, and requires proof-backed completion.
+
+- **The agent performs the work.** Decapod does not implement or decide.
+- **Decapod governs the work.** It validates, tracks, and surfaces convergence proof.
+- **Decapod does not replace agents.** It makes Claude, Codex, OpenCode, Kilo, Pi, Cursor, and others more reliable by absorbing common deficiencies.
+
+Call Decapod before editing. Let Decapod validate after editing.
+
 ## Operating Notes
 
 - Read `.decapod/config.toml` before planning; it captures project name, summary, architecture, primary languages, and agent entrypoint preferences.
 - Treat `.decapod/config.toml` as human-editable project context. You may update it when user intent or project direction changes.
 - Read `.decapod/OVERRIDE.md` when present; it is the repo-local place for constitution overrides.
 - Do not mutate Decapod-owned state under `.decapod/` directly; generated specs, data, workspaces, and sessions stay via decapod CLI.
-- Use `decapod docs show core/DECAPOD.md` and `decapod docs show core/INTERFACES.md` for binding contracts.
-- Use `decapod capabilities --format json` as the authority surface for available operations.
-- Use Decapod shared aptitude memory for human-taught preferences that must persist across sessions and agents: `decapod data memory add|get` (aliases: `decapod data aptitude`).
-- Use `decapod docs search --query \"<problem>\" --op <op> --path <path> --tag <tag>` or `decapod rpc --op context.scope --params '{\"query\":\"...\"}'` for scoped just-in-time constitution context.
+- Use `decapod docs show core/DECAPOD.md` for binding contracts; `decapod capabilities --format json` for available ops.
+- Use `decapod data aptitude` for persistent preferences; `decapod docs search --query \"<problem>\"` for constitution context.
 - Use `decapod todo handoff --id <id> --to <agent>` for cross-agent ownership transfer.
 - Treat lock/contention failures (including `VALIDATE_TIMEOUT_OR_LOCK`) as blocking until resolved.
 "#

@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Check commit messages
@@ -52,7 +52,7 @@ jobs:
     outputs:
       changed: ${{ steps.diff.outputs.changed }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Detect changed migration scripts
@@ -74,7 +74,7 @@ jobs:
     name: Lint (fmt)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 1
       - name: Install Nix
@@ -89,7 +89,7 @@ jobs:
     name: Lint (clippy)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 1
       - name: Install Nix
@@ -110,7 +110,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: setup
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 1
       - name: Restore cache
@@ -119,7 +119,7 @@ jobs:
           shared-key: "ci-build"
           save-if: "false"
       - name: Download shared decapod binary
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: decapod-debug-linux-${{ github.sha }}
           path: target/debug
@@ -164,7 +164,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 1
           submodules: recursive
@@ -220,7 +220,7 @@ jobs:
     name: Setup & Build Shared Binary
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -242,7 +242,7 @@ jobs:
       - name: Compile shared decapod binary
         run: cargo build --all-features --bin decapod
       - name: Upload shared decapod binary
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v8
         with:
           name: decapod-debug-linux-${{ github.sha }}
           path: target/debug/decapod
@@ -260,7 +260,7 @@ jobs:
       matrix:
         target: [core, plugins, cli, integration]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 1
       - name: Install LLD
@@ -336,7 +336,7 @@ jobs:
     needs: setup
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 1
       - name: Install LLD
@@ -357,7 +357,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: setup
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 1
       - name: Install Nix
@@ -370,7 +370,7 @@ jobs:
           shared-key: "ci-build"
           save-if: "false"
       - name: Download shared decapod binary
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: decapod-debug-linux-${{ github.sha }}
           path: target/debug
@@ -385,7 +385,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: setup
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 1
       - name: Install LLD
@@ -398,7 +398,7 @@ jobs:
           shared-key: "ci-build"
           save-if: "false"
       - name: Download shared decapod binary
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: decapod-debug-linux-${{ github.sha }}
           path: target/debug
@@ -413,7 +413,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: setup
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 1
       - name: Install LLD
@@ -426,7 +426,7 @@ jobs:
           shared-key: "ci-build"
           save-if: "false"
       - name: Download shared decapod binary
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: decapod-debug-linux-${{ github.sha }}
           path: target/debug
@@ -441,7 +441,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: setup
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 1
       - name: Install LLD
@@ -454,7 +454,7 @@ jobs:
           shared-key: "ci-build"
           save-if: "false"
       - name: Download shared decapod binary
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: decapod-debug-linux-${{ github.sha }}
           path: target/debug
@@ -474,7 +474,7 @@ jobs:
     needs: [setup, detect-migration-script-changes]
     if: github.event_name == 'pull_request' && needs.detect-migration-script-changes.outputs.changed == 'true'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 1
       - name: Install LLD
@@ -487,7 +487,7 @@ jobs:
           shared-key: "ci-build"
           save-if: "false"
       - name: Download shared decapod binary
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: decapod-debug-linux-${{ github.sha }}
           path: target/debug
@@ -504,7 +504,7 @@ jobs:
     if: github.ref == 'refs/heads/master'
     needs: [fmt, clippy, test, test-rpc-suite, chaos-replay, daemonless-lifecycle, contracts, health]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 1
       - name: Install LLD
@@ -519,7 +519,7 @@ jobs:
       - name: Build release
         run: cargo build --release --locked
       - name: Upload binary
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v8
         with:
           name: decapod-${{ github.sha }}
           path: target/release/decapod
