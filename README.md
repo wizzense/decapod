@@ -10,8 +10,9 @@
 </p>
 
 <p align="center">
-  Install. Init. Use your agent as normal.<br />
-  That's the entire prescription.
+  AI agents do not fail because they lack tools.<br />
+  They fail because they lose intent, skip dependencies, mutate context unsafely,<br />
+  and return vibes instead of proof.
 </p>
 
 <p align="center">
@@ -29,16 +30,14 @@ cargo install decapod
 decapod init
 ```
 
-That's it. Walk away. Use your agent exactly as before.
-
-Decapod runs silently. Your agent checks in before:
+That's it. Your workflow doesn't change. Your agent calls Decapod before:
 
 - Acting — intent
 - Calling the model — context  
 - Committing — proof
 - Touching protected code — boundaries
 
-You never see it. Your agent does all the work.
+Decapod is designed to stay out of the human workflow. The agent checks in. You keep talking to your agent like normal.
 
 ### The loop
 
@@ -53,7 +52,7 @@ You never see it. Your agent does all the work.
        │    │ (check) │
        │    └────┬────┘
        │         │
-       ├──── ────┤
+       ├────────┤
        │         │
     Model    Agent
        │         │
@@ -71,28 +70,50 @@ You never see it. Your agent does all the work.
 3. **Enforces proof** — VERIFIED means gates passed.
 4. **Protects boundaries** — No direct writes to master.
 
-Decapoid resolves only what's relevant to the user's intent — no context poisoning. Your agent gets surgical context, not the entire codebase.
+Decapod resolves only what's relevant to the user's intent — no context poisoning. Your agent gets surgical context, not the entire codebase.
 
-### The constitution (embedded)
+### The constitution
 
-Your agent carries the entire software industry in its head.
+Decapod ships with an embedded engineering constitution.
 
-94 documents. Architecture. Security. Performance. Testing. Knowledge graphs. Claims. Proof surfaces. Interfaces. Evaluation criteria. Workflows. Everything you've spent decades building into your engineering org — now code-executable.
+94 documents covering architecture, security, performance, testing, knowledge graphs, claims, proof surfaces, interfaces, evaluation criteria, and workflows. Everything an engineering org usually keeps in scattered docs, tribal memory, and review culture becomes executable guidance your agent can consult.
 
-> Decapod was built months before ETH Zurich proved that AI coding agents waste context on irrelevant files. We've been doing this since before it was a research paper. — [arXiv:2602.11988](https://arxiv.org/pdf/2602.11988)
+> Recent research has confirmed what Decapod was built around from the start: AI coding agents waste significant context on irrelevant files. — [arXiv:2602.11988](https://arxiv.org/pdf/2602.11988)
 
-Your agent doesn't guess. It reads the constitution. It cites claim IDs. It follows enforced gates. It produces proof.
+Your agent doesn't guess. It reads the constitution. It cites claim IDs. It follows gates. It produces proof. You just talk to your agent.
 
-You just talk to your agent.
+---
+
+## Proof lives in the repo
+
+Decapod does not ask you to trust an agent transcript.
+
+Every run leaves its operational evidence in `.decapod/`:
+
+- captured intent
+- resolved context  
+- generated specs
+- todo state
+- dependency structure
+- boundary decisions
+- verification results
+- proof artifacts
+
+That directory is the proof surface. It can be inspected locally, reviewed in pull requests, archived with the codebase, and used by the next agent invocation to re-establish state.
+
+No dashboard. No daemon. No hidden memory.
+
+**The repo remembers.**
 
 ---
 
 ## What you get
 
-- No config. No daemon. No workflow.
-- Install. Init. Done.
-- Production-grade code.
-- Full state stored locally in `.decapod/`.
+- No daemon.
+- No SaaS control plane.
+- No hidden agent memory.
+- Full operational state stored locally in `.decapod/`.
+- Proof your team can inspect, diff, review, and commit.
 
 ---
 
