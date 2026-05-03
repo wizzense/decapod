@@ -73,25 +73,7 @@ You never see it. Your agent does all the work.
 
 ### The constitution (embedded)
 
-Decapod ships with an embedded engineering organization:
-
-```
-constitution/
-  core/         # DECAPOD.md, ENGINEERING_EXCELLENCE.md, GAPS.md
-  interfaces/   # CLAIMS.md, CONTROL_PLANE.md, LCM.md
-  plugins/      # TODO.md, HEALTH.md, FEDERATION.md
-  specs/        # engineering standards
-  architecture/ # FRONTEND.md, BACKEND.md, SECURITY.md
-  methodology/ # engineering methodology
-```
-
-This is your entire engineering organization, code:
-
-- **CLAIMS** — Guarantees and proof surfaces
-- **INTERFACES** — Subsystem contracts  
-- **GATES** — Validation enforcement
-- **WORKSPACE** — Agent isolation
-- Every rule is deterministic.
+Your agent reads the constitution automatically. You don't see it. You don't configure it. Just talk to your agent.
 
 ---
 
