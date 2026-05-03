@@ -1887,12 +1887,160 @@ fn auto_acquire_session(project_root: &Path, agent_id: &str) -> Result<(), error
     Ok(())
 }
 
+use crate::core::migration;
+use crate::core::migration::DECAPOD_VERSION;
+
+fn check_and_update_version() -> Result<bool, error::DecapodError> {
+    let current_version = DECAPOD_VERSION;
+    
+    // Skip check if curl not available (treat all errors as skip)
+    match std::process::Command::new("curl").arg("--version").output() {
+        Ok(o) if !o.status.success() => return Ok(false),
+        Err(_) => return Ok(false),
+        _ => {}
+    }
+    
+    let latest_version = match fetch_latest_crates_version() {
+        Ok(v) => v,
+        Err(_) => return Ok(false),
+    };
+    
+    if version_gt(&latest_version, current_version) {
+        eprintln!("{} Decapod v{} → v{}, updating...",
+            "⚠".bright_yellow(), current_version, latest_version);
+        
+        let _ = backup_decapod_state(); // Best effort
+        
+        // Skip if cargo not available
+        match std::process::Command::new("cargo").arg("--version").output() {
+            Ok(o) if !o.status.success() => {
+                eprintln!("{} cargo not available, skipping update",
+                    "⚠".bright_yellow());
+                return Ok(false);
+            }
+            Err(_) => return Ok(false),
+            _ => {}
+        }
+        
+        if install_decapod().is_ok() {
+            eprintln!("{} Updated to v{}. Re-run session acquire.",
+                "✓".bright_green(), latest_version);
+            return Ok(true);
+        }
+    }
+    
+    Ok(false)
+}
+
+fn fetch_latest_crates_version() -> Result<String, error::DecapodError> {
+    let output = std::process::Command::new("curl")
+        .args(["-s", "https://crates.io/api/v1/crates/decapod"])
+        .output()
+        .map_err(|e| error::DecapodError::ValidationError(
+            format!("Failed to check version: {}", e)))?;
+    
+    if !output.status.success() {
+        return Err(error::DecapodError::ValidationError(
+            "Failed to fetch latest version".to_string()));
+    }
+    
+    let json: serde_json::Value = serde_json::from_slice(&output.stdout)
+        .map_err(|e| error::DecapodError::ValidationError(
+            format!("Invalid response: {}", e)))?;
+    
+    json.get("version")
+        .and_then(|v| v.get("num"))
+        .and_then(|n| n.as_str())
+        .map(|s| s.to_string())
+        .ok_or_else(|| error::DecapodError::ValidationError(
+            "Could not parse version".to_string()))
+}
+
+fn version_gt(new: &str, current: &str) -> bool {
+    let new_parts: Vec<u32> = new.split('.').filter_map(|p| p.parse().ok()).collect();
+    let cur_parts: Vec<u32> = current.split('.').filter_map(|p| p.parse().ok()).collect();
+    
+    for i in 0..new_parts.len().max(cur_parts.len()) {
+        let new_p = new_parts.get(i).unwrap_or(&0);
+        let cur_p = cur_parts.get(i).unwrap_or(&0);
+        if new_p > cur_p { return true; }
+        if new_p < cur_p { return false; }
+    }
+    false
+}
+
+fn backup_decapod_state() -> Result<(), error::DecapodError> {
+    let current_dir = std::env::current_dir()?;
+    let project_root = find_decapod_project_root(&current_dir)?;
+    let decapod_dir = project_root.join(".decapod");
+    
+    if !decapod_dir.exists() {
+        return Ok(());
+    }
+    
+    let backup_dir = decapod_dir.join("backups");
+    fs::create_dir_all(&backup_dir).map_err(error::DecapodError::IoError)?;
+    
+    let timestamp = std::time::SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map_err(error::DecapodError::IoError)?
+        .as_secs();
+    let backup_name = format!("backup_{}_{}", DECAPOD_VERSION, timestamp);
+    let backup_path = backup_dir.join(&backup_name);
+    
+    let mut backup_file = fs::File::create(&backup_path)
+        .map_err(error::DecapodError::IoError)?;
+    
+    let override_path = decapod_dir.join("OVERRIDE.md");
+    let overrides = if override_path.exists() {
+        fs::read_to_string(&override_path).unwrap_or_default()
+    } else {
+        String::new()
+    };
+    
+    let now = std::time::SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map_err(error::DecapodError::IoError)?
+        .as_secs();
+    let content = format!("# Backup at {} v{}\n# OVERRIDE.md\n{}\n", 
+        now, DECAPOD_VERSION, overrides);
+    
+    use std::io::Write;
+    backup_file.write_all(content.as_bytes())?;
+    
+    Ok(())
+}
+
+fn install_decapod() -> Result<(), error::DecapodError> {
+    let output = std::process::Command::new("cargo")
+        .args(["install", "decapod"])
+        .output()
+        .map_err(|e| error::DecapodError::ValidationError(
+            format!("Failed to install: {}", e)))?;
+    
+    if !output.status.success() {
+        let err = String::from_utf8_lossy(&output.stderr);
+        return Err(error::DecapodError::ValidationError(
+            format!("Install failed: {}", err)));
+    }
+    
+    Ok(())
+}
+
 fn run_session_command(session_cli: SessionCli) -> Result<(), error::DecapodError> {
     let current_dir = std::env::current_dir()?;
     let project_root = find_decapod_project_root(&current_dir)?;
     let store_root = project_root.join(".decapod").join("data");
     fs::create_dir_all(&store_root).map_err(error::DecapodError::IoError)?;
     let _ = cleanup_expired_sessions(&project_root, &store_root)?;
+
+    // Check and update version on session acquire
+    if matches!(session_cli.command, SessionCommand::Acquire) {
+        if let Ok(true) = check_and_update_version() {
+            eprintln!("{} Restart Session: decapod session acquire",
+                "→".bright_cyan());
+        }
+    }
 
     match session_cli.command {
         SessionCommand::Acquire => {
