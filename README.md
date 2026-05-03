@@ -6,7 +6,7 @@
 
 <p align="center">
   <strong>Decapod</strong><br />
-  Daemonless, repo-native control plane for AI coding agents.
+  Daemonless, repo-native governance kernel for AI coding agents.
 </p>
 
 <p align="center">
@@ -73,6 +73,30 @@ Decapod is designed to stay out of the human workflow. The agent checks in. You 
 
 Decapod resolves only what's relevant to the user's intent — no context poisoning. Your agent gets surgical context, not the entire constitution.
 
+---
+
+## Agent workbenches improve the session. Decapod improves the shared substrate.
+
+- **Agents act in private context; Decapod makes their work public to the repo.**
+- A task started by one agent provider should be understandable, auditable, or resumable by another. The source of truth lives in `.decapod/`, not in chat history, IDE state, or provider memory.
+- The durable parts of agentic work—intent, resolved context, boundaries, todos, specs, validation, proof artifacts—become repo-native operational knowledge.
+
+Decapod absorbs agent deficiencies: ambiguity, context waste, boundary drift, forgotten dependencies, unsafe mutation, and unverifiable "done."
+
+### The shared substrate
+
+```
+decapod/
+  generated/
+    specs/           # INTENT.md, ARCHITECTURE.md, etc.
+    context/        # deterministic context capsules
+    artifacts/      # proof artifacts, provenance
+  governance/      # todos, claims, workunits
+  data/            # durable state
+```
+
+This is what persists. Not the chat transcript.
+
 ### The constitution
 
 Decapod ships with an embedded engineering constitution.
@@ -98,24 +122,35 @@ Your overrides augment the constitution automatically.
 
 ## Proof lives in the repo
 
-Decapod does not ask you to trust an agent transcript.
-
 Every run leaves its operational evidence in `.decapod/`:
 
-- captured intent
-- resolved context  
-- generated specs
-- todo state
-- dependency structure
-- boundary decisions
-- verification results
-- proof artifacts
+- captured intent → `generated/specs/INTENT.md`
+- resolved context → `generated/context/`
+- todos and dependencies → `governance/todos.jsonl`
+- verification results → `generated/artifacts/`
+- proof artifacts → `generated/artifacts/provenance/`
 
 That directory is the proof surface. It can be inspected locally, reviewed in pull requests, archived with the codebase, and used by the next agent invocation to re-establish state.
 
-No dashboard. No daemon. No hidden memory.
+**The repo remembers. Chat history doesn't.**
 
-**The repo remembers.**
+---
+
+## Integrations
+
+Decapod works with any shell-capable agent through simple entrypoints:
+
+| Provider | Entrypoint | Required |
+|----------|-----------|----------|
+| Claude Code | `CLAUDE.md` | `decapod session acquire` |
+| Codex | `CODEX.md` | `decapod session acquire` |
+| Gemini CLI | `GEMINI.md` | `decapod session acquire` |
+| Cursor | `CLAUDE.md` | `decapod session acquire` |
+| Custom | `AGENTS.md` | `decapod session acquire` |
+
+Each entrypoint calls Decapod at key moments: before acting (intent), before inference (context), before committing (proof), before touching protected code (boundaries).
+
+See [constitution/core/ENGINEERING_EXCELLENCE.md](constitution/core/ENGINEERING_EXCELLENCE.md) for the full operational contract.
 
 ---
 
