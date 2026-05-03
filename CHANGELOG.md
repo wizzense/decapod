@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.47.21](https://github.com/DecapodLabs/decapod/compare/v0.47.20...v0.47.21) - 2026-05-03
+
+### Other
+
+- soften expected gate failure output
+
 ## [0.47.20](https://github.com/DecapodLabs/decapod/compare/v0.47.19...v0.47.20) - 2026-05-03
 
 ### Added
