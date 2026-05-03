@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.47.20](https://github.com/DecapodLabs/decapod/compare/v0.47.19...v0.47.20) - 2026-05-03
+
+### Added
+
+- Add enhanced prompts for init
+- Add language prompt to init questions
+
+### Other
+
+- Merge pull request #512 from DecapodLabs/agent/docs/readme-portability
+- surface project context in agent entrypoints
+- Add config.toml explanation in README
+- Remove RPC instructions, keep init simple
+- Document init questions and scaffold RPC flow
+- Add Kilo to universal agent contract
+- Simplify to lighter agent sentence
+- Simplify integrations to comma-separated sentence
+- Fix formatting in README.md
+- Add Kilo and Agent Workbench Gaps section
+- Sharpen README with portability and integration sections
+
 ## [0.47.19](https://github.com/DecapodLabs/decapod/compare/v0.47.18...v0.47.19) - 2026-05-03
 
 ### Added
