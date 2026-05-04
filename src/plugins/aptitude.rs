@@ -660,7 +660,7 @@ fn repo_root_from_store(store: &Store) -> Result<PathBuf, error::DecapodError> {
         .map(Path::to_path_buf)
         .ok_or_else(|| {
             error::DecapodError::ValidationError(
-                "unable to resolve repo root from store root".to_string(),
+                format!("AUTOREMEDIABLE_VALIDATION_ERROR code=UNABLE_RESOLVE_REPO_ROOT severity=transient auto_remediable=true audience=agent agent_action=\"ensure the store root contains a valid repository and adjust path if needed\" user_note=\"Cannot resolve repository root from store root; the agent should verify the directory layout.\"\nUnable to resolve repo root from store root"),
             )
         })
 }
@@ -677,7 +677,7 @@ fn parse_skill_md_frontmatter(raw: &str) -> Result<(String, Option<String>), err
     let mut lines = raw.lines();
     if lines.next().map(str::trim) != Some("---") {
         return Err(error::DecapodError::ValidationError(
-            "SKILL.md missing YAML frontmatter start '---'".to_string(),
+            format!("AUTOREMEDIABLE_VALIDATION_ERROR code=SKILL_MISSING_FRONTMATTER severity=transient auto_remediable=true audience=agent agent_action=\"ensure SKILL.md starts with YAML frontmatter delimiter '---'\" user_note=\"SKILL.md missing frontmatter start delimiter; the agent should add the required '---' line at the beginning of the file.\"\nSKILL.md missing YAML frontmatter start '---'"),
         ));
     }
     let mut name: Option<String> = None;
@@ -694,7 +694,7 @@ fn parse_skill_md_frontmatter(raw: &str) -> Result<(String, Option<String>), err
         }
     }
     let name = name.ok_or_else(|| {
-        error::DecapodError::ValidationError("SKILL.md frontmatter missing 'name'".to_string())
+        error::DecapodError::ValidationError(format!("AUTOREMEDIABLE_VALIDATION_ERROR code=SKILL_MISSING_NAME severity=transient auto_remediable=true audience=agent agent_action=\"add a 'name' field to SKILL.md frontmatter\" user_note=\"SKILL.md frontmatter missing required 'name' field; the agent should include a name entry.\"\nSKILL.md frontmatter missing 'name'"))
     })?;
     Ok((name, description))
 }
@@ -816,7 +816,7 @@ pub fn import_skill_md(
     };
     add_skill(store, input)?;
     let skill = get_skill(store, &name)?.ok_or_else(|| {
-        error::DecapodError::ValidationError("skill import did not persist".to_string())
+        error::DecapodError::ValidationError(format!("AUTOREMEDIABLE_VALIDATION_ERROR code=SKILL_IMPORT_FAIL severity=transient auto_remediable=true audience=agent agent_action=\"ensure skill import persists correctly, verify file writes\" user_note=\"Skill import failed to persist; the agent should retry or investigate file system issues.\"\nskill import did not persist"))
     })?;
 
     if !write_card {
