@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.47.27](https://github.com/DecapodLabs/decapod/compare/v0.47.26...v0.47.27) - 2026-05-04
+
+### Other
+
+- add init+validate green field integration tests
+
 ## [0.47.26](https://github.com/DecapodLabs/decapod/compare/v0.47.25...v0.47.26) - 2026-05-04
 
 ### Fixed
