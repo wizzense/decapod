@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.47.23](https://github.com/DecapodLabs/decapod/compare/v0.47.22...v0.47.23) - 2026-05-04
+
+### Added
+
+- update Rust deps, GitHub Actions, and enhance AGENTS.md
+
+### Fixed
+
+- keep agent template within validation limit
+
+### Other
+
+- Merge pull request #516 from DecapodLabs/feat/update-deps-agents-contract
+- fix artifact upload action pin
+
 ## [0.47.22](https://github.com/DecapodLabs/decapod/compare/v0.47.21...v0.47.22) - 2026-05-04
 
 ### Other
