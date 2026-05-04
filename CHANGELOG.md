@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.47.24](https://github.com/DecapodLabs/decapod/compare/v0.47.23...v0.47.24) - 2026-05-04
+
+### Other
+
+- Improve validation diagnostics and branch gates
+
 ## [0.47.23](https://github.com/DecapodLabs/decapod/compare/v0.47.22...v0.47.23) - 2026-05-04
 
 ### Added
