@@ -30,7 +30,7 @@ impl ContextManager {
         let config = if config_path.exists() {
             let content = fs::read_to_string(config_path).map_err(error::DecapodError::IoError)?;
             serde_json::from_str(&content)
-                .map_err(|e| error::DecapodError::ValidationError(format!("AUTOREMEDIABLE_VALIDATION_ERROR code=CONTEXT_CONFIG_PARSE severity=transient auto_remediable=true audience=agent agent_action=\"verify the CONTEXT.json syntax and schema\" user_note=\"Context configuration parse error; the agent should correct the JSON format.\"\n{}", e.to_string())))?
+                .map_err(|e| error::DecapodError::ValidationError(format!("AUTOREMEDIABLE_VALIDATION_ERROR code=CONTEXT_CONFIG_PARSE severity=transient auto_remediable=true audience=agent agent_action=\"verify the CONTEXT.json syntax and schema\" user_note=\"Context configuration parse error; the agent should correct the JSON format.\"\n{}", e)))?
         } else {
             Self::default_config()
         };
@@ -209,7 +209,7 @@ Archive ID: {}
             .find(|a| a.id == archive_id)
             .ok_or_else(|| {
                 error::DecapodError::ValidationError(format!(
-                    "AUTOREMEDIABLE_VALIDATION_ERROR code=CONTEXT_ARCHIVE_NOT_FOUND severity=transient auto_remediable=true audience=agent agent_action=\"verify the archive ID '{}' exists using \`decapod context archive list\`\" user_note=\"The requested archive was not found; the agent should check available archives.\"\nArchive '{}' not found",
+                    "AUTOREMEDIABLE_VALIDATION_ERROR code=CONTEXT_ARCHIVE_NOT_FOUND severity=transient auto_remediable=true audience=agent agent_action=\"verify the archive ID '{}' exists using `decapod context archive list`\" user_note=\"The requested archive was not found; the agent should check available archives.\"\nArchive '{}' not found",
                     archive_id, archive_id
                 ))
             })?;
@@ -229,8 +229,7 @@ Archive ID: {}
             );
             return Err(error::DecapodError::ValidationError(format!(
                 "AUTOREMEDIABLE_VALIDATION_ERROR code=CONTEXT_RESTORE_BUDGET_EXCEEDED severity=transient auto_remediable=true audience=agent agent_action=\"adjust the restore plan to fit within the '{}' profile's token budget\" user_note=\"Restore blocked because the token budget would be exceeded; the agent should either reduce added tokens or inform the user of the budget limit.\"\nRestore blocked: budget exceeded ({} + {} > {})",
-                profile_name,
-                current_tokens, added_tokens, profile.budget_tokens
+                profile_name, current_tokens, added_tokens, profile.budget_tokens
             )));
         }
 
