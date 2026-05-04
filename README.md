@@ -10,8 +10,8 @@
 </p>
 
 <p align="center">
-  Agents call Decapod on demand to turn intent into bounded context,<br />
-  bounded context into specifications, and finished work into proof.
+  Agents call Decapod on demand to turn intent into context, then context into explicit specifications before inference,<br />
+  and finished work into proof.
 </p>
 
 <p align="center">

@@ -84,6 +84,47 @@ struct WorkspaceSpec {
     backend: String,
 }
 
+fn auto_remediable_validation_error(
+    code: &str,
+    message: impl AsRef<str>,
+    next_action: &str,
+) -> error::DecapodError {
+    error::DecapodError::ValidationError(format!(
+        "AUTOREMEDIABLE_VALIDATION_ERROR code={} severity=transient auto_remediable=true next_action=\"{}\"\n{}",
+        code,
+        next_action,
+        message.as_ref()
+    ))
+}
+
+fn classify_container_failure(stdout: &str, stderr: &str) -> (&'static str, &'static str) {
+    let combined = format!("{}\n{}", stdout, stderr).to_lowercase();
+    if combined.contains("permission denied")
+        || combined.contains("operation not permitted")
+        || combined.contains("index.lock")
+    {
+        (
+            "container_workspace_permission_denied",
+            "Retry from a Decapod worktree with a writable workspace, or disable host-user mapping only when host cleanup is acceptable.",
+        )
+    } else if combined.contains("refusing to fetch into branch") {
+        (
+            "container_branch_sync_checked_out",
+            "Retry with a dedicated work branch that is not checked out in the host repository, then let Decapod fold the branch back.",
+        )
+    } else if combined.contains("invalid linker name") || combined.contains("-fuse-ld=lld") {
+        (
+            "rust_toolchain_linker_config",
+            "Clear RUSTFLAGS and set CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER=cc, or run inside the repo's Nix development shell.",
+        )
+    } else {
+        (
+            "container_command_failed",
+            "Inspect stdout/stderr, apply the suggested fix, and rerun the same Decapod container command.",
+        )
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct RunSummary {
     pub value: serde_json::Value,
@@ -228,15 +269,20 @@ fn run_container(
             let message = "No container runtime found (docker/podman).\n\
 Please install Docker or Podman.\n\
 Warning: without isolated containers, concurrent agents can step on each other.";
-            return Err(error::DecapodError::ValidationError(message.to_string()));
+            return Err(auto_remediable_validation_error(
+                "container_runtime_missing",
+                message,
+                "Install Docker or Podman, start the runtime, then retry the Decapod container command.",
+            ));
         }
     };
     clear_container_runtime_override(&repo)?;
     if container_runtime_disabled(&repo)? {
-        return Err(error::DecapodError::ValidationError(
+        return Err(auto_remediable_validation_error(
+            "container_runtime_override_disabled",
             "Container subsystem is disabled by .decapod/OVERRIDE.md even though a runtime is available. \
-Clear the disable marker or let Decapod self-heal the override file before retrying."
-                .to_string(),
+Clear the disable marker or let Decapod self-heal the override file before retrying.",
+            "Run `decapod validate` once to allow self-heal, or remove the container disable marker through Decapod.",
         ));
     }
 
@@ -281,10 +327,14 @@ Clear the disable marker or let Decapod self-heal the override file before retry
             if !keep_worktree {
                 let _ = cleanup_workspace_clone(&workspace.path);
             }
-            error::DecapodError::ValidationError(format!(
-                "container runtime terminated before normal completion: {}\n{}",
-                exec_err, sync_msg
-            ))
+            auto_remediable_validation_error(
+                "container_runtime_terminated",
+                format!(
+                    "container runtime terminated before normal completion: {}\n{}",
+                    exec_err, sync_msg
+                ),
+                "Retry the same command after addressing the runtime or sync diagnostic below.",
+            )
         },
     )?;
     let elapsed = start.elapsed().as_secs();
@@ -346,12 +396,17 @@ Clear the disable marker or let Decapod self-heal the override file before retry
     if !output.status.success() {
         let stdout = String::from_utf8_lossy(&output.stdout);
         let stderr = String::from_utf8_lossy(&output.stderr);
-        return Err(error::DecapodError::ValidationError(format!(
-            "Container command failed (exit {:?})\nstdout:\n{}\nstderr:\n{}",
-            output.status.code(),
-            stdout.trim(),
-            stderr.trim()
-        )));
+        let (code, next_action) = classify_container_failure(&stdout, &stderr);
+        return Err(auto_remediable_validation_error(
+            code,
+            format!(
+                "Container command failed (exit {:?})\nstdout:\n{}\nstderr:\n{}",
+                output.status.code(),
+                stdout.trim(),
+                stderr.trim()
+            ),
+            next_action,
+        ));
     }
     if let Some(err) = cleanup_err {
         return Err(err);
@@ -382,10 +437,11 @@ fn execute_container_with_timeout(
         }
         if start.elapsed() > timeout {
             let _ = child.kill();
-            return Err(error::DecapodError::ValidationError(format!(
-                "Container command timed out after {}s",
-                timeout_seconds
-            )));
+            return Err(auto_remediable_validation_error(
+                "container_command_timeout",
+                format!("Container command timed out after {}s", timeout_seconds),
+                "Increase --timeout-seconds for expected long runs, or inspect the command for a lock/deadlock before retrying.",
+            ));
         }
         std::thread::sleep(Duration::from_millis(250));
     }
@@ -582,16 +638,20 @@ fn ensure_container_runtime_access(runtime: &str) -> Result<(), error::DecapodEr
         "Runtime preflight failed. Verify Docker/Podman daemon availability and user permissions, then retry."
     };
 
-    Err(error::DecapodError::ValidationError(format!(
-        "Container runtime preflight failed.\n\
+    Err(auto_remediable_validation_error(
+        "container_runtime_preflight_failed",
+        format!(
+            "Container runtime preflight failed.\n\
 runtime: {}\n\
 probe: `{}`\n\
 {}\n\
 context: {}, DOCKER_HOST={}, XDG_RUNTIME_DIR={}\n\
 stderr:\n{}\n\
 stdout:\n{}",
-        runtime, "info", remediation, uid, docker_host, xdg_runtime_dir, stderr, stdout
-    )))
+            runtime, "info", remediation, uid, docker_host, xdg_runtime_dir, stderr, stdout
+        ),
+        remediation,
+    ))
 }
 
 fn push_branch_to_origin(repo: &Path, branch: &str) -> Result<(), error::DecapodError> {
@@ -672,12 +732,16 @@ fn ensure_local_alpine_image(runtime: &str, repo: &Path) -> Result<String, error
         .output()
         .map_err(error::DecapodError::IoError)?;
     if !output.status.success() {
-        return Err(error::DecapodError::ValidationError(format!(
-            "Failed to build local alpine image '{}'\nstdout:\n{}\nstderr:\n{}",
-            image_tag,
-            String::from_utf8_lossy(&output.stdout).trim(),
-            String::from_utf8_lossy(&output.stderr).trim()
-        )));
+        return Err(auto_remediable_validation_error(
+            "container_image_build_failed",
+            format!(
+                "Failed to build local alpine image '{}'\nstdout:\n{}\nstderr:\n{}",
+                image_tag,
+                String::from_utf8_lossy(&output.stdout).trim(),
+                String::from_utf8_lossy(&output.stderr).trim()
+            ),
+            "Fix Dockerfile/package resolution for the local image, then retry the container run.",
+        ));
     }
 
     Ok(image_tag)
@@ -719,7 +783,14 @@ fn dockerfile_template_schema_component() -> DockerfileTemplateSchemaComponent {
         generator: "container::generated_dockerfile_for_repo",
         regenerate_hint: "decapod auto container run --image-profile alpine",
         base_images,
-        required_packages: vec!["git", "openssh-client", "ca-certificates", "bash", "curl"],
+        required_packages: vec![
+            "git",
+            "openssh-client",
+            "ca-certificates",
+            "bash",
+            "curl",
+            "coreutils",
+        ],
         stack_packages,
         extra_packages_env: "DECAPOD_CONTAINER_APK_PACKAGES",
     }
@@ -921,10 +992,14 @@ fn sync_workspace_branch_to_host_repo(
 ) -> Result<(), error::DecapodError> {
     let branch_ref = format!("refs/heads/{}", branch);
     if !git_ref_exists(workspace, &branch_ref)? {
-        return Err(error::DecapodError::ValidationError(format!(
-            "workspace branch '{}' does not exist; cannot sync back to host repo",
-            branch
-        )));
+        return Err(auto_remediable_validation_error(
+            "container_workspace_branch_missing",
+            format!(
+                "workspace branch '{}' does not exist; cannot sync back to host repo",
+                branch
+            ),
+            "Retry with a freshly prepared Decapod workspace; the previous workspace did not retain the expected branch.",
+        ));
     }
 
     let workspace_str = workspace.to_str().ok_or_else(|| {
@@ -959,17 +1034,25 @@ fn sync_workspace_branch_to_host_repo(
         if pull_output.status.success() {
             return Ok(());
         }
-        return Err(error::DecapodError::ValidationError(format!(
-            "failed fast-forwarding checked-out branch '{}' from workspace '{}': {}",
-            branch,
-            workspace.display(),
-            String::from_utf8_lossy(&pull_output.stderr).trim()
-        )));
+        return Err(auto_remediable_validation_error(
+            "container_branch_sync_checked_out",
+            format!(
+                "failed fast-forwarding checked-out branch '{}' from workspace '{}': {}",
+                branch,
+                workspace.display(),
+                String::from_utf8_lossy(&pull_output.stderr).trim()
+            ),
+            "Check out a different host branch or use a dedicated Decapod worktree, then retry branch foldback.",
+        ));
     }
-    Err(error::DecapodError::ValidationError(format!(
-        "failed syncing workspace branch '{}' back to host repo: {}",
-        branch, stderr
-    )))
+    Err(auto_remediable_validation_error(
+        "container_branch_sync_failed",
+        format!(
+            "failed syncing workspace branch '{}' back to host repo: {}",
+            branch, stderr
+        ),
+        "Resolve the git sync diagnostic, then retry foldback or push from the retained workspace branch.",
+    ))
 }
 
 fn current_branch(repo: &Path) -> Result<String, error::DecapodError> {
@@ -1402,6 +1485,7 @@ mod tests {
         assert!(content.contains("FROM rust:1.91.1-alpine"));
         assert!(content.contains("git"));
         assert!(content.contains("openssh-client"));
+        assert!(content.contains("coreutils"));
     }
 
     #[test]
@@ -1414,7 +1498,26 @@ mod tests {
         });
         assert!(content.contains("FROM alpine:3.20"));
         assert!(content.contains("git"));
+        assert!(content.contains("coreutils"));
         assert!(!content.contains("rust:1.91.1-alpine"));
+    }
+
+    #[test]
+    fn container_failures_are_classified_for_common_validation_causes() {
+        assert_eq!(
+            classify_container_failure("", "fatal: unable to create index.lock: Permission denied")
+                .0,
+            "container_workspace_permission_denied"
+        );
+        assert_eq!(
+            classify_container_failure("", "fatal: refusing to fetch into branch").0,
+            "container_branch_sync_checked_out"
+        );
+        assert_eq!(
+            classify_container_failure("", "clang: invalid linker name in argument '-fuse-ld=lld'")
+                .0,
+            "rust_toolchain_linker_config"
+        );
     }
 
     #[test]
