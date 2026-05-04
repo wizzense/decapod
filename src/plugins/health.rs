@@ -289,7 +289,7 @@ pub fn get_health(
                 provenance: row.get(3)?,
                 created_at: row.get(4)?,
             }),
-        ).map_err(|_| error::DecapodError::ValidationError(format!("Claim not found: {}", claim_id)))?;
+        ).map_err(|_| error::DecapodError::ValidationError(format!("AUTOREMEDIABLE_VALIDATION_ERROR code=HEALTH_CLAIM_NOT_FOUND severity=transient auto_remediable=true audience=agent agent_action=\"verify the claim ID exists, or create a new claim\" user_note=\"Health claim not found; the agent should locate or create the claim.\"\nClaim not found: {}", claim_id)))?;
 
         let mut stmt = conn.prepare("SELECT event_id, claim_id, ts, surface, result, sla_seconds FROM proof_events WHERE claim_id = ?1")?;
         let event_iter = stmt.query_map(params![claim.id], |row| {
@@ -459,7 +459,7 @@ pub fn get_autonomy(store: &Store, actor_id: &str) -> Result<AutonomyStatus, err
 
     if !known_actors.contains(actor_id) {
         return Err(error::DecapodError::ValidationError(format!(
-            "Actor '{}' has no recorded audit history; autonomy cannot be computed.",
+            "AUTOREMEDIABLE_VALIDATION_ERROR code=HEALTH_ACTOR_NO_AUDIT severity=transient auto_remediable=true audience=agent agent_action=\"ensure the actor has recorded audit history or initialize it\" user_note=\"Actor audit history missing; the agent should verify the actor's presence or create audit entries.\"\nActor '{}' has no recorded audit history; autonomy cannot be computed.",
             actor_id
         )));
     }

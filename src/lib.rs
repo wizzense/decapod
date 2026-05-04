@@ -99,7 +99,7 @@ fn load_project_config_if_present(
     }
     let raw = fs::read_to_string(&config_path).map_err(error::DecapodError::IoError)?;
     let cfg: DecapodProjectConfig = toml::from_str(&raw).map_err(|e| {
-        error::DecapodError::ValidationError(format!("Invalid .decapod/config.toml schema: {}", e))
+        error::DecapodError::ValidationError(format!("AUTOREMEDIABLE_VALIDATION_ERROR code=INVALID_CONFIG_SCHEMA severity=transient auto_remediable=true audience=agent agent_action=\"fix the .decapod/config.toml schema to be valid TOML\" user_note=\"Configuration file schema is invalid; the agent should correct the file or report the issue.\"\nInvalid .decapod/config.toml schema: {}", e))
     })?;
     Ok(Some(cfg))
 }
@@ -117,7 +117,7 @@ fn write_project_config(
         fs::create_dir_all(parent).map_err(error::DecapodError::IoError)?;
     }
     let serialized = toml::to_string_pretty(config).map_err(|e| {
-        error::DecapodError::ValidationError(format!("Failed to serialize config.toml: {}", e))
+        error::DecapodError::ValidationError(format!("AUTOREMEDIABLE_VALIDATION_ERROR code=CONFIG_SERIALIZE_FAILED severity=transient auto_remediable=true audience=agent agent_action=\"ensure the .decapod/config.toml data can be serialized (e.g., fix data types)\" user_note=\"Failed to serialize configuration; the agent should adjust the config content or report the issue.\"\nFailed to serialize config.toml: {}", e))
     })?;
     fs::write(config_path, serialized).map_err(error::DecapodError::IoError)?;
     Ok(())
