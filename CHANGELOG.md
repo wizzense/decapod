@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.47.26](https://github.com/DecapodLabs/decapod/compare/v0.47.25...v0.47.26) - 2026-05-04
+
+### Fixed
+
+- resolve Rust syntax errors and clippy warnings introduced in PR #522
+
+### Other
+
+- Add agent‑oriented validation error envelopes to core, config, context, health, and aptitude modules
+
 ## [0.47.25](https://github.com/DecapodLabs/decapod/compare/v0.47.24...v0.47.25) - 2026-05-04
 
 ### Other
