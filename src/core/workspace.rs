@@ -292,19 +292,22 @@ pub fn ensure_workspace(
     let main_repo = get_main_repo_root(repo_root)?;
     let store_root = main_repo.join(".decapod").join("data");
     db::storage_health_preflight(&store_root).map_err(|e| {
-        DecapodError::ValidationError(format!("WORKSPACE_STORAGE_PREFLIGHT_FAILED: {}", e))
+        DecapodError::ValidationError(format!(
+            "AUTOREMEDIABLE_VALIDATION_ERROR code=WORKSPACE_STORAGE_PREFLIGHT_FAILED severity=transient auto_remediable=true audience=agent agent_action=\"verify .decapod/data directory is accessible and has correct permissions; if storage is full, free up space or use a different store root\" user_note=\"Workspace storage preflight failed; the agent should verify storage health or report the concrete blocker.\"\n{}",
+            e
+        ))
     })?;
 
     let mut status = get_workspace_status(repo_root)?;
     if status.git.is_protected && status.git.has_local_mods && !status.git.in_worktree {
         return Err(DecapodError::ValidationError(
-            "WORKSPACE_INTERLOCK_DIRTY_PROTECTED: protected branch has local modifications. Commit/stash/discard changes before creating a Decapod worktree.".to_string(),
+            "AUTOREMEDIABLE_VALIDATION_ERROR code=WORKSPACE_INTERLOCK_DIRTY_PROTECTED severity=transient auto_remediable=true audience=agent agent_action=\"commit, stash, or discard local changes on the protected branch, then retry workspace creation\" user_note=\"Protected branch has local modifications; the agent should resolve this before creating an isolated worktree.\"\nprotected branch has local modifications. Agent must commit, stash, or discard changes before creating a Decapod worktree.".to_string(),
         ));
     }
     let assigned_todos = get_assigned_open_tasks(repo_root, agent_id)?;
     if assigned_todos.is_empty() {
         return Err(DecapodError::ValidationError(format!(
-            "No claimed/open todo assigned to agent '{}'. Claim a todo first with `decapod todo claim --id <task-id>` before spawning a worktree.",
+            "AUTOREMEDIABLE_VALIDATION_ERROR code=WORKSPACE_NO_CLAIMED_TODO severity=transient auto_remediable=true audience=agent agent_action=\"claim a todo with `decapod todo claim --id <task-id>` before spawning a worktree\" user_note=\"No todo is assigned to this agent; the agent should claim an open task first.\"\nNo claimed or open todo assigned to agent '{}'. Agent must claim a todo before spawning a worktree.",
             agent_id
         )));
     }
@@ -317,7 +320,8 @@ pub fn ensure_workspace(
         && !branch_contains_any_todo_id_or_hash(&status.git.current_branch, &assigned_todos)
     {
         return Err(DecapodError::ValidationError(format!(
-            "Current worktree branch '{}' is not todo-scoped. Branch must include one of assigned todo IDs or hashes: {}.",
+            "AUTOREMEDIABLE_VALIDATION_ERROR code=WORKSPACE_BRANCH_NOT_TODO_SCOPED severity=transient auto_remediable=true audience=agent agent_action=\"switch to a branch that includes one of the assigned todo IDs or hashes: {}\" user_note=\"Current branch is not todo-scoped; the agent should switch to a properly scoped branch or create one.\"\nCurrent worktree branch '{}' is not todo-scoped. Branch must include one of assigned todo IDs or hashes: {}.",
+            render_todo_refs(&assigned_todos),
             status.git.current_branch,
             render_todo_refs(&assigned_todos)
         )));

@@ -87,12 +87,12 @@ struct WorkspaceSpec {
 fn auto_remediable_validation_error(
     code: &str,
     message: impl AsRef<str>,
-    next_action: &str,
+    agent_action: &str,
 ) -> error::DecapodError {
     error::DecapodError::ValidationError(format!(
-        "AUTOREMEDIABLE_VALIDATION_ERROR code={} severity=transient auto_remediable=true next_action=\"{}\"\n{}",
+        "AUTOREMEDIABLE_VALIDATION_ERROR code={} severity=transient auto_remediable=true audience=agent agent_action=\"{}\" user_note=\"Recoverable validation issue; the agent should take this action or report the concrete blocker.\"\n{}",
         code,
-        next_action,
+        agent_action,
         message.as_ref()
     ))
 }
@@ -105,22 +105,22 @@ fn classify_container_failure(stdout: &str, stderr: &str) -> (&'static str, &'st
     {
         (
             "container_workspace_permission_denied",
-            "Retry from a Decapod worktree with a writable workspace, or disable host-user mapping only when host cleanup is acceptable.",
+            "Agent: retry from a writable Decapod worktree; if host-user mapping is the blocker, ask before changing that isolation setting.",
         )
     } else if combined.contains("refusing to fetch into branch") {
         (
             "container_branch_sync_checked_out",
-            "Retry with a dedicated work branch that is not checked out in the host repository, then let Decapod fold the branch back.",
+            "Agent: retry with a dedicated work branch that is not checked out in the host repository, then let Decapod fold the branch back.",
         )
     } else if combined.contains("invalid linker name") || combined.contains("-fuse-ld=lld") {
         (
             "rust_toolchain_linker_config",
-            "Clear RUSTFLAGS and set CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER=cc, or run inside the repo's Nix development shell.",
+            "Agent: clear RUSTFLAGS and set CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER=cc, or run inside the repo's Nix development shell.",
         )
     } else {
         (
             "container_command_failed",
-            "Inspect stdout/stderr, apply the suggested fix, and rerun the same Decapod container command.",
+            "Agent: inspect stdout/stderr, apply the relevant fix, and rerun the same Decapod container command.",
         )
     }
 }
@@ -267,12 +267,12 @@ fn run_container(
         Ok(runtime) => runtime,
         Err(_) => {
             let message = "No container runtime found (docker/podman).\n\
-Please install Docker or Podman.\n\
+Agent cannot use the required isolated workspace until Docker or Podman is available.\n\
 Warning: without isolated containers, concurrent agents can step on each other.";
             return Err(auto_remediable_validation_error(
                 "container_runtime_missing",
                 message,
-                "Install Docker or Podman, start the runtime, then retry the Decapod container command.",
+                "Agent: check Docker/Podman availability; if host installation or daemon startup is required, ask the user for that specific host action.",
             ));
         }
     };
@@ -281,8 +281,8 @@ Warning: without isolated containers, concurrent agents can step on each other."
         return Err(auto_remediable_validation_error(
             "container_runtime_override_disabled",
             "Container subsystem is disabled by .decapod/OVERRIDE.md even though a runtime is available. \
-Clear the disable marker or let Decapod self-heal the override file before retrying.",
-            "Run `decapod validate` once to allow self-heal, or remove the container disable marker through Decapod.",
+Agent must clear the disable marker through Decapod self-heal before retrying.",
+            "Agent: run `decapod validate` once to allow self-heal, or remove the container disable marker through Decapod before retrying.",
         ));
     }
 
@@ -333,7 +333,7 @@ Clear the disable marker or let Decapod self-heal the override file before retry
                     "container runtime terminated before normal completion: {}\n{}",
                     exec_err, sync_msg
                 ),
-                "Retry the same command after addressing the runtime or sync diagnostic below.",
+                "Agent: address the runtime or sync diagnostic below, then retry the same container command.",
             )
         },
     )?;
@@ -440,7 +440,7 @@ fn execute_container_with_timeout(
             return Err(auto_remediable_validation_error(
                 "container_command_timeout",
                 format!("Container command timed out after {}s", timeout_seconds),
-                "Increase --timeout-seconds for expected long runs, or inspect the command for a lock/deadlock before retrying.",
+                "Agent: increase --timeout-seconds for expected long runs, or inspect the command for a lock/deadlock before retrying.",
             ));
         }
         std::thread::sleep(Duration::from_millis(250));
@@ -627,15 +627,15 @@ fn ensure_container_runtime_access(runtime: &str) -> Result<(), error::DecapodEr
         || combined.contains("got permission denied")
         || combined.contains("operation not permitted")
     {
-        "Container runtime access denied. Re-run with elevated permissions, or grant this user runtime access and restart the shell."
+        "Container runtime access denied. Agent should request elevated runtime permission or ask for user runtime access if host policy blocks it."
     } else if combined.contains("cannot connect")
         || combined.contains("is the docker daemon running")
         || combined.contains("connection refused")
         || combined.contains("no such file or directory")
     {
-        "Container runtime is installed but unavailable. Start the Docker/Podman daemon (or user service), then retry."
+        "Container runtime is installed but unavailable. Agent should verify daemon status and ask the user to start the host service only if needed."
     } else {
-        "Runtime preflight failed. Verify Docker/Podman daemon availability and user permissions, then retry."
+        "Runtime preflight failed. Agent should verify Docker/Podman daemon availability and user permissions, then retry."
     };
 
     Err(auto_remediable_validation_error(
@@ -650,7 +650,7 @@ stderr:\n{}\n\
 stdout:\n{}",
             runtime, "info", remediation, uid, docker_host, xdg_runtime_dir, stderr, stdout
         ),
-        remediation,
+        "Agent: inspect runtime preflight output; if a host service or permission change is required, ask the user for that exact action.",
     ))
 }
 
@@ -740,7 +740,7 @@ fn ensure_local_alpine_image(runtime: &str, repo: &Path) -> Result<String, error
                 String::from_utf8_lossy(&output.stdout).trim(),
                 String::from_utf8_lossy(&output.stderr).trim()
             ),
-            "Fix Dockerfile/package resolution for the local image, then retry the container run.",
+            "Agent: fix Dockerfile/package resolution for the local image, then retry the container run.",
         ));
     }
 
@@ -998,7 +998,7 @@ fn sync_workspace_branch_to_host_repo(
                 "workspace branch '{}' does not exist; cannot sync back to host repo",
                 branch
             ),
-            "Retry with a freshly prepared Decapod workspace; the previous workspace did not retain the expected branch.",
+            "Agent: retry with a freshly prepared Decapod workspace; the previous workspace did not retain the expected branch.",
         ));
     }
 
@@ -1042,7 +1042,7 @@ fn sync_workspace_branch_to_host_repo(
                 workspace.display(),
                 String::from_utf8_lossy(&pull_output.stderr).trim()
             ),
-            "Check out a different host branch or use a dedicated Decapod worktree, then retry branch foldback.",
+            "Agent: check out a different host branch or use a dedicated Decapod worktree, then retry branch foldback.",
         ));
     }
     Err(auto_remediable_validation_error(
@@ -1051,7 +1051,7 @@ fn sync_workspace_branch_to_host_repo(
             "failed syncing workspace branch '{}' back to host repo: {}",
             branch, stderr
         ),
-        "Resolve the git sync diagnostic, then retry foldback or push from the retained workspace branch.",
+        "Agent: resolve the git sync diagnostic, then retry foldback or push from the retained workspace branch.",
     ))
 }
 
