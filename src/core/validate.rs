@@ -63,6 +63,13 @@ fn container_signal_reasons(repo_root: &Path) -> Vec<&'static str> {
     .collect()
 }
 
+fn auto_remediable_validation_message(code: &str, message: &str, next_action: &str) -> String {
+    format!(
+        "AUTOREMEDIABLE_VALIDATION_ERROR code={} severity=transient auto_remediable=true next_action=\"{}\"\n{}",
+        code, next_action, message
+    )
+}
+
 /// Spawn a validation gate in a rayon scope with timing and error capture.
 ///
 /// Replaces ~10 lines of boilerplate per gate with a single invocation.
@@ -3467,7 +3474,11 @@ fn validate_git_workspace_context(
         return Ok(());
     } else {
         fail(
-            "Not running in container workspace - git-tracked work must execute in Docker-isolated workspace (claim.git.container_workspace_required)",
+            &auto_remediable_validation_message(
+                "container_workspace_required",
+                "Not running in container workspace - git-tracked work must execute in Docker-isolated workspace (claim.git.container_workspace_required)",
+                "Run the command through `decapod auto container run`, or retry inside a Decapod-created container workspace.",
+            ),
             ctx,
         );
     }
@@ -3659,8 +3670,6 @@ fn validate_git_protected_branch(
         return Ok(());
     }
 
-    let protected_patterns = ["master", "main", "production", "stable"];
-
     let current_branch = {
         let output = std::process::Command::new("git")
             .args(["rev-parse", "--abbrev-ref", "HEAD"])
@@ -3678,9 +3687,7 @@ fn validate_git_protected_branch(
             .unwrap_or_else(|| "unknown".to_string())
     };
 
-    let is_protected = protected_patterns
-        .iter()
-        .any(|p| current_branch == *p || current_branch.starts_with("release/"));
+    let is_protected = is_protected_git_branch(&current_branch);
 
     if is_protected {
         fail(
@@ -3697,14 +3704,7 @@ fn validate_git_protected_branch(
         );
     }
 
-    let has_remote = std::process::Command::new("git")
-        .args(["remote", "get-url", "origin"])
-        .current_dir(repo_root)
-        .output()
-        .map(|o| o.status.success())
-        .unwrap_or(false);
-
-    if has_remote {
+    if is_protected && git_origin_exists(repo_root) {
         let ahead_behind = std::process::Command::new("git")
             .args(["rev-list", "--left-right", "--count", "HEAD...origin/HEAD"])
             .current_dir(repo_root)
@@ -3714,9 +3714,7 @@ fn validate_git_protected_branch(
             && out.status.success()
         {
             let counts = String::from_utf8_lossy(&out.stdout);
-            let parts: Vec<&str> = counts.split_whitespace().collect();
-            if parts.len() >= 2 {
-                let ahead: u32 = parts[0].parse().unwrap_or(0);
+            if let Some((ahead, _behind)) = parse_ahead_behind_counts(&counts) {
                 if ahead > 0 {
                     let output = std::process::Command::new("git")
                         .args(["rev-list", "--format=%s", "-n1", "HEAD"])
@@ -3745,9 +3743,70 @@ fn validate_git_protected_branch(
                 }
             }
         }
+    } else if git_origin_exists(repo_root) {
+        match git_upstream_ref(repo_root) {
+            Some(upstream) => {
+                let output = std::process::Command::new("git")
+                    .args(["rev-list", "--left-right", "--count"])
+                    .arg(format!("HEAD...{}", upstream))
+                    .current_dir(repo_root)
+                    .output();
+                if let Ok(out) = output
+                    && out.status.success()
+                {
+                    let counts = String::from_utf8_lossy(&out.stdout);
+                    if let Some((ahead, behind)) = parse_ahead_behind_counts(&counts) {
+                        pass(
+                            &format!(
+                                "Working branch divergence from upstream '{}': ahead {}, behind {}; protected branch direct-push check not applicable",
+                                upstream, ahead, behind
+                            ),
+                            ctx,
+                        );
+                    }
+                }
+            }
+            None => pass(
+                "Working branch has no upstream; protected branch direct-push check not applicable",
+                ctx,
+            ),
+        }
     }
 
     Ok(())
+}
+
+fn is_protected_git_branch(branch: &str) -> bool {
+    matches!(branch, "master" | "main" | "production" | "stable") || branch.starts_with("release/")
+}
+
+fn git_origin_exists(repo_root: &Path) -> bool {
+    std::process::Command::new("git")
+        .args(["remote", "get-url", "origin"])
+        .current_dir(repo_root)
+        .output()
+        .map(|o| o.status.success())
+        .unwrap_or(false)
+}
+
+fn git_upstream_ref(repo_root: &Path) -> Option<String> {
+    let output = std::process::Command::new("git")
+        .args(["rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}"])
+        .current_dir(repo_root)
+        .output()
+        .ok()?;
+    if !output.status.success() {
+        return None;
+    }
+    let upstream = String::from_utf8_lossy(&output.stdout).trim().to_string();
+    (!upstream.is_empty()).then_some(upstream)
+}
+
+fn parse_ahead_behind_counts(counts: &str) -> Option<(u32, u32)> {
+    let mut parts = counts.split_whitespace();
+    let ahead = parts.next()?.parse().ok()?;
+    let behind = parts.next()?.parse().ok()?;
+    Some((ahead, behind))
 }
 
 fn validate_tooling_gate(
@@ -3782,60 +3841,123 @@ fn validate_tooling_gate(
     let cargo_toml = repo_root.join("Cargo.toml");
     if cargo_toml.exists() {
         has_tooling = true;
-        let root_fmt = repo_root.to_path_buf();
-        let root_clippy = repo_root.to_path_buf();
-
-        let fmt_handle = std::thread::spawn(move || {
-            std::process::Command::new("cargo")
-                .args(["fmt", "--all", "--", "--check"])
-                .current_dir(&root_fmt)
-                .output()
-        });
-
-        let clippy_handle = std::thread::spawn(move || {
-            std::process::Command::new("cargo")
-                .args([
-                    "clippy",
-                    "--all-targets",
-                    "--all-features",
-                    "--",
-                    "-D",
-                    "warnings",
-                ])
-                .current_dir(&root_clippy)
-                .output()
-        });
-
-        match fmt_handle.join().expect("fmt thread panicked") {
-            Ok(output) => {
-                if output.status.success() {
-                    pass("Rust code formatting passes (cargo fmt)", ctx);
-                } else {
-                    fail("Rust code formatting failed - run `cargo fmt --all`", ctx);
-                    has_failures = true;
-                }
-            }
-            Err(e) => {
-                fail(&format!("Failed to run cargo fmt: {}", e), ctx);
-                has_failures = true;
-            }
+        let fmt_available = cargo_subcommand_available("fmt");
+        let clippy_available = cargo_subcommand_available("clippy");
+        if !fmt_available {
+            fail(
+                &auto_remediable_validation_message(
+                    "rustfmt_unavailable",
+                    "Rust formatter is unavailable; `cargo fmt --version` did not succeed.",
+                    "Install the rustfmt component or run inside `nix develop .#ci` before enabling tooling gates.",
+                ),
+                ctx,
+            );
+            has_failures = true;
+        }
+        if !clippy_available {
+            fail(
+                &auto_remediable_validation_message(
+                    "clippy_unavailable",
+                    "Rust clippy is unavailable; `cargo clippy --version` did not succeed.",
+                    "Install the clippy component or run inside `nix develop .#ci` before enabling tooling gates.",
+                ),
+                ctx,
+            );
+            has_failures = true;
         }
 
-        match clippy_handle.join().expect("clippy thread panicked") {
-            Ok(output) => {
-                if output.status.success() {
-                    pass("Rust linting passes (cargo clippy)", ctx);
-                } else {
+        let fmt_handle = fmt_available.then(|| {
+            let root_fmt = repo_root.to_path_buf();
+            std::thread::spawn(move || {
+                std::process::Command::new("cargo")
+                    .args(["fmt", "--all", "--", "--check"])
+                    .current_dir(&root_fmt)
+                    .output()
+            })
+        });
+
+        let clippy_handle = clippy_available.then(|| {
+            let root_clippy = repo_root.to_path_buf();
+            std::thread::spawn(move || {
+                std::process::Command::new("cargo")
+                    .args([
+                        "clippy",
+                        "--all-targets",
+                        "--all-features",
+                        "--",
+                        "-D",
+                        "warnings",
+                    ])
+                    .current_dir(&root_clippy)
+                    .output()
+            })
+        });
+
+        if let Some(fmt_handle) = fmt_handle {
+            match fmt_handle.join().expect("fmt thread panicked") {
+                Ok(output) => {
+                    if output.status.success() {
+                        pass("Rust code formatting passes (cargo fmt)", ctx);
+                    } else {
+                        fail(
+                            &auto_remediable_validation_message(
+                                "cargo_fmt_failed",
+                                &format!(
+                                    "Rust code formatting failed - run `cargo fmt --all`.\nstderr:\n{}",
+                                    String::from_utf8_lossy(&output.stderr).trim()
+                                ),
+                                "Run `cargo fmt --all`, then retry validation.",
+                            ),
+                            ctx,
+                        );
+                        has_failures = true;
+                    }
+                }
+                Err(e) => {
                     fail(
-                        "Rust linting failed - run `cargo clippy --all-targets --all-features`",
+                        &auto_remediable_validation_message(
+                            "cargo_fmt_execution_failed",
+                            &format!("Failed to run cargo fmt: {}", e),
+                            "Install a complete Rust toolchain, then retry validation.",
+                        ),
                         ctx,
                     );
                     has_failures = true;
                 }
             }
-            Err(e) => {
-                fail(&format!("Failed to run cargo clippy: {}", e), ctx);
-                has_failures = true;
+        }
+
+        if let Some(clippy_handle) = clippy_handle {
+            match clippy_handle.join().expect("clippy thread panicked") {
+                Ok(output) => {
+                    if output.status.success() {
+                        pass("Rust linting passes (cargo clippy)", ctx);
+                    } else {
+                        fail(
+                            &auto_remediable_validation_message(
+                                "cargo_clippy_failed",
+                                &format!(
+                                    "Rust linting failed - run `cargo clippy --all-targets --all-features`.\nstderr:\n{}",
+                                    String::from_utf8_lossy(&output.stderr).trim()
+                                ),
+                                "Fix lint failures. If the failure is local linker configuration, clear RUSTFLAGS and set CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER=cc before retrying.",
+                            ),
+                            ctx,
+                        );
+                        has_failures = true;
+                    }
+                }
+                Err(e) => {
+                    fail(
+                        &auto_remediable_validation_message(
+                            "cargo_clippy_execution_failed",
+                            &format!("Failed to run cargo clippy: {}", e),
+                            "Install a complete Rust toolchain, then retry validation.",
+                        ),
+                        ctx,
+                    );
+                    has_failures = true;
+                }
             }
         }
     }
@@ -4036,6 +4158,15 @@ fn validate_tooling_gate(
     }
 
     Ok(())
+}
+
+fn cargo_subcommand_available(subcommand: &str) -> bool {
+    std::process::Command::new("cargo")
+        .arg(subcommand)
+        .arg("--version")
+        .output()
+        .map(|output| output.status.success())
+        .unwrap_or(false)
 }
 
 fn validate_state_commit_gate(
@@ -4943,5 +5074,26 @@ pub fn render_validation_report(report: &ValidationReport, verbose: bool) {
             "!".bright_yellow().bold(),
             "validation needs attention".bright_yellow().bold()
         );
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{is_protected_git_branch, parse_ahead_behind_counts};
+
+    #[test]
+    fn protected_branch_matching_is_limited_to_protected_refs() {
+        assert!(is_protected_git_branch("master"));
+        assert!(is_protected_git_branch("main"));
+        assert!(is_protected_git_branch("release/2026.05"));
+        assert!(!is_protected_git_branch("agent/codex/fix"));
+        assert!(!is_protected_git_branch("feature/main-cleanup"));
+    }
+
+    #[test]
+    fn parses_git_ahead_behind_counts() {
+        assert_eq!(parse_ahead_behind_counts("3\t1\n"), Some((3, 1)));
+        assert_eq!(parse_ahead_behind_counts("0 12"), Some((0, 12)));
+        assert_eq!(parse_ahead_behind_counts("bad 12"), None);
     }
 }
