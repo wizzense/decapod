@@ -307,7 +307,7 @@ pub fn ensure_workspace(
     let assigned_todos = get_assigned_open_tasks(repo_root, agent_id)?;
     if assigned_todos.is_empty() {
         return Err(DecapodError::ValidationError(format!(
-            "AUTOREMEDIABLE_VALIDATION_ERROR code=WORKSPACE_NO_CLAIMED_TODO severity=transient auto_remediable=true audience=agent agent_action=\"claim a todo with \`decapod todo claim --id <task-id>\` before spawning a worktree\" user_note=\"No todo is assigned to this agent; the agent should claim an open task first.\"\nNo claimed or open todo assigned to agent '{}'. Agent must claim a todo before spawning a worktree.",
+            "AUTOREMEDIABLE_VALIDATION_ERROR code=WORKSPACE_NO_CLAIMED_TODO severity=transient auto_remediable=true audience=agent agent_action=\"claim a todo with `decapod todo claim --id <task-id>` before spawning a worktree\" user_note=\"No todo is assigned to this agent; the agent should claim an open task first.\"\nNo claimed or open todo assigned to agent '{}'. Agent must claim a todo before spawning a worktree.",
             agent_id
         )));
     }
