@@ -10,8 +10,8 @@
 </p>
 
 <p align="center">
-Agents call it on demand to turn intent into context, then context into explicit specifications before inference,<br />
-enforce boundaries, and deliver proof-backed completion across concurrent multi-agent work.
+  Agents call Decapod on demand to turn intent into bounded context,<br />
+  bounded context into specifications, and finished work into proof.
 </p>
 
 <p align="center">
@@ -29,22 +29,24 @@ cargo install decapod
 decapod init
 ```
 
-That's it. `decapod init` asks about your project (name, intent, language, architecture direction) and scaffolds industry-grade specs.
+That's it. `decapod init` asks about your project, scaffolds `.decapod/`, and gives your agent a repo-native control surface for governed work.
 
-Your workflow doesn't change. Your agent calls Decapod before:
+Your workflow does not change. You keep talking to your agent like normal. The agent checks in with Decapod before:
 
-- Acting — intent
-- Calling the model — context  
-- Committing — proof
-- Touching protected code — boundaries
+- **Acting** — clarify intent
+- **Calling the model** — resolve context
+- **Touching protected code** — enforce boundaries
+- **Committing** — produce proof
 
-Decapod is designed to stay out of the human workflow. The agent checks in. You keep talking to your agent like normal. See the canonical router in [constitution/core/DECAPOD.md](constitution/core/DECAPOD.md).
+See the canonical router in [constitution/core/DECAPOD.md](constitution/core/DECAPOD.md).
 
 > AI agents do not fail because they lack tools. They fail because they lose intent, skip dependencies, mutate context unsafely, and return vibes instead of proof.
 
-### The loop
+---
 
-```
+## The loop
+
+```text
      User
        │
        ▼
@@ -64,80 +66,108 @@ Decapod is designed to stay out of the human workflow. The agent checks in. You 
           User
 ```
 
+Decapod is not the agent. Decapod is the governance kernel the agent calls when intent, context, boundaries, dependencies, or proof need to become explicit.
+
 ---
 
 ## What Decapod does
 
-1. **Clarifies intent** — What's the goal?
-2. **Bounds context** — Only what's needed. Not the whole repo.
-3. **Enforces proof** — VERIFIED means gates passed.
-4. **Protects boundaries** — No direct writes to master.
+1. **Clarifies intent** — what is the goal?
+2. **Bounds context** — what does the agent actually need?
+3. **Generates specs** — what should be built, changed, or preserved?
+4. **Tracks dependencies** — what must happen first?
+5. **Enforces boundaries** — what must not be touched?
+6. **Requires proof** — what makes the work complete?
 
-Decapod resolves only what's relevant to the user's intent — no context poisoning. Your agent gets surgical context, not the entire constitution.
+Decapod resolves only what is relevant to the user's intent. Your agent gets surgical context, not the whole repo and not the entire constitution.
 
 ---
 
-## Agent workbenches improve the session. Decapod improves the shared substrate.
+## Why it exists
 
-- **Agents act in private context; Decapod makes their work public to the repo.**
-- A task started by one agent provider should be understandable, auditable, or resumable by another. The source of truth lives in `.decapod/`, not in chat history, IDE state, or provider memory.
-- The durable parts of agentic work—intent, resolved context, boundaries, todos, specs, validation, proof artifacts—become repo-native operational knowledge.
+Agent workbenches improve the session.
 
-Decapod absorbs agent deficiencies: ambiguity, context waste, boundary drift, forgotten dependencies, unsafe mutation, and unverifiable "done."
+Decapod improves the shared substrate.
 
-### The shared substrate
+Agents act in private context. Decapod makes the durable parts of their work public to the repo: intent, resolved context, boundaries, todos, specs, validation, and proof artifacts.
 
-```
-decapod/
-  generated/
-    specs/         # INTENT.md, ARCHITECTURE.md, etc.
-    context/       # deterministic context capsules
-    artifacts/     # proof artifacts, provenance
-  governance/      # todos, claims, workunits
-  data/            # durable state
-```
+A task started by Claude Code should be auditable by Codex, resumable by Gemini CLI, and verifiable by Kilo. The source of truth lives in `.decapod/`, not chat history, IDE state, or provider memory.
 
-This is what persists. Not the chat transcript.
+Decapod absorbs agent deficiencies:
 
-### The constitution
+- ambiguity
+- context waste
+- boundary drift
+- forgotten dependencies
+- unsafe mutation
+- unverifiable "done"
 
-Decapod ships with an embedded engineering constitution.
+---
 
-Over 100 industry-grade declarative documents covering architecture, security, performance, testing, knowledge graphs, claims, proof surfaces, interfaces, evaluation criteria, and workflows. Everything an engineering org usually keeps in scattered docs, tribal memory, and review culture becomes executable guidance your agent can consult.
-
-> Recent research has confirmed what Decapod was built around from the start: AI coding agents waste significant context on irrelevant files. — [arXiv:2602.11988](https://arxiv.org/pdf/2602.11988)
-
-Your agent doesn't guess. It reads the constitution. It cites claim IDs. It follows gates. It asks for clarification. It produces proof.
-
-### Your interface
-
-Override the embedded constitution with `.decapod/OVERRIDE.md`. Plain English rules that take precedence:
+## The shared substrate
 
 ```text
 .decapod/
-  OVERRIDE.md    # your rules, overrides embedded defaults
+  generated/
+    specs/         # INTENT.md, ARCHITECTURE.md, etc.
+    context/       # deterministic context capsules
+    artifacts/     # verification output, proof, provenance
+  governance/      # todos, claims, workunits
+  data/            # durable repo-native state
+  config.toml      # project control plane config
+  OVERRIDE.md      # local rules that override embedded defaults
 ```
 
-Your overrides augment the constitution automatically.
+This is what persists.
 
-### Project config
+Not the chat transcript.
 
-`.decapod/config.toml` is your project's control plane configuration. Think of it like an ansible.cfg or pyproject.toml — it captures the high-level scope and details of your project:
+---
 
-- Project name and summary
-- Primary language(s)
-- Architecture type (webapp, microservice, library, etc.)
-- Entrypoints for different agents (CLAUDE.md, GEMINI.md, etc.)
+## The constitution
 
-You can edit this file directly or let the agent update it as your project evolves. The generated agent entrypoints tell agents to read it before planning and keep it aligned when user intent or project direction changes.
+Decapod ships with an embedded engineering constitution: over 100 declarative documents covering architecture, security, performance, testing, knowledge graphs, claims, proof surfaces, interfaces, evaluation criteria, and workflows.
 
-For rules that override the embedded Decapod constitution, use `.decapod/OVERRIDE.md`. Keep `.decapod/config.toml` focused on project context and setup preferences.
+Everything an engineering org usually keeps in scattered docs, tribal memory, and review culture becomes executable guidance your agent can consult.
+
+> Recent research has confirmed what Decapod was built around from the start: AI coding agents waste significant context on irrelevant files. — [arXiv:2602.11988](https://arxiv.org/pdf/2602.11988)
+
+Your agent does not guess. It reads the constitution, cites claim IDs, follows gates, asks for clarification, and produces proof.
+
+---
+
+## Your interface
+
+Use `.decapod/OVERRIDE.md` for plain-English rules that override the embedded constitution:
+
+```text
+.decapod/
+  OVERRIDE.md    # your rules, overriding embedded defaults
+```
+
+Use `.decapod/config.toml` for project-level configuration:
+
+```toml
+name = "my-project"
+summary = "What this repo does"
+primary_languages = ["rust", "typescript"]
+architecture = "cli"
+```
+
+`config.toml` captures project context and setup preferences:
+
+- project name and summary
+- primary language or languages
+- architecture type
+- generated agent entrypoints such as `CLAUDE.md`, `GEMINI.md`, and others
+
+Keep durable rules in `OVERRIDE.md`. Keep project shape in `config.toml`.
 
 ---
 
 ## Proof lives in the repo
 
-Every run leaves its operational evidence in `.decapod/`:
+Every run leaves operational evidence in `.decapod/`:
 
 - captured intent → `generated/specs/INTENT.md`
 - resolved context → `generated/context/`
@@ -147,42 +177,28 @@ Every run leaves its operational evidence in `.decapod/`:
 
 That directory is the proof surface. It can be inspected locally, reviewed in pull requests, archived with the codebase, and used by the next agent invocation to re-establish state.
 
-**The repo remembers. Chat history doesn't.**
+**The repo remembers. Chat history does not.**
 
 ---
 
-## Agent Workbench Gaps
+## Agent workbench gaps
 
-| What workbenches optimize | What Decapod preserves |
-|-------------------------|------------------------|
+| Workbenches optimize | Decapod preserves |
+|---|---|
 | The current session | Reusable repo-native knowledge |
 | Worker throughput | Shared substrate quality |
-| Provider-specific context | Explicit intent, boundaries, proof |
-| Session-scoped memory | `.decapod/` durable state |
-
-**Multi-provider continuity**: A task started by Claude Code should be auditable by Codex, resumable by Gemini CLI, and verifiable by Kilo. The source of truth is `.decapod/`, not chat history, IDE state, or provider memory.
-
----
+| Provider-specific context | Explicit intent, boundaries, and proof |
+| Session-scoped memory | Durable state in `.decapod/` |
 
 Use whatever agent you already use: Claude, Codex, Gemini, Cursor, Kilo.
 
 ---
 
-## What you get
-
-- No daemon.
-- No SaaS control plane.
-- No hidden agent memory.
-- Full operational state stored locally in `.decapod/`.
-- Proof your team can inspect, diff, review, and commit.
-
----
-
-## Before / After
+## Before / after
 
 ### Before
 
-```
+```text
 User: "build auth"
 Agent: [full repo in prompt]
        → generates
@@ -191,12 +207,13 @@ Agent: [full repo in prompt]
 
 ### After
 
-```
+```text
 User: "build auth"
 Agent: [Decapod]
        → intent: auth system
        → context: src/auth/
-       → generates
+       → specs generated
+       → work completed
        → [Decapod]
        → proof: verified
        → commits
@@ -204,23 +221,14 @@ Agent: [Decapod]
 
 ---
 
-## Running
-
-```bash
-cargo install decapod
-decapod init
-```
-
-Use whatever agent you already use: Claude, Codex, Gemini, Cursor.
-
----
-
 ## Guarantees
 
-- **Daemonless** — runs on-demand
-- **Repo-native** — state in `.decapod/`
-- **Proof-gated** — VERIFIED means gates pass
-- **Boundaries enforced** — protected branches locked
+- **Daemonless** — runs on demand
+- **Repo-native** — state lives in `.decapod/`
+- **Local-first** — no SaaS control plane required
+- **Provider-agnostic** — works across agent workbenches
+- **Proof-gated** — VERIFIED means gates passed
+- **Boundary-aware** — protected paths and branches are enforced
 
 ---
 
