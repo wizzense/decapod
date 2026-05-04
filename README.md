@@ -38,6 +38,8 @@ Your workflow does not change. You keep talking to your agent like normal. The a
 - **Touching protected code** — enforce boundaries
 - **Committing** — produce proof
 
+Decapod is daemonless. Agents call it like cat, awk, or grep: short-lived, local, repo-native, and only when needed.
+
 See the canonical router in [constitution/core/DECAPOD.md](constitution/core/DECAPOD.md).
 
 > AI agents do not fail because they lack tools. They fail because they lose intent, skip dependencies, mutate context unsafely, and return vibes instead of proof.
