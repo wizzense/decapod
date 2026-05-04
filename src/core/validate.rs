@@ -63,10 +63,10 @@ fn container_signal_reasons(repo_root: &Path) -> Vec<&'static str> {
     .collect()
 }
 
-fn auto_remediable_validation_message(code: &str, message: &str, next_action: &str) -> String {
+fn auto_remediable_validation_message(code: &str, message: &str, agent_action: &str) -> String {
     format!(
-        "AUTOREMEDIABLE_VALIDATION_ERROR code={} severity=transient auto_remediable=true next_action=\"{}\"\n{}",
-        code, next_action, message
+        "AUTOREMEDIABLE_VALIDATION_ERROR code={} severity=transient auto_remediable=true audience=agent agent_action=\"{}\" user_note=\"Recoverable validation issue; the agent should take this action or report the concrete blocker.\"\n{}",
+        code, agent_action, message
     )
 }
 
@@ -3477,7 +3477,7 @@ fn validate_git_workspace_context(
             &auto_remediable_validation_message(
                 "container_workspace_required",
                 "Not running in container workspace - git-tracked work must execute in Docker-isolated workspace (claim.git.container_workspace_required)",
-                "Run the command through `decapod auto container run`, or retry inside a Decapod-created container workspace.",
+                "Agent: rerun through `decapod auto container run`, or continue inside a Decapod-created container workspace.",
             ),
             ctx,
         );
@@ -3848,7 +3848,7 @@ fn validate_tooling_gate(
                 &auto_remediable_validation_message(
                     "rustfmt_unavailable",
                     "Rust formatter is unavailable; `cargo fmt --version` did not succeed.",
-                    "Install the rustfmt component or run inside `nix develop .#ci` before enabling tooling gates.",
+                    "Agent: enter the repo's Nix/Rust toolchain with rustfmt available, then retry validation.",
                 ),
                 ctx,
             );
@@ -3859,7 +3859,7 @@ fn validate_tooling_gate(
                 &auto_remediable_validation_message(
                     "clippy_unavailable",
                     "Rust clippy is unavailable; `cargo clippy --version` did not succeed.",
-                    "Install the clippy component or run inside `nix develop .#ci` before enabling tooling gates.",
+                    "Agent: enter the repo's Nix/Rust toolchain with clippy available, then retry validation.",
                 ),
                 ctx,
             );
@@ -3906,7 +3906,7 @@ fn validate_tooling_gate(
                                     "Rust code formatting failed - run `cargo fmt --all`.\nstderr:\n{}",
                                     String::from_utf8_lossy(&output.stderr).trim()
                                 ),
-                                "Run `cargo fmt --all`, then retry validation.",
+                                "Agent: run `cargo fmt --all`, then retry validation.",
                             ),
                             ctx,
                         );
@@ -3918,7 +3918,7 @@ fn validate_tooling_gate(
                         &auto_remediable_validation_message(
                             "cargo_fmt_execution_failed",
                             &format!("Failed to run cargo fmt: {}", e),
-                            "Install a complete Rust toolchain, then retry validation.",
+                            "Agent: switch to a complete Rust toolchain, then retry validation.",
                         ),
                         ctx,
                     );
@@ -3940,7 +3940,7 @@ fn validate_tooling_gate(
                                     "Rust linting failed - run `cargo clippy --all-targets --all-features`.\nstderr:\n{}",
                                     String::from_utf8_lossy(&output.stderr).trim()
                                 ),
-                                "Fix lint failures. If the failure is local linker configuration, clear RUSTFLAGS and set CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER=cc before retrying.",
+                                "Agent: fix lint failures; for local linker configuration, clear RUSTFLAGS and set CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER=cc before retrying.",
                             ),
                             ctx,
                         );
@@ -3952,7 +3952,7 @@ fn validate_tooling_gate(
                         &auto_remediable_validation_message(
                             "cargo_clippy_execution_failed",
                             &format!("Failed to run cargo clippy: {}", e),
-                            "Install a complete Rust toolchain, then retry validation.",
+                            "Agent: switch to a complete Rust toolchain, then retry validation.",
                         ),
                         ctx,
                     );
