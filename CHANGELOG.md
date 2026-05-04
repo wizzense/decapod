@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.47.22](https://github.com/DecapodLabs/decapod/compare/v0.47.21...v0.47.22) - 2026-05-04
+
+### Other
+
+- Update README.md
+
 ## [0.47.21](https://github.com/DecapodLabs/decapod/compare/v0.47.20...v0.47.21) - 2026-05-03
 
 ### Other
