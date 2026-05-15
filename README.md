@@ -6,7 +6,7 @@
 
 <p align="center">
   <strong>Decapod</strong><br />
-  Daemonless, repo-native governance kernel for AI coding agents.
+  Daemonless, local-first governance kernel behind AI coding agents.
 </p>
 
 <p align="center">
@@ -31,9 +31,29 @@ decapod init
 
 That's it.
 
-`decapod init` asks about your project, scaffolds `.decapod/`, and gives your agent a repo-native governance substrate for bounded, proof-backed work.
+`decapod init` asks about your project and creates `.decapod/`, a local folder your agent uses to remember intent, rules, context, specs, todos, and proof.
 
-Your workflow does not change. You keep talking to your agent like normal. The agent checks in with Decapod before:
+Your workflow does not change. You keep talking to your agent like normal. Decapod runs in the background.
+
+---
+
+## In plain English
+
+AI coding agents move fast, but they often lose the plot.
+
+They forget what you meant, pull too much context, skip dependencies, touch files they should not touch, and call work "done" without proving it.
+
+Decapod gives your agent a repo-native checkpoint system.
+
+Before the agent acts, Decapod helps it clarify intent, gather only the context it needs, respect project boundaries, and leave behind proof of what changed.
+
+You keep talking to your agent normally. The agent checks in with Decapod when the work needs intent, context, boundaries, dependencies, feedback, or proof to become explicit.
+
+---
+
+## When Decapod gets called
+
+The agent checks in with Decapod before:
 
 - **Acting** — clarify intent
 - **Calling the model** — resolve context
@@ -162,7 +182,7 @@ Decapod keeps improvement from becoming unmanaged mutation.
     artifacts/     # verification output, proof, provenance
   governance/      # todos, claims, workunits
   data/            # durable repo-native state
-  config.toml      # project control plane config
+  config.toml      # project shape and agent-facing configuration
   OVERRIDE.md      # local rules that override embedded defaults
 ```
 
