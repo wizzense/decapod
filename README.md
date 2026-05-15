@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  Agents call Decapod on demand to turn intent into context, then context into explicit specifications before inference,<br />
+  Agents call Decapod on demand to turn intent into context, context into explicit specifications,<br />
   and finished work into proof.
 </p>
 
@@ -29,20 +29,23 @@ cargo install decapod
 decapod init
 ```
 
-That's it. `decapod init` asks about your project, scaffolds `.decapod/`, and gives your agent a repo-native control surface for governed work.
+That's it.
+
+`decapod init` asks about your project, scaffolds `.decapod/`, and gives your agent a repo-native control surface for governed work.
 
 Your workflow does not change. You keep talking to your agent like normal. The agent checks in with Decapod before:
 
 - **Acting** — clarify intent
 - **Calling the model** — resolve context
 - **Touching protected code** — enforce boundaries
+- **Changing durable instructions** — require review
 - **Committing** — produce proof
 
-Decapod is daemonless. Agents call it like cat, awk, or grep: short-lived, local, repo-native, and only when needed.
+Decapod is daemonless. Agents call it like `cat`, `awk`, or `grep`: short-lived, local, repo-native, and only when needed.
 
 See the canonical router in [constitution/core/DECAPOD.md](constitution/core/DECAPOD.md).
 
-> AI agents do not fail because they lack tools. They fail because they lose intent, skip dependencies, mutate context unsafely, and return vibes instead of proof.
+> AI agents do not fail because they lack tools. They fail because they lose intent, skip dependencies, mutate context unsafely, learn from noisy signals, and return vibes instead of proof.
 
 ---
 
@@ -68,7 +71,9 @@ See the canonical router in [constitution/core/DECAPOD.md](constitution/core/DEC
           User
 ```
 
-Decapod is not the agent. Decapod is the governance kernel the agent calls when intent, context, boundaries, dependencies, or proof need to become explicit.
+Decapod is not the agent.
+
+Decapod is the governance kernel the agent calls when intent, context, boundaries, dependencies, feedback, or proof need to become explicit.
 
 ---
 
@@ -79,7 +84,8 @@ Decapod is not the agent. Decapod is the governance kernel the agent calls when 
 3. **Generates specs** — what should be built, changed, or preserved?
 4. **Tracks dependencies** — what must happen first?
 5. **Enforces boundaries** — what must not be touched?
-6. **Requires proof** — what makes the work complete?
+6. **Governs adaptation** — what feedback may change future behavior?
+7. **Requires proof** — what makes the work complete?
 
 Decapod resolves only what is relevant to the user's intent. Your agent gets surgical context, not the whole repo and not the entire constitution.
 
@@ -91,7 +97,7 @@ Agent workbenches improve the session.
 
 Decapod improves the shared substrate.
 
-Agents act in private context. Decapod makes the durable parts of their work public to the repo: intent, resolved context, boundaries, todos, specs, validation, and proof artifacts.
+Agents act in private context. Decapod makes the durable parts of their work public to the repo: intent, resolved context, boundaries, todos, specs, validation, feedback, and proof artifacts.
 
 A task started by Claude Code should be auditable by Codex, resumable by Gemini CLI, and verifiable by Kilo. The source of truth lives in `.decapod/`, not chat history, IDE state, or provider memory.
 
@@ -102,7 +108,45 @@ Decapod absorbs agent deficiencies:
 - boundary drift
 - forgotten dependencies
 - unsafe mutation
+- noisy feedback loops
+- instruction drift
 - unverifiable "done"
+
+---
+
+## Governed feedback loops
+
+Agents need feedback loops, but feedback loops are only safe when they are governed.
+
+A correction from a human, a failed test, a review comment, a Slack reaction, or an observed workflow pattern can all be useful signals. But signals should not silently rewrite how an agent behaves.
+
+Decapod treats durable behavior changes as reviewable state.
+
+```text
+feedback signal
+  → interpreted against intent
+  → scoped to the affected behavior
+  → proposed as a spec, rule, or instruction change
+  → reviewed before activation
+  → preserved with proof and provenance
+```
+
+The point is not to make agents self-improve without control.
+
+The point is to let agents learn without drifting.
+
+Decapod makes the loop explicit:
+
+- What signal was consumed?
+- What behavior would change?
+- What scope does the change affect?
+- Who reviewed it?
+- Can it be rolled back?
+- What proof shows the change improved the work?
+
+Feedback loops help agents improve.
+
+Decapod keeps improvement from becoming unmanaged mutation.
 
 ---
 
@@ -130,7 +174,7 @@ Not the chat transcript.
 
 Decapod ships with an embedded engineering constitution: over 100 declarative documents covering architecture, security, performance, testing, knowledge graphs, claims, proof surfaces, interfaces, evaluation criteria, and workflows.
 
-Everything an engineering org usually keeps in scattered docs, tribal memory, and review culture becomes executable guidance your agent can consult.
+Everything an engineering org usually keeps in scattered docs, tribal memory, review culture, and unwritten taste becomes executable guidance your agent can consult.
 
 > Recent research has confirmed what Decapod was built around from the start: AI coding agents waste significant context on irrelevant files. — [arXiv:2602.11988](https://arxiv.org/pdf/2602.11988)
 
@@ -191,6 +235,8 @@ That directory is the proof surface. It can be inspected locally, reviewed in pu
 | Worker throughput | Shared substrate quality |
 | Provider-specific context | Explicit intent, boundaries, and proof |
 | Session-scoped memory | Durable state in `.decapod/` |
+| Prompt tweaks | Reviewable instruction changes |
+| Agent improvement | Governed adaptation |
 
 Use whatever agent you already use: Claude, Codex, Gemini, Cursor, Kilo.
 
@@ -231,6 +277,7 @@ Agent: [Decapod]
 - **Provider-agnostic** — works across agent workbenches
 - **Proof-gated** — VERIFIED means gates passed
 - **Boundary-aware** — protected paths and branches are enforced
+- **Feedback-governed** — durable behavior changes require explicit scope, review, and provenance
 
 ---
 
