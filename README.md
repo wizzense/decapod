@@ -90,7 +90,7 @@ Agents can use it to:
 - generate and refine explicit specifications
 - create todos and dependency-aware work plans
 - enforce project boundaries
-- coordinate concurrent work
+- coordinate concurrent work (even across disparate agents and models)
 - validate output
 - record proof of completion
 
