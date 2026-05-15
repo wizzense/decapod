@@ -1,4 +1,4 @@
-l<p align="center">🦀</p>
+<p align="center">🦀</p>
 
 <p align="center">
   <code>cargo install decapod && decapod init</code>
