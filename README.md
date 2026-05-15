@@ -39,6 +39,8 @@ You keep talking to your agent like normal. The agent calls Decapod when it need
 
 Decapod runs, returns what the agent needs, writes explicit artifacts when useful, and exits.
 
+Decapod is a shared substrate where multiple agents, providers, and models can operate against the same governed repo state concurrently.
+
 ---
 
 ## The simplest model
