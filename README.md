@@ -31,7 +31,7 @@ decapod init
 
 That's it.
 
-`decapod init` asks about your project, scaffolds `.decapod/`, and gives your agent a repo-native control surface for governed work.
+`decapod init` asks about your project, scaffolds `.decapod/`, and gives your agent a repo-native governance substrate for bounded, proof-backed work.
 
 Your workflow does not change. You keep talking to your agent like normal. The agent checks in with Decapod before:
 
@@ -75,6 +75,8 @@ Decapod is not the agent.
 
 Decapod is the governance kernel the agent calls when intent, context, boundaries, dependencies, feedback, or proof need to become explicit.
 
+Humans mostly experience Decapod through the quality of the agent's work: clearer intent, smaller context, safer changes, better specs, and proof-backed completion.
+
 ---
 
 ## What Decapod does
@@ -97,7 +99,7 @@ Agent workbenches improve the session.
 
 Decapod improves the shared substrate.
 
-Agents act in private context. Decapod makes the durable parts of their work public to the repo: intent, resolved context, boundaries, todos, specs, validation, feedback, and proof artifacts.
+Agents act in private context. Decapod makes the durable parts of their work public to the repo: intent, resolved context, boundaries, todos, specs, validation, feedback-derived proposals, and proof artifacts.
 
 A task started by Claude Code should be auditable by Codex, resumable by Gemini CLI, and verifiable by Kilo. The source of truth lives in `.decapod/`, not chat history, IDE state, or provider memory.
 
@@ -155,8 +157,8 @@ Decapod keeps improvement from becoming unmanaged mutation.
 ```text
 .decapod/
   generated/
-    specs/         # INTENT.md, ARCHITECTURE.md, etc.
-    context/       # deterministic context capsules
+    specs/         # human-visible intent, architecture, and work specs
+    context/       # deterministic context capsules and summaries
     artifacts/     # verification output, proof, provenance
   governance/      # todos, claims, workunits
   data/            # durable repo-native state
@@ -167,6 +169,8 @@ Decapod keeps improvement from becoming unmanaged mutation.
 This is what persists.
 
 Not the chat transcript.
+
+Most of Decapod is background machinery for agents. Humans inspect the generated files Decapod intentionally surfaces: specs, context summaries, verification output, proof, and provenance.
 
 ---
 
@@ -184,14 +188,14 @@ Your agent does not guess. It reads the constitution, cites claim IDs, follows g
 
 ## Your interface
 
-Use `.decapod/OVERRIDE.md` for plain-English rules that override the embedded constitution:
+Agents read `.decapod/OVERRIDE.md` for plain-English project rules that override the embedded constitution:
 
 ```text
 .decapod/
   OVERRIDE.md    # your rules, overriding embedded defaults
 ```
 
-Use `.decapod/config.toml` for project-level configuration:
+Agents read `.decapod/config.toml` for project-level configuration:
 
 ```toml
 name = "my-project"
@@ -221,7 +225,7 @@ Every run leaves operational evidence in `.decapod/`:
 - verification results → `generated/artifacts/`
 - proof artifacts → `generated/artifacts/provenance/`
 
-That directory is the proof surface. It can be inspected locally, reviewed in pull requests, archived with the codebase, and used by the next agent invocation to re-establish state.
+The generated files are the human-visible proof surface. They can be inspected locally, reviewed in pull requests, archived with the codebase, and used by the next agent invocation to re-establish state.
 
 **The repo remembers. Chat history does not.**
 
