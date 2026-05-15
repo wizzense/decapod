@@ -33,7 +33,7 @@ That's it.
 
 `decapod init` asks about your project and creates `.decapod/`, a local folder your agent uses to remember intent, rules, context, specs, todos, and proof.
 
-Your workflow does not change. You keep talking to your agent like normal. Decapod runs in the background.
+Your workflow does not change. You keep talking to your agent(s) like normal. Decapod is called by the agent(s), and the decapod ends upon fulfilling the agent interaction.
 
 ---
 
