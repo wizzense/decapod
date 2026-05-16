@@ -3,69 +3,71 @@
 ## Threat Model
 ```mermaid
 flowchart LR
-  U[Agent/User] --> B[Decapod Trust Boundary]
-  B --> S[(Repo Store)]
-  B --> US[(User Store)]
-  B --> G[Git Worktree]
-  B --> A[Artifacts]
+  U[User/Client] --> A[Application Boundary]
+  A --> D[(Data Stores)]
+  A --> X[External Dependencies]
+  I[Identity Provider] --> A
+  A --> L[Audit Logs]
 ```
 
 ## STRIDE Table
-| Threat | Surface | Mitigation | Validation |
+| Threat | Surface | Mitigation | Verification |
 |---|---|---|---|
-| Spoofing | session/auth boundary | session token + password gate | session tests |
-| Tampering | task/proof artifacts | append-only logs + hash receipts | validate + hash checks |
-| Repudiation | task completion claims | claim/done audit trail | ledger review |
-| Information Disclosure | logs/artifacts | secret redaction + classification | security scan |
-| DoS | validate/store contention | bounded timeouts + retry policy | timeout gate |
-| Elevation of Privilege | protected branch/store boundaries | interlock enforcement | interlock tests |
+| Spoofing | Auth boundary | strong auth + token validation | auth tests |
+| Tampering | State mutation APIs | integrity checks + RBAC | integration tests |
+| Repudiation | Critical actions | immutable audit logs | log review |
+| Information disclosure | Data at rest/in transit | encryption + classification | security scans |
+| Denial of service | Hot paths | rate limit + backpressure | load tests |
+| Elevation of privilege | Admin interfaces | least privilege + policy checks | authz tests |
 
 ## Authentication
-- Session acquisition required for privileged operations.
-- `DECAPOD_SESSION_PASSWORD` gate enforced when configured.
-- Session lifecycle is explicit (`acquire`, `status`, `release`).
+- Identity source:
+- Token/session lifetime:
+- Rotation and revocation:
 
 ## Authorization
-- Task ownership controls claim/done transitions.
-- Store mode limits write scope (repo vs user).
-- Protected branches block mutate operations.
+- Role model:
+- Resource-level policy:
+- Privilege escalation controls:
 
 ## Data Classification
-| Class | Examples | Handling |
-|---|---|---|
-| Public | docs/spec text | normal repo controls |
-| Internal | operational logs/metrics | least privilege access |
-| Sensitive | credentials/tokens/session secrets | redacted logs, restricted storage |
+| Data Class | Examples | Storage Rules | Access Rules |
+|---|---|---|---|
+| Public | docs, non-sensitive metadata | standard | unrestricted |
+| Internal | operational telemetry | controlled | team access |
+| Sensitive | tokens, PII, secrets | encrypted | least privilege |
 
 ## Sensitive Data Handling
-- Never log raw tokens/secrets.
-- Store sensitive values in env/secure stores only.
-- Redact secrets in traces and diagnostics artifacts.
+- Encryption at rest:
+- Encryption in transit:
+- Redaction in logs:
+- Retention + deletion policy:
 
 ## Supply Chain Security
-- Rust toolchain: `cargo audit`, `cargo deny`, `cargo vet`.
-- CI must surface critical/high vulnerabilities as blockers.
-- Release artifacts should include provenance and checksums.
+- Recommended scanners: `cargo audit`, `cargo deny`, `cargo vet`
+- Dependency update cadence:
+- Signed artifact/provenance strategy:
 
 ## Secrets Management
 | Secret | Source | Rotation | Consumer |
 |---|---|---|---|
-| Session password | environment/secret manager | periodic | session gate |
-| API credentials | environment/secret manager | periodic | external dependency integrations |
+| API credentials | secret manager/env | periodic | runtime services |
+| Signing keys | HSM/KMS/local secure store | periodic | release pipeline |
 
 ## Security Testing
 | Test Type | Cadence | Tooling |
 |---|---|---|
-| Dependency vulnerability scan | per PR + scheduled | cargo-audit/cargo-deny |
-| Interlock regression tests | per PR | cargo test suites |
-| Secret redaction checks | per PR | test fixtures + grep rules |
+| SAST | each PR | language linters/scanners |
+| Dependency scan | each PR + weekly | supply-chain tools |
+| DAST/pentest | scheduled | external/internal |
 
-## Compliance
-- Evidence artifacts must trace security-relevant gate outcomes.
-- Security exceptions require documented owner, reason, and expiry.
+## Compliance and Audit
+- Regulatory scope:
+- Audit evidence location:
+- Exception process:
 
 ## Pre-Promotion Security Checklist
-- [ ] Threat model updated for changed trust boundaries.
-- [ ] Auth/authz and interlock tests pass.
-- [ ] Dependency scan has no unresolved critical/high findings.
-- [ ] Sensitive data handling and redaction checks pass.
+- [ ] Threat model updated for changed surfaces.
+- [ ] Auth/authz tests pass.
+- [ ] Dependency vulnerability scan reviewed.
+- [ ] No unresolved critical/high security findings.

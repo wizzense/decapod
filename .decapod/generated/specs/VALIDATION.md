@@ -1,62 +1,62 @@
 # Validation
 
 ## Validation Philosophy
-> Validation is a mandatory release gate: if proof is missing, completion is invalid.
+> Validation is a release gate, not documentation theater.
 
 ## Validation Decision Tree
 ```mermaid
 flowchart TD
-  S[Start] --> W{Workspace isolated?}
-  W -->|No| F1[Fail: WORKSPACE_REQUIRED]
+  S[Start] --> W{Workspace valid?}
+  W -->|No| F1[Fail: workspace gate]
   W -->|Yes| T{Tests pass?}
   T -->|No| F2[Fail: test gate]
-  T -->|Yes| D{Docs + diagram + changelog updated?}
+  T -->|Yes| D{Docs + diagrams + changelog updated?}
   D -->|No| F3[Fail: docs gate]
   D -->|Yes| V[Run decapod validate]
-  V --> P{Blocking gates pass?}
-  P -->|No| F4[Promotion blocked]
-  P -->|Yes| E[Emit evidence artifacts]
+  V --> P{All blocking gates pass?}
+  P -->|No| F4[Fail: promotion blocked]
+  P -->|Yes| E[Emit promotion evidence]
 ```
 
 ## Promotion Flow
 ```mermaid
 flowchart LR
-  Plan --> Implement --> Test --> Validate --> Evidence --> Promote
+  A[Plan] --> B[Implement]
+  B --> C[Test]
+  C --> D[Validate]
+  D --> E[Assemble Evidence]
+  E --> F[Promote]
 ```
 
 ## Proof Surfaces
 - `decapod validate`
 - Required test commands:
 - `cargo test`
-- `cargo clippy -- -D warnings`
-- `cargo fmt --check`
 - Required integration/e2e commands:
-- `cargo test --test '*'`
 
 ## Promotion Gates
 
 ## Blocking Gates
 | Gate | Command | Evidence |
 |---|---|---|
-| Workspace/session interlocks | `decapod validate` | validate output |
-| Test suite pass | cargo commands | test logs |
-| Docs + architecture + changelog coverage | repo checks | PR diff |
-| Security critical checks | security scanner set | scanner artifacts |
+| Architecture + interface drift check | `decapod validate` | Gate output |
+| Tests pass | project test command | CI + local logs |
+| Docs + changelog current | repo docs checks | PR diff |
+| Security critical checks pass | security scanner suite | scanner reports |
 
 ## Warning Gates
 | Gate | Trigger | Follow-up SLA |
 |---|---|---|
-| Coverage drift | coverage below target but above floor | 48h |
-| Non-critical performance regression | p95 drift below hard limit | 72h |
-| Non-blocking spec staleness | section drift detected | next task cycle |
+| Coverage regression warning | Coverage drops below target | 48h |
+| Non-blocking perf drift | P95 regression below hard threshold | 72h |
 
 ## Evidence Artifacts
-| Artifact | Path | Purpose |
+| Artifact | Path | Required For |
 |---|---|---|
-| Validation receipt | `.decapod/generated/artifacts/provenance/` | gate pass/fail proof |
-| Test output | CI artifacts | reproducible verification |
-| Architecture/docs proof | spec files + changelog | design/runtime traceability |
-| Task completion linkage | todo/workunit records | intent-to-evidence chain |
+| Validation report | `.decapod/generated/artifacts/provenance/*` | Promotion |
+| Test logs | CI artifact store | Promotion |
+| Architecture diagram snapshot | `ARCHITECTURE.md` | Promotion |
+| Changelog entry | `CHANGELOG.md` | Promotion |
 
 ## Regression Guardrails
 - Baseline references:
@@ -66,13 +66,12 @@ flowchart LR
 ## Bounded Execution
 | Operation | Timeout | Failure Mode |
 |---|---|---|
-| `decapod validate` | 30s | `VALIDATE_TIMEOUT_OR_LOCK` |
-| `cargo test` | CI bounded timeout | non-zero exit |
-| Integration suite | CI bounded timeout | non-zero exit |
+| Validation | 30s | timeout or lock |
+| Unit test suite | project-defined | non-zero exit |
+| Integration suite | project-defined | non-zero exit |
 
 ## Coverage Checklist
-- [ ] Unit tests cover critical branches and interlocks.
-- [ ] Integration tests cover end-to-end task lifecycle.
-- [ ] Failure-path tests cover lock contention and policy failures.
-- [ ] Docs, architecture diagram, and changelog updated for behavior changes.
-- [ ] Local and CI validation receipts attached before promotion.
+- [ ] Unit tests cover critical branches.
+- [ ] Integration tests cover key user flows.
+- [ ] Failure-path tests cover retries/timeouts.
+- [ ] Docs/diagram/changelog updates included.
