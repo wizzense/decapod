@@ -2019,11 +2019,31 @@ Start with HPA (Horizontal Pod Autoscaler)
 
 ## Links
 
+### Core Router
+- `core/DECAPOD.md` - **Router and navigation charter (START HERE)**
+- `core/ENGINEERING_EXCELLENCE.md` - Engineering standards
+
+### Architecture (This Section)
 - `architecture/CLOUD.md` - Cloud-specific Kubernetes (EKS, GKE, AKS)
-- `architecture/CONTAINERS.md` - Container runtime and OCI
 - `architecture/OBSERVABILITY.md` - Kubernetes monitoring and logging
 - `architecture/CACHING.md` - Caching strategies for K8s
-- `core/ENGINEERING_EXCELLENCE.md` - Engineering standards
+- `architecture/MESSAGING.md` - Message queues in K8s
+- `architecture/DATABASE.md` - Database storage patterns
+
+### Authority (Constitution Layer)
+- `specs/INTENT.md` - **Methodology contract (READ FIRST)**
+- `specs/SYSTEM.md` - System definition and authority doctrine
+- `specs/SECURITY.md` - Security doctrine
+
+### Interface Contracts
+- `interfaces/CLAIMS.md` - Promises ledger
+- `interfaces/CONTROL_PLANE.md` - Agent sequencing patterns
+- `interfaces/STORE_MODEL.md` - State management contracts
+
+### Methodology
+- `methodology/ARCHITECTURE.md` - Architecture decision methodology
+- `methodology/CI_CD.md` - CI/CD methodology
+- `methodology/TESTING.md` - Testing methodology
 
 ---
 

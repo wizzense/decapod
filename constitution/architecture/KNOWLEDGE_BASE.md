@@ -218,15 +218,50 @@ When updating leaf articles:
 
 ## Links
 
-### Core Constitution
-- `core/DECAPOD.md` - Core router and navigation charter
-- `core/ENGINEERING_EXCELLENCE.md` - Engineering standards foundation
-- `methodology/ARCHITECTURE.md` - Architecture decision methodology
+### Core Router
+- `core/DECAPOD.md` - **Router and navigation charter (START HERE)**
+- `core/ENGINEERING_EXCELLENCE.md` - Engineering standards
+- `core/PLUGINS.md` - Subsystem registry
+- `core/INTERFACES.md` - Interface contracts index
 
-### Constitution Authority
-- `specs/INTENT.md` - Binding methodology contract
+### Architecture (This Section)
+- `architecture/KUBERNETES.md` - Container orchestration (dense)
+- `architecture/AUTH.md` - Authentication patterns (dense)
+- `architecture/API_DESIGN.md` - API design (dense)
+- `architecture/DATABASE.md` - Database patterns (dense)
+- `architecture/CI_CD_PIPELINES.md` - CI/CD pipelines (dense)
+- `architecture/MESSAGING.md` - Message queues (dense)
+- `architecture/CLOUD.md` - Cloud architecture
+- `architecture/SECURITY.md` - Security architecture
+- `architecture/CACHING.md` - Caching patterns
+- `architecture/OBSERVABILITY.md` - Observability
+- `architecture/WEB.md` - Web architecture
+- `architecture/FRONTEND.md` - Frontend architecture
+- `architecture/DATA.md` - Data architecture
+- `architecture/MEMORY.md` - Memory patterns
+- `architecture/ALGORITHMS.md` - Algorithm patterns
+- `architecture/CONCURRENCY.md` - Concurrency patterns
+- `architecture/UI.md` - UI patterns
+
+### Authority (Constitution Layer)
+- `specs/INTENT.md` - **Methodology contract (READ FIRST)**
 - `specs/SYSTEM.md` - System definition and authority doctrine
+- `specs/AMENDMENTS.md` - Change control
+- `specs/SECURITY.md` - Security doctrine
+- `specs/GIT.md` - Git workflow contracts
 
-### Interfaces Layer
+### Interface Contracts
+- `interfaces/CLAIMS.md` - Promises ledger
 - `interfaces/CONTROL_PLANE.md` - Agent sequencing patterns
-- `interfaces/TESTING.md` - Testing contract
+- `interfaces/DOC_RULES.md` - Doc compilation rules
+- `interfaces/GLOSSARY.md` - Term definitions
+- `interfaces/TESTING.md` - Testing contracts
+- `interfaces/KNOWLEDGE_SCHEMA.md` - Knowledge schema
+- `interfaces/STORE_MODEL.md` - State management
+
+### Methodology
+- `methodology/ARCHITECTURE.md` - Architecture decision methodology
+- `methodology/SOUL.md` - Design principles
+- `methodology/TESTING.md` - Testing methodology
+- `methodology/CI_CD.md` - CI/CD methodology
+- `methodology/METRICS.md` - Metrics methodology

@@ -1189,11 +1189,29 @@ Body: { "version": "2.0", "data": {...} }
 
 ## Links
 
+### Core Router
+- `core/DECAPOD.md` - **Router and navigation charter (START HERE)**
+- `core/ENGINEERING_EXCELLENCE.md` - Engineering standards
+
+### Architecture (This Section)
+- `architecture/WEB.md` - Web API patterns
 - `architecture/AUTH.md` - Authentication patterns
-- `architecture/AUTHZ.md` - Authorization models
-- `architecture/WEBHOOKS.md` - Webhook design
-- `architecture/MESSAGING.md` - Message queue patterns
-- `specs/INTERFACES.md` - Interface contracts
+- `architecture/MESSAGING.md` - Async API patterns
+- `architecture/KUBERNETES.md` - API gateway in K8s
+
+### Authority (Constitution Layer)
+- `specs/INTENT.md` - **Methodology contract (READ FIRST)**
+- `specs/SYSTEM.md` - System definition and authority doctrine
+- `specs/SECURITY.md` - Security doctrine
+
+### Interface Contracts
+- `interfaces/CLAIMS.md` - Promises ledger
+- `interfaces/CONTROL_PLANE.md` - Agent sequencing patterns
+- `interfaces/DOC_RULES.md` - Doc compilation rules
+
+### Methodology
+- `methodology/ARCHITECTURE.md` - Architecture decision methodology
+- `methodology/TESTING.md` - API testing methodology
 
 ---
 

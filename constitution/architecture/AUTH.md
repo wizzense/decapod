@@ -973,11 +973,30 @@ return hmac.compare_digest(stored_token, submitted_token)
 
 ## Links
 
-- `architecture/AUTHZ.md` - Authorization patterns (RBAC, ABAC)
-- `architecture/SECRETS.md` - Secrets management
-- `architecture/NETWORK_SECURITY.md` - mTLS, network security
-- `architecture/ENCRYPTION.md` - Encryption standards
-- `specs/SECURITY.md` - Security doctrine (binding)
+### Core Router
+- `core/DECAPOD.md` - **Router and navigation charter (START HERE)**
+- `core/ENGINEERING_EXCELLENCE.md` - Engineering standards
+
+### Architecture (This Section)
+- `architecture/API_DESIGN.md` - API authentication patterns
+- `architecture/DATABASE.md` - Token storage, sessions
+- `architecture/MESSAGING.md` - mTLS patterns
+- `architecture/CLOUD.md` - Cloud IAM patterns
+- `architecture/SECURITY.md` - Security overview
+
+### Authority (Constitution Layer)
+- `specs/INTENT.md` - **Methodology contract (READ FIRST)**
+- `specs/SYSTEM.md` - System definition and authority doctrine
+- `specs/SECURITY.md` - Security doctrine
+
+### Interface Contracts
+- `interfaces/CLAIMS.md` - Promises ledger
+- `interfaces/CONTROL_PLANE.md` - Agent sequencing patterns
+- `interfaces/GLOSSARY.md` - Term definitions
+
+### Methodology
+- `methodology/ARCHITECTURE.md` - Architecture decision methodology
+- `methodology/SOUL.md` - Design principles
 
 ---
 
