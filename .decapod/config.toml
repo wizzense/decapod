@@ -12,7 +12,7 @@ entrypoints = [
 
 [repo]
 product_name = "decapod"
-product_summary = "A daemonless control plane for AI coding agents."
+product_summary = "Decapod is the daemonless, local-first governance kernel behind AI coding agents. Agents call it on demand to converge on human intent, shape context before inference, enforce boundaries, and deliver proof-backed completion across concurrent multi-agent work."
 architecture_direction = "Composable repository architecture with explicit boundaries and proof-backed delivery invariants."
 product_type = "service_or_library"
 done_criteria = "Decapod validate passes, required tests pass, and promotion-relevant artifacts are present."

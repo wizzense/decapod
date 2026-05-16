@@ -5,18 +5,18 @@ These files are the project-local contract for humans and agents.
 
 ## Snapshot
 - Project: decapod
-- Outcome: Daemonless control plane that drives agent convergence to user intent with proof-backed completion.
+- Outcome: ```mermaid
 - Detected languages: rust
-- Detected surfaces: cargo, cli, rpc, validation gates
+- Detected surfaces: cargo
 
 ## How to use this folder
-- `INTENT.md`: product outcome, scope boundaries, and objective acceptance criteria.
-- `ARCHITECTURE.md`: topology, runtime model, deployment shape, and ADR/risk register.
-- `INTERFACES.md`: CLI/RPC/event/data contracts, timeout budgets, and failure semantics.
-- `VALIDATION.md`: promotion gate design, evidence model, and bounded execution.
-- `SEMANTICS.md`: state machines, invariants, replay semantics, and idempotency contracts.
-- `OPERATIONS.md`: SLOs, monitoring, incident response, and capacity planning.
-- `SECURITY.md`: trust boundaries, STRIDE threats, auth/authz model, and supply-chain controls.
+- `INTENT.md`: what success means and what is explicitly out of scope.
+- `ARCHITECTURE.md`: topology, runtime model, data boundaries, and ADR trail.
+- `INTERFACES.md`: API/CLI/events/storage contracts and failure behavior.
+- `VALIDATION.md`: proof commands, quality gates, and evidence artifacts.
+- `SEMANTICS.md`: state machines, invariants, replay rules, and idempotency.
+- `OPERATIONS.md`: SLOs, monitoring, incident response, and rollout strategy.
+- `SECURITY.md`: threat model, trust boundaries, auth/authz, and supply-chain posture.
 
 ## Canonical `.decapod/` Layout
 - `.decapod/data/`: canonical control-plane state (SQLite + ledgers).
@@ -29,16 +29,16 @@ These files are the project-local contract for humans and agents.
 - `.decapod/workspaces/`: isolated todo-scoped git worktrees.
 
 ## Day-0 Onboarding Checklist
-- [ ] Confirm user-facing outcome and non-goals in `INTENT.md`.
-- [ ] Confirm architecture topology and runtime/deployment model in `ARCHITECTURE.md`.
-- [ ] Confirm all CLI/RPC interfaces and error taxonomy in `INTERFACES.md`.
-- [ ] Confirm proof surfaces and blocking gates in `VALIDATION.md`.
-- [ ] Confirm state transitions and invariants in `SEMANTICS.md`.
-- [ ] Confirm SLO/monitoring/incident ownership in `OPERATIONS.md`.
-- [ ] Confirm trust boundaries and threat mitigations in `SECURITY.md`.
-- [ ] Confirm docs + architecture diagram + changelog proof gates are defined.
-- [ ] Confirm tests pass locally and in CI.
-- [ ] Attach evidence artifacts before promotion.
+- [ ] Replace all placeholders in all 8 spec files.
+- [ ] Confirm primary user outcome and acceptance criteria in `INTENT.md`.
+- [ ] Confirm topology and runtime model in `ARCHITECTURE.md`.
+- [ ] Document all inbound/outbound contracts in `INTERFACES.md`.
+- [ ] Define validation gates and CI proof surfaces in `VALIDATION.md`.
+- [ ] Define state machines and invariants in `SEMANTICS.md`.
+- [ ] Define SLOs, alerting, and incident process in `OPERATIONS.md`.
+- [ ] Define threat model and auth/authz decisions in `SECURITY.md`.
+- [ ] Ensure architecture diagram, docs, changelog, and tests are mapped to promotion gates.
+- [ ] Run all validation/test commands and attach evidence artifacts.
 
 ## Agent Directive
-- Specs are executable governance, not placeholders. Before coding: resolve ambiguity in these docs. Before marking done: validate, update drifted sections, and attach evidence.
+- Treat these files as executable governance surfaces. Before implementation: resolve ambiguity and update specs. After implementation: refresh drifted sections, rerun proof gates, and attach evidence.
