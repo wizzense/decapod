@@ -85,7 +85,7 @@ When agents interface with Decapod-managed repositories, these standards are the
 ### Architecture Patterns
 - `architecture/ALGORITHMS.md` - Algorithm selection
 - `architecture/DATA.md` - Data architecture
-- `architecture/SECURITY.md` - Security architecture
+- `architecture/SECURITY.md` - Security architecture (threat modeling, cryptography, supply chain, SECCOMP)
 - `architecture/OBSERVABILITY.md` - Observability architecture
 - `architecture/CONCURRENCY.md` - Concurrency architecture
 - `architecture/API_DESIGN.md` - API design standards

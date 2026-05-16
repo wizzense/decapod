@@ -375,12 +375,526 @@ Registries (plugin names, constitution paths, tool names) must protect against s
 
 ---
 
+## 12. Supply Chain Security (BINDING for production systems)
+
+*Supply chain attacks are among the most dangerous threats - they compromise trust at the source.*
+
+### 12.1 Software Bill of Materials (SBOM)
+
+**Generation (BINDING for all deployed artifacts):**
+- Generate SBOM for every release using SPDX or CycloneDX format
+- Include all transitive dependencies, not just direct imports
+- Sign SBOMs and distribute alongside artifacts
+- Maintain SBOM versions tied to version control commits
+
+**Consumption:**
+- Verify SBOM before installing dependencies
+- Alert on new vulnerabilities affecting components in SBOM
+- Track SBOM drift between build and deploy
+
+### 12.2 SLSA Supply Chain Levels (BINDING for critical systems)
+
+| Level | Requirement | Threat Mitigated |
+|-------|-------------|------------------|
+| L0 | No guarantees | None |
+| L1 | Provenance document | Tampering after build |
+| L2 | Signed provenance, hermetic build | Tampering during build |
+| L3 | Hardened build service | Tampering by privileged user |
+| L4 | Two-party review + hermetic | All of above + insider threat |
+
+**Implementation:**
+- Use build systems that produce verifiable provenance (GitHub Actions with SLSA, Bazel)
+- Require provenance verification in CI before deployment
+- Maintain build integrity through hermetic, isolated builds
+
+### 12.3 Dependency Security (BINDING)
+
+**Allowlist over blocklist:**
+- Use lockfiles that hash every dependency
+- Pin to specific versions, not ranges
+- Audit new dependencies before addition (not just vulnerability scans)
+- Prefer well-maintained packages with multiple maintainers
+
+**Provenance verification:**
+- Verify source repository, maintainer identity, and release integrity
+- Reject dependencies from forks without explicit review
+- Monitor for typosquatting and dependency confusion attacks
+
+### 12.4 Secret Scanning (BINDING in CI)
+
+**Prevent commits:**
+- Pre-commit hooks that scan for secrets before allowing commit
+- CI checks that fail on any detected secret (true positives)
+- No exceptions for test/fake secrets - train against real patterns
+
+**Detect exposure:**
+- Scan entire git history for secrets (git-secrets, TruffleHog)
+- Alert on secret found, don't just fail
+- Rotate immediately - assume compromise on detection
+
+---
+
+## 13. Cryptographic Standards (BINDING for any cryptographic implementation)
+
+### 13.1 Symmetric Encryption
+
+**Algorithms:**
+| Algorithm | Key Length | Status | Use Case |
+|-----------|------------|--------|----------|
+| AES-256-GCM | 256-bit | RECOMMENDED | General encryption at rest |
+| AES-256-GCM-SIV | 256-bit | ACCEPTABLE | Nonce-misuse resistance |
+| ChaCha20-Poly1305 | 256-bit | RECOMMENDED | High performance, mobile |
+| AES-128 | 128-bit | MINIMUM | Legacy compatibility only |
+
+**Prohibited:** DES, 3DES, AES-ECB, RC4, Blowfish
+
+**Implementation:**
+- Always use authenticated encryption (GCM, Poly1305)
+- Generate IVs using crypto RNG, never reuse
+- Store keys in KMS, never in code or config files
+
+### 13.2 Asymmetric Encryption
+
+**Key Exchange:**
+| Algorithm | Key Size | Status | Notes |
+|-----------|----------|--------|-------|
+| X25519 | 256-bit | RECOMMENDED | ECDH, fast, secure |
+| ECDH P-384 | 384-bit | ACCEPTABLE | Legacy compatibility |
+| FFDH-4096 | 4096-bit | ACCEPTABLE | When ECC unavailable |
+
+**Digital Signatures:**
+| Algorithm | Key Size | Status | Use Case |
+|-----------|----------|--------|----------|
+| Ed25519 | 256-bit | RECOMMENDED | Signatures, identity |
+| ECDSA P-384 | 384-bit | ACCEPTABLE | Legacy systems |
+| RSA-4096 | 4096-bit | MINIMUM | When ECC unavailable |
+
+**Prohibited:** RSA-2048 and below, RSA with PKCSv1.5 padding
+
+### 13.3 Hashing
+
+| Algorithm | Status | Use Case |
+|-----------|--------|----------|
+| SHA-256 | MINIMUM | General hashing |
+| SHA-384 | RECOMMENDED | When 256-bit insufficient |
+| BLAKE3 | RECOMMENDED | Fast hashing, large data |
+| Argon2id | RECOMMENDED | Password hashing |
+| scrypt | ACCEPTABLE | Password hashing |
+
+**Prohibited:** MD5, SHA-1 (except in HMAC-SHA1), Tiger
+
+### 13.4 Password Storage (BINDING)
+
+**Algorithm choice:**
+- Argon2id (primary) - memory-hard, side-channel resistant
+- scrypt (acceptable) - when Argon2 unavailable
+- bcrypt (minimum) - legacy compatibility only
+- NEVER use PBKDF2 with iterations < 600,000
+
+**Implementation:**
+- Generate unique salt per password (minimum 16 bytes)
+- Cost parameters tuned to take >250ms on deployment hardware
+- Verify against breach databases (HaveIBeenPwned API)
+
+### 13.5 TLS/SSL
+
+**Versions:** TLS 1.3 only for new deployments; TLS 1.2 minimum for compatibility
+
+**Cipher Suites (TLS 1.3):**
+- TLS_AES_256_GCM_SHA384
+- TLS_AES_128_GCM_SHA256
+- TLS_CHACHA20_POLY1305_SHA256
+
+**For TLS 1.2:**
+- Require forward secrecy (ECDHE or DHE)
+- Reject connections without SNI
+- Certificate verification mandatory
+- HSTS required (max-age >= 1 year)
+
+### 13.6 Key Management (BINDING)
+
+**Key Lifecycle:**
+1. **Generation:** Hardware RNG or HSM, never software RNG for production keys
+2. **Storage:** HSM for master keys; KMS for service keys
+3. **Distribution:** Use envelope encryption, never export raw keys
+4. **Rotation:** Automatic rotation for symmetric keys; planned rotation for asymmetric
+5. **Revocation:** Immediate revocation and re-encryption on suspected compromise
+6. **Destruction:** Secure wipe with verification
+
+**Key Hierarchy:**
+- Master Key (HSM) → Key Encrypting Key → Data Encryption Key
+- Never use master key directly for data encryption
+
+---
+
+## 14. SECCOMP and System Call Filtering (BINDING for containerized workloads)
+
+### 14.1 Principle of Least Privilege for System Calls
+
+**Default deny:**
+- Block all system calls not explicitly required
+- Use seccomp profile that whitelists only needed calls
+- Audit unexpected syscalls as potential indicators of compromise
+
+### 14.2 Minimal System Call Sets
+
+**For untrusted workloads:**
+```
+# Allowed base syscalls
+read, write, close, sigaltstack, mmap, mprotect, brk, access
+exit, arch_prctl, set_tid_address, set_robust_list, prlimit64
+rt_sigprocmask, rt_sigreturn, clock_gettime, restart_syscall
+exit_group, epoll_wait, ppoll, clock_nanosleep
+```
+
+**Additional when needed:**
+```
+# Network access
+socket, connect, bind, listen, accept, send, recv, shutdown
+# File system (read-only)
+openat, fstat, readlink, lseek
+# File system (write - minimal)
+openat (O_WRONLY only), unlink (rare)
+# Memory management
+munmap, mremap, statfs
+```
+
+### 14.3 Container Runtime Security
+
+**Docker/OCI runtime:**
+- Run containers with `--security-opt seccomp=unconfined` only when necessary
+- Default seccomp profile blocks ~44 syscalls
+- Apply AppArmor or SELinux profiles for additional隔离
+
+**Kubernetes:**
+- Use PodSecurityPolicies or Pod Security Standards
+- Disable privileged containers
+- Enforce seccomp profiles at cluster level
+
+### 14.4 Capability Dropping (BINDING)
+
+**Required capability drops:**
+- NET_RAW (prevent spoofing)
+- SYS_ADMIN (mount operations)
+- SYS_MODULE (load kernel modules)
+- DAC_READ_SEARCH (bypass file permissions)
+- NET_ADMIN (network configuration)
+
+**Audit capabilities:**
+- Regularly audit granted capabilities vs. actual requirements
+- Remove unused capabilities from running containers
+- Alert on capability escalation
+
+---
+
+## 15. Security Monitoring and SIEM (BINDING for production)
+
+### 15.1 Security Event Logging (BINDING)
+
+**Log everything:**
+- Authentication attempts (success and failure)
+- Authorization decisions (especially denials)
+- Configuration changes
+- Privilege escalations
+- Network connections (source, destination, port, protocol)
+- Data access (especially sensitive data)
+- Admin operations
+- Security tool alerts
+
+**Log format:**
+- Structured JSON with timestamps (ISO 8601)
+- Include: who, what, when, where, source IP, user agent
+- Never log: passwords, tokens, PII (unless required for compliance)
+- Tamper-proof logging with write-once storage
+
+### 15.2 Detection Rules
+
+**Critical alerts (immediate response):**
+- Multiple failed logins from same IP
+- Authentication from unusual location
+- Privilege escalation detected
+- Data exfiltration indicators
+- Malware/trojan detection
+- Lateral movement detection
+
+**Monitoring:**
+- Brute force attacks
+- Port scanning
+- Unusual process execution
+- File integrity violations
+- Network anomaly detection
+- User behavior analytics (UEBA)
+
+### 15.3 SIEM Requirements (BINDING for enterprise)
+
+**Collection:**
+- Agent-based and agentless collection
+- Real-time event streaming
+- Log aggregation from all sources (minimum 1 year retention)
+- Cloud and on-premises coverage
+
+**Analytics:**
+- Correlation rules across data sources
+- Machine learning for anomaly detection
+- Threat intelligence integration
+- Automated alerting with severity classification
+
+**Response integration:**
+- SOAR playbook integration for automated response
+- Ticketing system integration
+- Executive dashboard for security posture
+
+---
+
+## 16. Threat Intelligence (ADVISORY for standard operations, BINDING for SOC)
+
+### 16.1 Intelligence Sources
+
+**Internal:**
+- Security event logs
+- Incident postmortems
+- Vulnerability assessments
+- Red team findings
+
+**External:**
+- Commercial threat feeds (Mandiant, Recorded Future)
+- Government feeds (CISA, FBI)
+- ISACs (Information Sharing and Analysis Centers)
+- Open source feeds (AlienVault OTX, MISP)
+- Industry-specific ISACs
+
+### 16.2 Sharing (ADVISORY)
+
+**Share responsibly:**
+- Participate in industry ISACs
+- Share indicators with trusted partners
+- Report to government authorities (FBI, CISA)
+- Contribute to open source security lists
+
+**Protect sensitive data:**
+- Sanitize shared indicators (remove PII)
+- Use TAXII/STIX for standardized sharing
+- Apply traffic light protocol (TLP) markings
+
+---
+
+## 17. Security Research and Seminal Papers (REFERENCE)
+
+### Foundational Texts
+
+1. **"The Protection of Information in Computer Systems"** - Saltzer & Schroeder, 1975
+   - First formal treatment of protection principles
+   - Least privilege, open design, separation of privilege
+
+2. **"Security Engineering"** - Ross Anderson, 2020
+   - Comprehensive security engineering textbook
+   - Threat modeling, cryptography, protocols, economics
+
+3. **"The Tangled Web"** - Michal Zalewski, 2011
+   - Browser security fundamentals
+   - Origin policy,Same-origin, CSP
+
+4. **"The Art of Software Security Assessment"** - Dowd & McDonald, 2006
+   - Code review methodology
+   - Vulnerability classes and detection
+
+### Cryptography
+
+5. **"Handbook of Applied Cryptography"** - Menezes et al., 1996
+   - Comprehensive crypto reference
+   - Algorithm specifications and security proofs
+
+6. **"Cryptographic Hash Functions"** - Bart Preneel, 1999
+   - Hash function design principles
+   - Collision resistance foundations
+
+### Network Security
+
+7. **"Transport Layer Security (TLS) Protocol"** - Dierks & Rescorla, 2008
+   - TLS 1.2 specification
+   - Cipher suite negotiation, handshake protocol
+
+8. **"The NSA's SKI"** - Multiple authors
+   - Key exchange vulnerabilities
+   - Forward secrecy importance
+
+### Browser and Web
+
+9. **"CSP 1.0 Specification"** - World Wide Web Consortium
+   - Content Security Policy
+   - Mitigation against XSS
+
+10. **"Same-Origin Policy"** - Mozilla Developer Network
+    - Browser security model
+    - Cross-origin restrictions
+
+### Threat Modeling
+
+11. **"Threat Modeling: Designing for Security"** - Adam Shostack, 2014
+    - STRIDE methodology
+    - DFD-based threat identification
+
+12. **"Patas"** - MEHTA, 2015
+    - Process for attack simulation and threat analysis
+    - Risk-based threat modeling
+
+### Supply Chain
+
+13. **"The Notorious Nine: Cloud Computing Threats"** - CSA, 2016
+    - Cloud-specific threats
+    - Shared responsibility model
+
+14. **"SLSA Framework"** - Google, 2021
+    - Supply chain integrity framework
+    - Provenance generation and verification
+
+---
+
+## 18. Compliance Frameworks (ADVISORY, BINDING when scope requires)
+
+### 18.1 SOC 2 (Service Organization Control 2)
+
+**Trust Service Criteria:**
+- Security (common criteria)
+- Availability
+- Processing Integrity
+- Confidentiality
+- Privacy
+
+**Requirements:**
+- Annual audit by certified third party
+- Continuous monitoring
+- Incident response procedures
+- Access management
+- Change management
+
+### 18.2 HIPAA (Health Insurance Portability and Accountability Act)
+
+**Requirements:**
+- Technical safeguards (encryption, access controls, audit trails)
+- Administrative safeguards (policies, training, risk assessment)
+- Physical safeguards (facility access, workstation security)
+- Breach notification within 60 days
+
+**Protected Data:**
+- PHI (Protected Health Information)
+- EPHI (Electronic PHI)
+
+### 18.3 GDPR (General Data Protection Regulation)
+
+**Requirements:**
+- Lawful basis for processing
+- Data subject rights
+- Privacy by design
+- Data protection impact assessments
+- Breach notification within 72 hours
+- Cross-border transfer restrictions
+
+**Key Concepts:**
+- Data minimization
+- Purpose limitation
+- Storage limitation
+- Accuracy
+
+### 18.4 PCI-DSS (Payment Card Industry Data Security Standard)
+
+**Requirements:**
+- Secure network (firewalls, encryption)
+- Cardholder data protection
+- Vulnerability management
+- Access control
+- Network monitoring
+- Information security policy
+
+---
+
+## 19. Memory Safety (BINDING for new systems in memory-unsafe languages)
+
+### 19.1 Unsafe Languages (C/C++) Require Explicit Mitigation
+
+**When using C/C++:**
+- Use AddressSanitizer (ASan) in development and testing
+- Use MemorySanitizer (MSan) for undefined behavior detection
+- Use Control Flow Integrity (CFI) to prevent jump hijacking
+- Enable stack canaries for buffer overflow detection
+- Use `-fPIE -pie` for position-independent executables
+
+### 19.2 Safe Alternatives
+
+**Prefer safe languages:**
+- Rust (memory safety without GC)
+- Go (memory safety, GC)
+- Java (bytecode verification, sandbox)
+- C# (managed code, memory safety)
+
+**When unsafe is required:**
+- Isolate in separate process with minimal privileges
+- Use hardware memory protection (MMU)
+- Apply seccomp to limit syscalls
+
+### 19.3 Common Vulnerability Classes
+
+| Vulnerability | Root Cause | Mitigation |
+|--------------|------------|------------|
+| Buffer overflow | Missing bounds check | Safe languages, ASan, bounds check |
+| Use after free | Dangling pointer | Safe languages, MSan, memory pools |
+| Double free | Double deallocation | Safe languages, MSan, allocator metadata |
+| Format string | User input in format | Safe languages, bounds-checked I/O |
+| Integer overflow | Bounds check bypass | Safe languages, runtime checks |
+
+---
+
+## 20. Security Architecture Patterns (ADVISORY)
+
+### 20.1 Gateway Pattern
+
+**Benefits:**
+- Centralized security policy enforcement
+- Single point of authentication/authorization
+- Unified logging and monitoring
+- Reduced attack surface on services
+
+**Implementation:**
+- API Gateway with built-in security (Kong, Apigee)
+- Service mesh with mTLS (Istio, Linkerd)
+- WAF as first line of defense
+
+### 20.2 Sidecar Pattern
+
+**Benefits:**
+- Language-agnostic security
+- Decoupled from application logic
+- Independent scaling and updates
+
+**Implementation:**
+- Service mesh proxies (Envoy)
+- Secret injection sidecars
+- Certificate management agents
+
+### 20.3 Zero Trust Network Architecture (BINDING for production)
+
+**Core principles:**
+- Never trust, always verify
+- Assume breach mentality
+- Least privilege access
+- Microsegmentation
+
+**Implementation:**
+- Service identity (SPIFFE/SPIRE)
+- mTLS for all service-to-service communication
+- Continuous authentication
+- Policy engine (Open Policy Agent)
+- Identity-aware proxy for user access
+
+---
+
 ## Links
 
 - `specs/SECURITY.md` - Security doctrine (binding)
 - `methodology/ARCHITECTURE.md` - binding architecture
 - `architecture/WEB.md` - Web security
 - `architecture/CLOUD.md` - Cloud security
+- `architecture/CODING_STANDARDS.md` - Coding standards with security implications
 
 ---
 
@@ -391,3 +905,6 @@ Project security architecture emphasis:
 - Keep secrets out of model-visible context; inject only where execution requires them.
 - Distinguish sandboxed tool execution from externally hosted connectors, and apply stricter controls to the latter.
 - Require auditable approval flows for high-risk actions and irreversible operations.
+- Supply chain integrity: verify all dependencies, generate SBOMs for all artifacts.
+- Cryptographic standards: AES-256-GCM or ChaCha20-Poly1305 for encryption, Ed25519 for signatures.
+- Memory safety: prefer safe languages; when unsafe is required, use ASan/MSan in testing.
