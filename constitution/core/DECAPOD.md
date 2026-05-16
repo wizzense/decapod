@@ -99,8 +99,15 @@ Every RPC response includes:
 
 Decapod resolves standards from:
 1. Industry Engineering Excellence (built-in Oracle: see `ENGINEERING_EXCELLENCE.md`)
-2. Industry defaults (built-in)
-3. `.decapod/OVERRIDE.md` (project-specific)
+2. Canonical Industry Coding Standards (see `architecture/CODING_STANDARDS.md`):
+   - Uncle Bob Martin (Clean Code / SOLID)
+   - Martin Fowler (Refactoring / Patterns)
+   - Pragmatic Programmer (Engineering Principles)
+   - Gang of Four (Design Patterns)
+   - DRY (Don't Repeat Yourself)
+   - Unix Philosophy
+3. Industry defaults (built-in)
+4. `.decapod/OVERRIDE.md` (project-specific overrides)
 
 Query with: `decapod rpc --op standards.resolve`
 
