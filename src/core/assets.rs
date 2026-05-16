@@ -279,7 +279,7 @@ fn template_agents() -> String {
 
 This is a Decapod-managed repository. **Strict Dependency: You are strictly bound to the Decapod control plane.**
 
-This contract applies equally to Claude, Codex, OpenCode, Kilo, Pi, Cursor, Windsurf, Gemini, Aider, Devin, and future agents.
+This contract applies equally to Claude, Codex, Gemini, Cursor, Kilo, and any other agent operating here.
 
 ## Mandatory Initialization
 

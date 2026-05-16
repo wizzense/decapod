@@ -872,13 +872,13 @@ fn init_with_from_config(
         agents: has("AGENTS.md"),
         specs: config.init.specs,
         diagram_style: config.init.diagram_style,
-        product_name: None,
-        product_summary: None,
-        architecture_direction: None,
-        product_type: None,
-        done_criteria: None,
-        primary_languages: Vec::new(),
-        detected_surfaces: Vec::new(),
+        product_name: config.repo.product_name.clone(),
+        product_summary: config.repo.product_summary.clone(),
+        architecture_direction: config.repo.architecture_direction.clone(),
+        product_type: config.repo.product_type.clone(),
+        done_criteria: config.repo.done_criteria.clone(),
+        primary_languages: config.repo.primary_languages.clone(),
+        detected_surfaces: config.repo.detected_surfaces.clone(),
     }
 }
 
