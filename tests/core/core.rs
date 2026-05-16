@@ -954,6 +954,55 @@ This is a test override for CONTROL_PLANE.md
     // Should contain both embedded content and override
     assert!(merged_content.contains("## Project Overrides"));
     assert!(merged_content.contains("Custom TODO Priorities"));
+
+    let override_sections = assets::list_override_sections(root);
+    assert_eq!(
+        override_sections,
+        vec![
+            "core/DECAPOD.md",
+            "core/CONTROL_PLANE.md",
+            "plugins/TODO.md"
+        ]
+    );
+}
+
+#[test]
+fn docs_list_outputs_project_override_sections() {
+    let tmp = tempdir().expect("tempdir");
+    let root = tmp.path();
+
+    fs::create_dir_all(root.join(".decapod")).expect("mkdir .decapod");
+    fs::write(
+        root.join(".decapod/OVERRIDE.md"),
+        r#"# OVERRIDE.md
+
+```markdown
+### core/EXAMPLE.md
+```
+
+<!-- CHANGES ARE NOT PERMITTED ABOVE THIS LINE -->
+
+## Core Overrides
+
+### core/DECAPOD.md
+
+Project override.
+"#,
+    )
+    .expect("write OVERRIDE.md");
+
+    let output = Command::new(env!("CARGO_BIN_EXE_decapod"))
+        .arg("docs")
+        .arg("list")
+        .current_dir(root)
+        .output()
+        .expect("run docs list");
+
+    assert!(output.status.success());
+    let stdout = String::from_utf8(output.stdout).expect("utf8 stdout");
+    assert!(stdout.contains("Project Override Sections:"));
+    assert!(stdout.contains("- core/DECAPOD.md"));
+    assert!(!stdout.contains("core/EXAMPLE.md"));
 }
 
 #[test]
