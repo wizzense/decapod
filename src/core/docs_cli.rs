@@ -122,7 +122,17 @@ pub fn run_docs_cli(cli: DocsCli) -> Result<DocsRunResult, error::DecapodError> 
             for doc in docs {
                 println!("- {}", doc);
             }
-            // TODO: Also list project override sections from .decapod/OVERRIDE.md
+            if let Ok(current_dir) = std::env::current_dir()
+                && let Ok(repo_root) = find_repo_root(&current_dir)
+            {
+                let override_sections = assets::list_override_sections(&repo_root);
+                if !override_sections.is_empty() {
+                    println!("\nProject Override Sections:");
+                    for section in override_sections {
+                        println!("- {}", section);
+                    }
+                }
+            }
             Ok(DocsRunResult::default())
         }
         DocsCommand::Show { path, source } => {

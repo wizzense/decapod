@@ -63,6 +63,53 @@ fn setup_repo() -> (TempDir, PathBuf, String) {
     (tmp, dir, password)
 }
 
+fn valid_recursive_pass() -> serde_json::Value {
+    serde_json::json!({
+        "schema_version": "recursive-improvement-pass.v1",
+        "id": "rip_01_valid",
+        "observed_deficiency": "Generated acceptance evidence is documented but lacks a first-class proof adapter.",
+        "parent_task_ref": "todo:cicd_01parent",
+        "parent_spec_ref": "constitution/docs/ARCHITECTURE_OVERVIEW.md#Acceptance Proof Inputs",
+        "constitutional_authority": "claim.proof.acceptance_evidence_input",
+        "allowed_changes": ["constitution/plugins/VERIFY.md", "constitution/docs/ARCHITECTURE_OVERVIEW.md"],
+        "forbidden_changes": ["constitution/core", "src/core/validate.rs"],
+        "touched_paths": ["constitution/plugins/VERIFY.md"],
+        "proof_required": ["decapod validate", "cargo test --test validate_optional_artifact_gates"],
+        "stop_condition": "Stop after one validation-backed patch or on the first failed proof gate.",
+        "risk_level": "medium",
+        "requires_user_approval": false,
+        "user_approval_ref": null,
+        "mutates_parent_intent": false,
+        "expands_scope": false,
+        "weakens_governance": false
+    })
+}
+
+fn write_recursive_pass(dir: &Path, pass: serde_json::Value) {
+    let recursive_dir = dir
+        .join(".decapod")
+        .join("governance")
+        .join("recursive_passes");
+    fs::create_dir_all(&recursive_dir).expect("create recursive pass dir");
+    fs::write(
+        recursive_dir.join("rip_01.json"),
+        serde_json::to_vec_pretty(&pass).expect("serialize recursive pass"),
+    )
+    .expect("write recursive pass");
+}
+
+fn validate_with_session(dir: &Path, password: &str) -> std::process::Output {
+    run_decapod(
+        dir,
+        &["validate"],
+        &[
+            ("DECAPOD_AGENT_ID", "unknown"),
+            ("DECAPOD_SESSION_PASSWORD", password),
+            ("DECAPOD_VALIDATE_SKIP_GIT_GATES", "1"),
+        ],
+    )
+}
+
 #[test]
 fn validate_stubs_are_non_blocking_when_artifacts_absent() {
     let (_tmp, dir, password) = setup_repo();
@@ -79,6 +126,180 @@ fn validate_stubs_are_non_blocking_when_artifacts_absent() {
         validate.status.success(),
         "validate should pass with no optional phase-0 artifacts; stderr:\n{}",
         String::from_utf8_lossy(&validate.stderr)
+    );
+}
+
+#[test]
+fn validate_accepts_valid_recursive_improvement_pass() {
+    let (_tmp, dir, password) = setup_repo();
+    write_recursive_pass(&dir, valid_recursive_pass());
+
+    let validate = validate_with_session(&dir, &password);
+    assert!(
+        validate.status.success(),
+        "validate should accept valid recursive pass; output:\n{}",
+        combined_output(&validate)
+    );
+}
+
+#[test]
+fn validate_rejects_recursive_pass_without_authority() {
+    let (_tmp, dir, password) = setup_repo();
+    let mut pass = valid_recursive_pass();
+    pass["constitutional_authority"] = serde_json::json!("");
+    write_recursive_pass(&dir, pass);
+
+    let validate = validate_with_session(&dir, &password);
+    assert!(
+        !validate.status.success(),
+        "validate should reject recursive pass without authority"
+    );
+    let output = combined_output(&validate);
+    assert!(
+        output.contains("constitutional authority is required"),
+        "expected authority failure, got:\n{}",
+        output
+    );
+}
+
+#[test]
+fn validate_rejects_recursive_pass_without_parent_task_or_spec() {
+    let (_tmp, dir, password) = setup_repo();
+    let mut pass = valid_recursive_pass();
+    pass["parent_task_ref"] = serde_json::json!(null);
+    pass["parent_spec_ref"] = serde_json::json!("");
+    write_recursive_pass(&dir, pass);
+
+    let validate = validate_with_session(&dir, &password);
+    assert!(
+        !validate.status.success(),
+        "validate should reject recursive pass without parent lineage"
+    );
+    let output = combined_output(&validate);
+    assert!(
+        output.contains("parent task/spec reference is required"),
+        "expected parent lineage failure, got:\n{}",
+        output
+    );
+}
+
+#[test]
+fn validate_rejects_recursive_pass_without_stop_condition() {
+    let (_tmp, dir, password) = setup_repo();
+    let mut pass = valid_recursive_pass();
+    pass["stop_condition"] = serde_json::json!("");
+    write_recursive_pass(&dir, pass);
+
+    let validate = validate_with_session(&dir, &password);
+    assert!(
+        !validate.status.success(),
+        "validate should reject recursive pass without stop condition"
+    );
+    let output = combined_output(&validate);
+    assert!(
+        output.contains("stop_condition is required"),
+        "expected stop condition failure, got:\n{}",
+        output
+    );
+}
+
+#[test]
+fn validate_rejects_recursive_pass_with_vague_proof() {
+    let (_tmp, dir, password) = setup_repo();
+    let mut pass = valid_recursive_pass();
+    pass["proof_required"] = serde_json::json!(["looks clean"]);
+    write_recursive_pass(&dir, pass);
+
+    let validate = validate_with_session(&dir, &password);
+    assert!(
+        !validate.status.success(),
+        "validate should reject recursive pass with vague proof"
+    );
+    let output = combined_output(&validate);
+    assert!(
+        output.contains("proof_required must contain concrete proof gates"),
+        "expected proof failure, got:\n{}",
+        output
+    );
+}
+
+#[test]
+fn validate_rejects_recursive_pass_that_expands_scope() {
+    let (_tmp, dir, password) = setup_repo();
+    let mut pass = valid_recursive_pass();
+    pass["expands_scope"] = serde_json::json!(true);
+    write_recursive_pass(&dir, pass);
+
+    let validate = validate_with_session(&dir, &password);
+    assert!(
+        !validate.status.success(),
+        "validate should reject recursive pass that expands scope"
+    );
+    let output = combined_output(&validate);
+    assert!(
+        output.contains("must not expand scope"),
+        "expected scope failure, got:\n{}",
+        output
+    );
+}
+
+#[test]
+fn validate_rejects_recursive_pass_that_rewrites_parent_intent() {
+    let (_tmp, dir, password) = setup_repo();
+    let mut pass = valid_recursive_pass();
+    pass["mutates_parent_intent"] = serde_json::json!(true);
+    write_recursive_pass(&dir, pass);
+
+    let validate = validate_with_session(&dir, &password);
+    assert!(
+        !validate.status.success(),
+        "validate should reject recursive pass that mutates parent intent"
+    );
+    let output = combined_output(&validate);
+    assert!(
+        output.contains("must not mutate parent intent"),
+        "expected parent intent failure, got:\n{}",
+        output
+    );
+}
+
+#[test]
+fn validate_rejects_recursive_pass_that_weakens_governance() {
+    let (_tmp, dir, password) = setup_repo();
+    let mut pass = valid_recursive_pass();
+    pass["weakens_governance"] = serde_json::json!(true);
+    write_recursive_pass(&dir, pass);
+
+    let validate = validate_with_session(&dir, &password);
+    assert!(
+        !validate.status.success(),
+        "validate should reject recursive pass weakening governance"
+    );
+    let output = combined_output(&validate);
+    assert!(
+        output.contains("must not weaken constitution"),
+        "expected governance weakening failure, got:\n{}",
+        output
+    );
+}
+
+#[test]
+fn validate_rejects_recursive_pass_touching_forbidden_paths() {
+    let (_tmp, dir, password) = setup_repo();
+    let mut pass = valid_recursive_pass();
+    pass["touched_paths"] = serde_json::json!(["constitution/core/DECAPOD.md"]);
+    write_recursive_pass(&dir, pass);
+
+    let validate = validate_with_session(&dir, &password);
+    assert!(
+        !validate.status.success(),
+        "validate should reject recursive pass touching forbidden paths"
+    );
+    let output = combined_output(&validate);
+    assert!(
+        output.contains("touched forbidden path"),
+        "expected forbidden path failure, got:\n{}",
+        output
     );
 }
 

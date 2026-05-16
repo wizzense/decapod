@@ -24,7 +24,7 @@ use crate::plugins::aptitude::{SkillCard, SkillResolution};
 use crate::plugins::internalize::{self, DeterminismClass, InternalizationManifest, ReplayClass};
 use crate::{db, primitives, todo};
 use fancy_regex::Regex;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use serde_json;
 use std::collections::HashSet;
 use std::fs;
@@ -2735,6 +2735,210 @@ fn validate_policy_integrity(
     Ok(())
 }
 
+#[derive(Debug, Deserialize)]
+struct RecursiveImprovementPass {
+    schema_version: String,
+    id: String,
+    observed_deficiency: String,
+    parent_task_ref: Option<String>,
+    parent_spec_ref: Option<String>,
+    constitutional_authority: String,
+    allowed_changes: Vec<String>,
+    forbidden_changes: Vec<String>,
+    touched_paths: Vec<String>,
+    proof_required: Vec<String>,
+    stop_condition: String,
+    risk_level: String,
+    requires_user_approval: bool,
+    user_approval_ref: Option<String>,
+    mutates_parent_intent: bool,
+    expands_scope: bool,
+    weakens_governance: bool,
+}
+
+fn non_empty(s: &str) -> bool {
+    !s.trim().is_empty()
+}
+
+fn vague_proof(proof: &str) -> bool {
+    let normalized = proof.trim().to_ascii_lowercase();
+    normalized.is_empty()
+        || matches!(
+            normalized.as_str(),
+            "proof"
+                | "verify"
+                | "validation"
+                | "tests"
+                | "check"
+                | "review"
+                | "manual review"
+                | "looks good"
+                | "looks clean"
+                | "green"
+        )
+        || normalized.contains("todo")
+        || normalized.contains("tbd")
+        || normalized.contains("some test")
+}
+
+fn vague_stop_condition(stop_condition: &str) -> bool {
+    let normalized = stop_condition.trim().to_ascii_lowercase();
+    normalized.is_empty()
+        || matches!(
+            normalized.as_str(),
+            "none"
+                | "n/a"
+                | "until done"
+                | "until good"
+                | "until clean"
+                | "until it looks good"
+                | "when good"
+                | "when clean"
+                | "open ended"
+                | "infinite"
+        )
+        || normalized.contains("forever")
+}
+
+fn forbidden_path_touched(forbidden: &[String], touched: &[String]) -> Option<(String, String)> {
+    for path in touched {
+        let p = path.trim().trim_start_matches("./");
+        for rule in forbidden {
+            let r = rule.trim().trim_start_matches("./");
+            if r.is_empty() {
+                continue;
+            }
+            let prefix = r.trim_end_matches('*').trim_end_matches('/');
+            if p == prefix || p.starts_with(&format!("{prefix}/")) {
+                return Some((path.clone(), rule.clone()));
+            }
+        }
+    }
+    None
+}
+
+fn validate_recursive_pass(pass: &RecursiveImprovementPass) -> Result<(), String> {
+    if pass.schema_version != "recursive-improvement-pass.v1" {
+        return Err("schema_version must be recursive-improvement-pass.v1".to_string());
+    }
+    if !non_empty(&pass.id) {
+        return Err("id is required".to_string());
+    }
+    if !non_empty(&pass.observed_deficiency) {
+        return Err("observed_deficiency is required".to_string());
+    }
+    let has_parent_task = pass.parent_task_ref.as_deref().is_some_and(non_empty);
+    let has_parent_spec = pass.parent_spec_ref.as_deref().is_some_and(non_empty);
+    if !has_parent_task && !has_parent_spec {
+        return Err("parent task/spec reference is required".to_string());
+    }
+    if !non_empty(&pass.constitutional_authority) {
+        return Err("constitutional authority is required".to_string());
+    }
+    let authority = pass.constitutional_authority.trim();
+    if !authority.starts_with("claim.") && !authority.contains(".md") {
+        return Err(
+            "constitutional authority must cite a claim id or constitution document".to_string(),
+        );
+    }
+    if pass.allowed_changes.is_empty() || !pass.allowed_changes.iter().all(|s| non_empty(s)) {
+        return Err("allowed_changes must name bounded mutation scope".to_string());
+    }
+    if pass.forbidden_changes.is_empty() || !pass.forbidden_changes.iter().all(|s| non_empty(s)) {
+        return Err("forbidden_changes must name forbidden mutation scope".to_string());
+    }
+    if pass.proof_required.is_empty() || pass.proof_required.iter().any(|p| vague_proof(p)) {
+        return Err("proof_required must contain concrete proof gates".to_string());
+    }
+    if vague_stop_condition(&pass.stop_condition) {
+        return Err("stop_condition is required and must prevent infinite polishing".to_string());
+    }
+    if !matches!(
+        pass.risk_level.as_str(),
+        "low" | "medium" | "high" | "critical"
+    ) {
+        return Err("risk_level must be one of low, medium, high, critical".to_string());
+    }
+    if pass.requires_user_approval && !pass.user_approval_ref.as_deref().is_some_and(non_empty) {
+        return Err(
+            "user_approval_ref is required when requires_user_approval is true".to_string(),
+        );
+    }
+    if pass.mutates_parent_intent {
+        return Err("recursive pass must not mutate parent intent".to_string());
+    }
+    if pass.expands_scope {
+        return Err("recursive pass must not expand scope".to_string());
+    }
+    if pass.weakens_governance {
+        return Err(
+            "recursive pass must not weaken constitution, repo rules, proof gates, or boundaries"
+                .to_string(),
+        );
+    }
+    if let Some((path, rule)) = forbidden_path_touched(&pass.forbidden_changes, &pass.touched_paths)
+    {
+        return Err(format!(
+            "recursive pass touched forbidden path '{}' matching '{}'",
+            path, rule
+        ));
+    }
+    Ok(())
+}
+
+fn validate_recursive_improvement_passes_if_present(
+    ctx: &ValidationContext,
+    repo_root: &Path,
+) -> Result<(), error::DecapodError> {
+    info("Recursive Improvement Pass Gate");
+
+    let passes_dir = repo_root
+        .join(".decapod")
+        .join("governance")
+        .join("recursive_passes");
+    if !passes_dir.exists() {
+        skip(
+            "No recursive improvement pass artifacts found; skipping recursive pass gate",
+            ctx,
+        );
+        return Ok(());
+    }
+
+    let mut files = 0usize;
+    for entry in fs::read_dir(&passes_dir).map_err(error::DecapodError::IoError)? {
+        let entry = entry.map_err(error::DecapodError::IoError)?;
+        let path = entry.path();
+        if path.extension().and_then(|s| s.to_str()) != Some("json") {
+            continue;
+        }
+        files += 1;
+        let raw = fs::read_to_string(&path).map_err(error::DecapodError::IoError)?;
+        let parsed: RecursiveImprovementPass = serde_json::from_str(&raw).map_err(|e| {
+            error::DecapodError::ValidationError(format!(
+                "invalid recursive improvement pass {}: {}",
+                path.display(),
+                e
+            ))
+        })?;
+        validate_recursive_pass(&parsed).map_err(|e| {
+            error::DecapodError::ValidationError(format!(
+                "invalid recursive improvement pass: {} ({})",
+                e,
+                path.display()
+            ))
+        })?;
+    }
+
+    pass(
+        &format!(
+            "Recursive improvement pass schema check passed for {} file(s)",
+            files
+        ),
+        ctx,
+    );
+    Ok(())
+}
+
 fn validate_knowledge_integrity(
     store: &Store,
     ctx: &ValidationContext,
@@ -4710,6 +4914,13 @@ pub fn run_validation(
             ctx,
             "validate_workunit_manifests_if_present",
             validate_workunit_manifests_if_present(ctx, decapod_dir)
+        );
+        gate!(
+            s,
+            timings,
+            ctx,
+            "validate_recursive_improvement_passes_if_present",
+            validate_recursive_improvement_passes_if_present(ctx, decapod_dir)
         );
         gate!(
             s,

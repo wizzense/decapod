@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.47.32](https://github.com/DecapodLabs/decapod/compare/v0.47.31...v0.47.32) - 2026-05-16
+
+### Other
+
+- refactor README and AGENTS with generated substrate
+
+## [0.47.31](https://github.com/DecapodLabs/decapod/compare/v0.47.30...v0.47.31) - 2026-05-16
+
+### Other
+
+- List project override sections in docs CLI
+
+## [0.47.30](https://github.com/DecapodLabs/decapod/compare/v0.47.29...v0.47.30) - 2026-05-16
+
+### Other
+
+- Add governed recursive improvement gate
+
+## [0.47.29](https://github.com/DecapodLabs/decapod/compare/v0.47.28...v0.47.29) - 2026-05-16
+
+### Added
+
+- *(constitution)* expand security standards with supply chain, cryptography, SECCOMP
+
+### Other
+
+- Merge branch 'master' into secu_01krs6saggx2z6r5/constitution-overhaul
+
 ## [0.47.28](https://github.com/DecapodLabs/decapod/compare/v0.47.27...v0.47.28) - 2026-05-15
 
 ### Other

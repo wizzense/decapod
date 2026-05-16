@@ -1,69 +1,70 @@
 # Operations
 
 ## Operational Readiness Checklist
-- [ ] Ownership and on-call rotation defined.
-- [ ] SLOs/SLIs defined with alert thresholds.
-- [ ] Dashboards for latency/errors/saturation active.
-- [ ] Incident runbooks linked for Sev1/Sev2 alerts.
-- [ ] Rollback policy validated.
-- [ ] Capacity assumptions reviewed.
+- [ ] On-call ownership defined.
+- [ ] SLOs and alert thresholds defined.
+- [ ] Dashboards for latency/errors/throughput are live.
+- [ ] Runbooks linked for all Sev1/Sev2 alerts.
+- [ ] Rollback plan validated.
+- [ ] Capacity guardrails documented.
 
 ## Service Level Objectives
-| SLI | Target | Window | Owner |
+| SLI | SLO Target | Measurement Window | Owner |
 |---|---|---|---|
-| Availability | 99.9% | 30d | Core maintainers |
-| Validate latency (p95) | <= 10s | 7d | Core maintainers |
-| Gate failure false-positive rate | <= 1% | 30d | Core maintainers |
+| Availability | 99.9% | 30d | TBD |
+| P95 latency | TBD | 7d | TBD |
+| Error rate | < 1% | 7d | TBD |
 
 ## Monitoring
-| Signal | Metric | Threshold | Alert Severity |
+| Signal | Metric | Threshold | Alert |
 |---|---|---|---|
-| Throughput | command executions/min | anomaly vs baseline | Sev3 |
-| Latency | validate p95/p99 | p95 > 10s sustained | Sev2 |
-| Reliability | failed gate ratio | > 20% unexpected | Sev2 |
-| Saturation | DB lock contention | sustained contention | Sev2 |
+| Traffic | requests/sec | baseline drift | warn |
+| Latency | p95/p99 | threshold breach | page |
+| Reliability | error ratio | threshold breach | page |
+| Saturation | cpu/memory/queue depth | sustained high | page |
 
 ## Health Checks
-- Liveness: binary invocation and core command response.
-- Readiness: workspace/session/store checks pass.
-- Dependency: git + filesystem + SQLite reachable.
+- Liveness:
+- Readiness:
+- Dependency health:
+- Synthetic transaction:
 
 ## Alerting and Runbooks
-| Alert | Severity | Runbook |
-|---|---|---|
-| Validation timeout spike | Sev2 | docs/runbooks/validate-timeout.md |
-| Workspace interlock bypass regression | Sev1 | docs/runbooks/interlock-regression.md |
-| Store boundary violation increase | Sev2 | docs/runbooks/store-boundary.md |
+| Alert | Severity | Runbook Link | Escalation |
+|---|---|---|---|
+| API error rate spike | Sev2 | TBD | App on-call |
+| Persistent dependency timeout | Sev1 | TBD | App + platform |
+| Validation gate outage | Sev2 | TBD | Maintainers |
 
 ## Incident Response
-- Incident commander role rotates with core maintainers.
-- Communication channel: issue + team channel + incident notes.
-- Postmortem SLA: draft within 48h for Sev1/Sev2.
-- Corrective actions are tracked as claimed todo tasks with due dates.
+- Incident commander model:
+- Communication channels:
+- Postmortem SLA:
+- Corrective action tracking:
 
 ## Structured Logging
-- Use structured fields: `trace_id`, `task_id`, `op`, `duration_ms`, `result`, `error_code`.
+- Use `tracing` + `tracing-subscriber` with structured JSON output and request correlation ids.
 
 ## Severity Definitions
 | Severity | Definition | Response Time |
 |---|---|---|
-| Sev1 | release-blocking outage or integrity risk | immediate |
-| Sev2 | major degradation or recurring gate failures | 30 minutes |
-| Sev3 | partial degradation without user-blocking impact | next business day |
+| Sev1 | Production outage or data integrity risk | Immediate |
+| Sev2 | Major functionality impaired | 30 minutes |
+| Sev3 | Minor degradation | Next business day |
 
 ## Deployment Strategy
-- Branch + PR + CI validate gating.
-- Promote only with local + CI proof receipts attached.
-- Rollback by reverting offending change and revalidating.
+- Primary strategy:
+- Change validation process:
+- Rollback and forward-fix policy:
 
 ## Environment Configuration
 | Variable | Purpose | Default | Secret |
 |---|---|---|---|
-| DECAPOD_SESSION_PASSWORD | session auth gate | unset | yes |
-| RUST_LOG | log verbosity | info | no |
-| DECAPOD_STORE | store mode selection | repo | no |
+| APP_ENV | runtime environment | dev | no |
+| LOG_LEVEL | observability verbosity | info | no |
+| API_TOKEN | external auth | none | yes |
 
 ## Capacity Planning
-- Baseline validates command frequency in CI and local usage.
-- Track DB growth and log compaction needs over time.
-- Keep headroom for parallel agent workspaces and validate runs.
+- Peak request assumption:
+- Storage growth model:
+- Queue/worker headroom:

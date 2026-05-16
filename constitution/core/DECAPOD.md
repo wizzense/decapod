@@ -2,19 +2,20 @@
 
 ## What Decapod Is
 
-Decapod is a repo-native helper for humans that makes an agent:
+Decapod is the daemonless, local-first, repo-native governance kernel behind AI coding agents. It makes an agent:
 1. Build what the human intends
 2. Follow the rules the human intends  
 3. Produce the quality the human intends
 
-The human interfaces ONLY with the agent as the UX. The agent calls Decapod.
+The human primarily interfaces with the agent as the UX. The agent calls Decapod.
 
-Decapod is called on demand inside agent loops to turn intent into context, then context into explicit specifications before inference.
+Decapod is called on demand inside agent loops to turn intent into context, then context into explicit specifications before inference. Each invocation rehydrates repo state, emits artifacts or proof when needed, and exits.
 
 ## What Decapod Is Not
 
 - Not an agent framework.
 - Not a prompt-pack.
+- Not a user-facing workflow app.
 - Not a daemonized control plane with hidden always-on state.
 
 ## Foundation Demands (Non-Negotiable)
@@ -25,6 +26,7 @@ Decapod is called on demand inside agent loops to turn intent into context, then
 4. **Decapod MUST remain daemonless and repo-native.** Promotion-relevant state must be auditable from repo artifacts and control-plane receipts.
 5. **Validation liveness is mandatory.** Validation must terminate boundedly with typed failure under contention, never hang indefinitely.
 6. **Operational agent guidance MUST live in entrypoint and constitution surfaces, not README.** README is human-facing product documentation.
+7. **Recursive improvement MUST respect authority hierarchy.** Agents may suggest improvements, but must not silently rewrite repository constitution, project/spec intent, task boundaries, proof requirements, or generated artifacts.
 
 ## For Agents: Quick Start
 
@@ -39,6 +41,7 @@ This produces a session receipt and tells you what's allowed next.
 - **Deterministic**: Same inputs produce same outputs
 - **Agent-native**: Designed for programmatic access via `decapod rpc`
 - **Daemonless**: No required long-lived control-plane process
+- **Host-agnostic**: Works as a local utility under different agent hosts/providers
 - **Workspace-enforced**: You cannot work on main/master - Decapod refuses
 - **Liveness-aware**: Requires **invocation heartbeat** for continuous presence tracking
 
@@ -98,9 +101,19 @@ Every RPC response includes:
 ## Standards Resolution
 
 Decapod resolves standards from:
-1. Industry Engineering Excellence (built-in Oracle: see `ENGINEERING_EXCELLENCE.md`)
-2. Industry defaults (built-in)
-3. `.decapod/OVERRIDE.md` (project-specific)
+1. **Constitutional Core** - Industry Engineering Excellence (see `ENGINEERING_EXCELLENCE.md`)
+2. **Security Standards** - Threat modeling, cryptography, supply chain, SECCOMP (see `architecture/SECURITY.md`)
+3. **Coding Standards** - Uncle Bob Martin, Fowler, Pragmatic, GoF, DRY, Unix (see `architecture/CODING_STANDARDS.md`)
+4. **Platform Engineering** - SRE, SLIs/SLOs, error budgets, on-call (see `methodology/SRE.md`)
+5. **Systems Design** - Distributed systems, CAP, PACELC, scalability (see `architecture/DISTRIBUTED_SYSTEMS.md`)
+6. **Product Development** - OKRs, prioritization, betas, feature flags (see `methodology/PRODUCT.md`)
+7. **Enterprise Architecture** - TOGAF, microservices, DDD (see `architecture/ENTERPRISE.md`)
+8. **Infrastructure** - Cloud patterns, networking, storage (see `architecture/CLOUD.md`)
+9. **Data Engineering** - Data modeling, pipelines, governance (see `architecture/DATA.md`)
+10. **Quality Assurance** - Testing strategies, TDD, BDD (see `methodology/TESTING.md`)
+11. **Operations** - Incident response, postmortems, chaos (see `methodology/INCIDENT_RESPONSE.md`)
+12. **Research** - Seminal papers, latest proofs (see `research/SEMINAL_PAPERS.md`)
+13. **Project Overrides** - `.decapod/OVERRIDE.md` (project-specific deviations)
 
 Query with: `decapod rpc --op standards.resolve`
 

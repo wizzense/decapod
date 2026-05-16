@@ -143,6 +143,32 @@ pub fn get_override_doc(repo_root: &Path, relative_path: &str) -> Option<String>
     extract_component_override(&override_content, relative_path)
 }
 
+/// List component override section headings from .decapod/OVERRIDE.md.
+pub fn list_override_sections(repo_root: &Path) -> Vec<String> {
+    let override_path = repo_root.join(".decapod").join("OVERRIDE.md");
+    let Ok(override_content) = std::fs::read_to_string(&override_path) else {
+        return Vec::new();
+    };
+
+    extract_override_section_names(&override_content)
+}
+
+fn extract_override_section_names(override_content: &str) -> Vec<String> {
+    let Some(override_start) = override_content.find("CHANGES ARE NOT PERMITTED ABOVE THIS LINE")
+    else {
+        return Vec::new();
+    };
+    let searchable_content = &override_content[override_start..];
+
+    searchable_content
+        .lines()
+        .filter_map(|line| line.strip_prefix("### "))
+        .map(str::trim)
+        .filter(|section| !section.is_empty())
+        .map(ToString::to_string)
+        .collect()
+}
+
 /// Extract a specific component's override content from OVERRIDE.md
 fn extract_component_override(override_content: &str, component_path: &str) -> Option<String> {
     // Only look after the "CHANGES ARE NOT PERMITTED ABOVE THIS LINE" marker
@@ -253,7 +279,7 @@ fn template_agents() -> String {
 
 This is a Decapod-managed repository. **Strict Dependency: You are strictly bound to the Decapod control plane.**
 
-This contract applies equally to Claude, Codex, Gemini, Cursor, Kilo, and any other agent operating here.
+This contract applies equally to Claude, Codex, OpenCode, Kilo, Pi, Cursor, Windsurf, Gemini, Aider, Devin, and future agents.
 
 ## Mandatory Initialization
 
@@ -284,7 +310,7 @@ decapod docs search --query "<problem>" --op <op> --path <path> --tag <tag>
 decapod rpc --op context.scope --params '{"query":"<problem>","limit":8}'
 
 # Convergence/proof surfaces (call when relevant)
-decapod workunit init --task-id <task-id> --intent-ref <intent>
+decapod govern workunit init --task-id <task-id> --intent-ref <intent>
 decapod govern capsule query --topic "<topic>" --scope interfaces --task-id <task-id>
 decapod eval plan --task-set-id <id> --task-ref <task-id> --model-id <model> --prompt-hash <hash> --judge-model-id <judge> --judge-prompt-hash <hash>
 ```
@@ -322,22 +348,22 @@ These invariants are directly enforced by tests. Violations will cause CI failur
 
 ## Universal Agent Operating Contract
 
-**Doctrine:** Establish intent, shape context, bound mutation, and define proof before implementation.
+**Doctrine:** Agents should establish intent, shape context, bound mutation, and define proof before implementation.
 
-**Before:** Determine what's asked; identify files/modules; define scope; surface assumptions; create dependency-aware todos.
+**Before:** Determine what's asked; identify files/commands/modules/artifacts; define in/out scope; surface assumptions/clarifications; create dependency-aware todos.
 
-**During:** Avoid opportunistic rewrites; preserve behavior unless task requires change; stop before crossing subsystem boundaries; verify before completion.
+**During:** Avoid opportunistic rewrites; preserve behavior unless required; stop before crossing subsystem boundaries; run the strongest practical verification.
 
 **After:** Report what changed, tested, not tested, and uncertainty. Ensure `decapod validate` passes.
 
 ## Decapod Governance
 
-Decapod is the repo-native control plane agents call on demand. It reduces wasted inference, prevents scope drift, enforces boundaries, and requires proof-backed completion.
+Decapod is the daemonless, local-first governance kernel behind AI coding agents. Agents call it on demand to converge on human intent, shape context before inference, enforce boundaries, and deliver proof-backed completion across concurrent multi-agent work.
 
 - **The agent performs the work.** Decapod does not implement or decide.
 - **Decapod governs the work.** It validates, tracks, and surfaces convergence proof.
-- **Decapod does not replace agents.** It makes Claude, Codex, OpenCode, Kilo, Pi, Cursor, and others more reliable by absorbing common deficiencies.
-
+- **Decapod does not replace agents.** It makes Claude, Codex, Gemini, Cursor, Kilo, and others more reliable by absorbing common deficiencies.
+- **Authority is hierarchical.** Constitution, project/spec intent, task boundaries, proof requirements, and generated artifacts outrank agent-local execution.
 Call Decapod before editing. Let Decapod validate after editing.
 
 ## Operating Notes
@@ -364,8 +390,7 @@ fn template_named_agent(file_stem: &str) -> String {
 fn template_readme() -> String {
     r#"# .decapod - Decapod Control Plane
 
-Decapod is a software engineering harness interfaced through AI coding agents.
-You get governed execution, proof-backed delivery, and integrated project management with near-zero operator overhead.
+Decapod is the daemonless, local-first governance kernel behind AI coding agents. Agents call it on demand to converge on human intent, shape context before inference, enforce boundaries, and deliver proof-backed completion across concurrent multi-agent work.
 
 GitHub: https://github.com/DecapodLabs/decapod
 
