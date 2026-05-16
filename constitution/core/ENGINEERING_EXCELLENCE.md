@@ -90,3 +90,4 @@ When agents interface with Decapod-managed repositories, these standards are the
 - `architecture/CONCURRENCY.md` - Concurrency architecture
 - `architecture/API_DESIGN.md` - API design standards
 - `architecture/COST_OPTIMIZATION.md` - Cloud and token cost management
+- `architecture/CODING_STANDARDS.md` - Uncle Bob Martin, Martin Fowler, Pragmatic Engineering, Gang of Four, DRY, Unix Philosophy
