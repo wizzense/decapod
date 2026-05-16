@@ -2,19 +2,20 @@
 
 ## What Decapod Is
 
-Decapod is a repo-native helper for humans that makes an agent:
+Decapod is the daemonless, local-first, repo-native governance kernel behind AI coding agents. It makes an agent:
 1. Build what the human intends
 2. Follow the rules the human intends  
 3. Produce the quality the human intends
 
-The human interfaces ONLY with the agent as the UX. The agent calls Decapod.
+The human primarily interfaces with the agent as the UX. The agent calls Decapod.
 
-Decapod is called on demand inside agent loops to turn intent into context, then context into explicit specifications before inference.
+Decapod is called on demand inside agent loops to turn intent into context, then context into explicit specifications before inference. Each invocation rehydrates repo state, emits artifacts or proof when needed, and exits.
 
 ## What Decapod Is Not
 
 - Not an agent framework.
 - Not a prompt-pack.
+- Not a user-facing workflow app.
 - Not a daemonized control plane with hidden always-on state.
 
 ## Foundation Demands (Non-Negotiable)
@@ -25,6 +26,7 @@ Decapod is called on demand inside agent loops to turn intent into context, then
 4. **Decapod MUST remain daemonless and repo-native.** Promotion-relevant state must be auditable from repo artifacts and control-plane receipts.
 5. **Validation liveness is mandatory.** Validation must terminate boundedly with typed failure under contention, never hang indefinitely.
 6. **Operational agent guidance MUST live in entrypoint and constitution surfaces, not README.** README is human-facing product documentation.
+7. **Recursive improvement MUST respect authority hierarchy.** Agents may suggest improvements, but must not silently rewrite repository constitution, project/spec intent, task boundaries, proof requirements, or generated artifacts.
 
 ## For Agents: Quick Start
 
@@ -39,6 +41,7 @@ This produces a session receipt and tells you what's allowed next.
 - **Deterministic**: Same inputs produce same outputs
 - **Agent-native**: Designed for programmatic access via `decapod rpc`
 - **Daemonless**: No required long-lived control-plane process
+- **Host-agnostic**: Works as a local utility under different agent hosts/providers
 - **Workspace-enforced**: You cannot work on main/master - Decapod refuses
 - **Liveness-aware**: Requires **invocation heartbeat** for continuous presence tracking
 
