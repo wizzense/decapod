@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  Agents call Decapod on demand to turn intent into context, context into explicit specifications,<br />
+  Agents call Decapod on demand to turn intent into context, then context into explicit specifications before inference,<br />
   and finished work into proof.
 </p>
 

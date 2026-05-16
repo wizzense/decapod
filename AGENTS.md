@@ -2,7 +2,7 @@
 
 This is a Decapod-managed repository. **Strict Dependency: You are strictly bound to the Decapod control plane.**
 
-This contract applies equally to Claude, Codex, Gemini, Cursor, Kilo, and any other agent operating here.
+This contract applies equally to Claude, Codex, OpenCode, Kilo, Pi, Cursor, Windsurf, Gemini, Aider, Devin, and future agents.
 
 ## Mandatory Initialization
 
@@ -71,11 +71,11 @@ These invariants are directly enforced by tests. Violations will cause CI failur
 
 ## Universal Agent Operating Contract
 
-**Doctrine:** Establish intent, shape context, bound mutation, and define proof before implementation.
+**Doctrine:** Agents should establish intent, shape context, bound mutation, and define proof before implementation.
 
-**Before:** Determine what's asked; identify files/modules; define scope; surface assumptions; create dependency-aware todos.
+**Before:** Determine what's asked; identify files/commands/modules/artifacts; define in/out scope; surface assumptions/clarifications; create dependency-aware todos.
 
-**During:** Avoid opportunistic rewrites; preserve behavior unless task requires change; stop before crossing subsystem boundaries; verify before completion.
+**During:** Avoid opportunistic rewrites; preserve behavior unless required; stop before crossing subsystem boundaries; run the strongest practical verification.
 
 **After:** Report what changed, tested, not tested, and uncertainty. Ensure `decapod validate` passes.
 
@@ -85,7 +85,7 @@ Decapod is the repo-native control plane agents call on demand. It reduces waste
 
 - **The agent performs the work.** Decapod does not implement or decide.
 - **Decapod governs the work.** It validates, tracks, and surfaces convergence proof.
-- **Decapod does not replace agents.** It makes Claude, Codex, OpenCode, Kilo, Pi, Cursor, and others more reliable by absorbing common deficiencies.
+- **Decapod does not replace agents.** It makes Claude, Codex, OpenCode, Kilo, Pi, Cursor, Windsurf, Gemini, Aider, Devin, and others more reliable by absorbing common deficiencies.
 
 Call Decapod before editing. Let Decapod validate after editing.
 
