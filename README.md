@@ -31,15 +31,15 @@ decapod init
 
 That's it.
 
-`decapod init` asks about your project and creates `.decapod/`, a local folder your agent uses to remember intent, rules, context, specs, todos, and proof.
+`decapod init` asks about your project and creates `.decapod/`, a local folder your agent uses to remember intent, rules, context, specs, task ownership, and proof.
 
 Your workflow does not change.
 
 You keep talking to your agent like normal. The agent calls Decapod when it needs project memory, intent, boundaries, specs, todos, or proof.
 
-Decapod runs, returns what the agent needs, writes explicit artifacts when useful, and exits.
+Decapod runs, rehydrates repo state, returns what the agent needs, writes explicit artifacts when useful, and exits.
 
-Decapod is a shared substrate where multiple agents, providers, and models operate against the same governed repo state concurrently.
+Decapod is the shared backhaul beneath Claude, Codex, Kilo, OpenCode, and other coding agents. Different providers get the same repo-native memory, boundaries, task ownership, and proof surface.
 
 ---
 
@@ -67,17 +67,19 @@ Decapod keeps the work bounded, remembered, specified, and provable.
 
 ---
 
-## When Decapod gets called
+## How agents use it
 
-The agent checks in with Decapod before:
+Agents invoke Decapod as a short-lived local utility:
 
-- **Acting** — clarify intent
-- **Calling the model** — resolve context
-- **Touching protected code** — enforce boundaries
-- **Changing durable instructions** — require review
-- **Committing** — produce proof
+1. Clarify intent before spending model context.
+2. Assemble bounded context instead of loading the whole repo.
+3. Claim task ownership and respect workspace boundaries.
+4. Emit specs, plans, summaries, or proof artifacts when useful.
+5. Validate the result before returning completion.
 
-Decapod is daemonless. Agents call it like `cat`, `awk`, or `grep`: short-lived, local, repo-native, and only when needed.
+If uncertainty is high, the agent should ask for clarification before inference-heavy work or irreversible edits.
+
+Decapod is daemonless. Agents call it like `cat`, `awk`, or `grep`: short-lived, host-agnostic, local, repo-native, and only when needed.
 
 See the canonical router in [constitution/core/DECAPOD.md](constitution/core/DECAPOD.md).
 
@@ -109,7 +111,7 @@ See the canonical router in [constitution/core/DECAPOD.md](constitution/core/DEC
 
 Decapod is not the agent.
 
-Decapod is the governance kernel the agent calls when intent, context, boundaries, dependencies, feedback, or proof need to become explicit.
+Decapod is the governance kernel the agent calls when intent, context, boundaries, dependencies, feedback, ownership, or proof need to become explicit.
 
 Humans mostly experience Decapod through the quality of the agent's work: clearer intent, smaller context, safer changes, better specs, and proof-backed completion.
 
@@ -119,11 +121,12 @@ Humans mostly experience Decapod through the quality of the agent's work: cleare
 
 1. **Clarifies intent** — what is the goal?
 2. **Bounds context** — what does the agent actually need?
-3. **Generates specs** — what should be built, changed, or preserved?
-4. **Tracks dependencies** — what must happen first?
-5. **Enforces boundaries** — what must not be touched?
-6. **Governs adaptation** — what feedback may change future behavior?
-7. **Requires proof** — what makes the work complete?
+3. **Defines scope** — what is in bounds for this task?
+4. **Generates specs** — what should be built, changed, or preserved?
+5. **Tracks ownership** — who owns which task or artifact?
+6. **Enforces boundaries** — what must not be touched?
+7. **Governs adaptation** — what feedback may change future behavior?
+8. **Requires proof** — what makes the work complete?
 
 Decapod resolves only what is relevant to the user's intent. Your agent gets surgical context, not the whole repo and not the entire constitution.
 
@@ -133,13 +136,15 @@ Decapod resolves only what is relevant to the user's intent. Your agent gets sur
 
 Agent workbenches improve the session.
 
-Decapod improves the shared substrate.
+Decapod improves the shared substrate behind those sessions.
 
 Agents act in private context. Decapod makes the durable parts of their work public to the repo: intent, resolved context, boundaries, todos, specs, validation, feedback-derived proposals, and proof artifacts.
 
-A task started by Claude Code should be auditable by Codex, resumable by Gemini CLI, and verifiable by Kilo. The source of truth lives in `.decapod/`, not chat history, IDE state, or provider memory.
+A task started by Claude Code should be auditable by Codex, resumable by Gemini CLI, and verifiable by Kilo or OpenCode. The source of truth lives in `.decapod/`, not chat history, IDE state, or provider memory.
 
-Decapod absorbs agent deficiencies:
+Classical acceptance pipelines made completion criteria explicit. Decapod applies that intent earlier in agent work: before inference, it shapes context and boundaries; after implementation, it requires inspectable proof. Human review still matters, but unreviewed agent-speed work needs machine-checkable governance before promotion.
+
+Decapod absorbs common agent failure modes:
 
 - ambiguity
 - context waste
@@ -251,15 +256,29 @@ Keep durable rules in `OVERRIDE.md`. Keep project shape in `config.toml`.
 
 ---
 
+## What humans inspect
+
+Humans do not need to babysit the command surface. The useful interface is the generated evidence:
+
+- specs and plans that show intended behavior
+- context summaries that explain what the agent used
+- task ownership and handoff records
+- validation output and proof artifacts
+- explicitly surfaced files in pull requests
+
+The command surface exists for agents and automation. The human-facing result is a repo that remembers why work happened and how completion was proven.
+
+---
+
 ## Proof lives in the repo
 
 Every run leaves operational evidence in `.decapod/`:
 
 - captured intent → `generated/specs/INTENT.md`
 - resolved context → `generated/context/`
-- todos and dependencies → `governance/todos.jsonl`
-- verification results → `generated/artifacts/`
-- proof artifacts → `generated/artifacts/provenance/`
+- todos and dependencies: `governance/todos.jsonl`
+- verification results: `generated/artifacts/`
+- proof artifacts: `generated/artifacts/provenance/`
 
 The generated files are the human-visible proof surface. They can be inspected locally, reviewed in pull requests, archived with the codebase, and used by the next agent invocation to re-establish state.
 
@@ -278,7 +297,7 @@ The generated files are the human-visible proof surface. They can be inspected l
 | Prompt tweaks | Reviewable instruction changes |
 | Agent improvement | Governed adaptation |
 
-Use whatever agent you already use: Claude, Codex, Gemini, Cursor, Kilo.
+Use whatever agent you already use: Claude, Codex, Gemini, Cursor, Kilo, OpenCode, or another provider.
 
 ---
 
@@ -315,6 +334,7 @@ Agent: [Decapod]
 - **Repo-native** — state lives in `.decapod/`
 - **Local-first** — no SaaS control plane required
 - **Provider-agnostic** — works across agent workbenches
+- **Agent-first** — optimized for programmatic invocation by coding agents
 - **Proof-gated** — VERIFIED means gates passed
 - **Boundary-aware** — protected paths and branches are enforced
 - **Feedback-governed** — durable behavior changes require explicit scope, review, and provenance
