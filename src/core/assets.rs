@@ -143,6 +143,32 @@ pub fn get_override_doc(repo_root: &Path, relative_path: &str) -> Option<String>
     extract_component_override(&override_content, relative_path)
 }
 
+/// List component override section headings from .decapod/OVERRIDE.md.
+pub fn list_override_sections(repo_root: &Path) -> Vec<String> {
+    let override_path = repo_root.join(".decapod").join("OVERRIDE.md");
+    let Ok(override_content) = std::fs::read_to_string(&override_path) else {
+        return Vec::new();
+    };
+
+    extract_override_section_names(&override_content)
+}
+
+fn extract_override_section_names(override_content: &str) -> Vec<String> {
+    let Some(override_start) = override_content.find("CHANGES ARE NOT PERMITTED ABOVE THIS LINE")
+    else {
+        return Vec::new();
+    };
+    let searchable_content = &override_content[override_start..];
+
+    searchable_content
+        .lines()
+        .filter_map(|line| line.strip_prefix("### "))
+        .map(str::trim)
+        .filter(|section| !section.is_empty())
+        .map(ToString::to_string)
+        .collect()
+}
+
 /// Extract a specific component's override content from OVERRIDE.md
 fn extract_component_override(override_content: &str, component_path: &str) -> Option<String> {
     // Only look after the "CHANGES ARE NOT PERMITTED ABOVE THIS LINE" marker
