@@ -81,6 +81,28 @@ verification_artifacts: JSON (captured at completion time)
 }
 ```
 
+### 2.1 Acceptance Evidence Artifacts
+
+Acceptance scenarios, generated acceptance tests, step-binding validation reports, test runner output, mutation reports, and similar pipeline outputs are valid evidence inputs when they are attached to a TODO or workunit as verification artifacts.
+
+Current support is artifact-based:
+- preserve acceptance files and reports under repo-native generated artifacts or project paths
+- capture those paths in `verification_artifacts.file_artifacts`
+- capture the governing Decapod proof gate result in `proof_plan_results`
+- use `decapod qa verify` to detect drift in the captured files and supported proof gates
+
+This means Decapod can govern acceptance-loop evidence today without becoming a Gherkin parser, generated-test framework, or long-lived runner.
+
+First-class acceptance proof gates are a planned proof-adapter surface. A future adapter should normalize external acceptance reports into Decapod proof results with at least:
+- scenario/spec reference
+- generated-test or runner command reference
+- binding validation status
+- mutation summary (`total`, `killed`, `survived`, `errors`)
+- artifact paths and hashes
+- deterministic pass/fail classification
+
+Until that adapter exists, agents MUST NOT claim that `decapod qa verify` replays arbitrary acceptance pipelines directly. They may claim only that Decapod records and verifies the referenced artifacts and supported proof gates.
+
 ### 3. Verification Mechanics (Proof-Plan Replay)
 
 **On TODO completion** (`decapod todo done <id>`):
@@ -235,11 +257,8 @@ No separate verification.db (keep it integrated).
 ### 10. Proof-Plan Contract
 
 A `proof_plan` is a list of proof gates that must pass. Each gate is either:
-- A validation gate (e.g., `validate_passes`)
-- A test command (e.g., `cargo test`)
-- A build command (e.g., `cargo build`)
-- A file invariant (e.g., `file_exists:path/to/file`)
-- A custom command (e.g., `./scripts/check_invariant.sh`)
+- A currently supported verification gate (today: `validate_passes`, `state_commit`)
+- A planned proof-adapter gate (for example: test command, build command, file invariant, custom command, or acceptance report)
 
 **Proof gate format:**
 
@@ -254,7 +273,7 @@ A `proof_plan` is a list of proof gates that must pass. Each gate is either:
 ]
 ```
 
-Each gate is a string in format `type:details` or just `type` for known gates.
+Each gate is a string in format `type:details` or just `type` for known gates. The current `decapod qa verify` implementation replays only supported gates; unsupported proof-plan entries are reported as unknown rather than silently treated as verified.
 
 ### 11. Failure Modes & Recovery
 

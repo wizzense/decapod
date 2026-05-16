@@ -157,6 +157,18 @@ Decapod absorbs common agent failure modes:
 
 ---
 
+## Acceptance loops
+
+Acceptance scenarios are valuable artifacts: they name expected behavior, examples, bindings, and failure cases. They become stronger when generated tests are checked against real application behavior and mutation reports show whether the examples actually constrain the system.
+
+That loop is still too fragile when it depends on people remembering every checklist step. At agent speed, Decapod treats acceptance scenarios, generated tests, binding validation, runner output, and mutation reports as proof inputs inside the larger governance loop.
+
+Decapod remains the authority over intent, boundaries, context shaping, and completion proof. Acceptance pipelines provide evidence; Decapod decides how that evidence is scoped, recorded, replayed, and attached to the work.
+
+Agents may run recursive improvement loops, but Decapod forces each pass through constitutional authority, bounded scope, stop conditions, and proof.
+
+---
+
 ## Governed feedback loops
 
 Agents need feedback loops, but feedback loops are only safe when they are governed.
@@ -276,6 +288,7 @@ Every run leaves operational evidence in `.decapod/`:
 
 - captured intent → `generated/specs/INTENT.md`
 - resolved context → `generated/context/`
+- acceptance evidence: scenarios, generated test output, binding reports, mutation reports
 - todos and dependencies: `governance/todos.jsonl`
 - verification results: `generated/artifacts/`
 - proof artifacts: `generated/artifacts/provenance/`
