@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.47.31](https://github.com/DecapodLabs/decapod/compare/v0.47.30...v0.47.31) - 2026-05-16
+
+### Other
+
+- List project override sections in docs CLI
+
 ## [0.47.30](https://github.com/DecapodLabs/decapod/compare/v0.47.29...v0.47.30) - 2026-05-16
 
 ### Other
