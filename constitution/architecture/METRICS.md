@@ -1405,3 +1405,424 @@ class USEMetrics {
 - [Definitive SLO Guide](https://sre.google/resources/practices-and-processes/building-slos/)
 - [Error Budget Calculator](https://error-budget-calculator.com/)
 - [SLO Generator](https://github.com/Nike-Inc/gimme-slo)
+
+---
+
+## 8. Additional Reference Materials
+
+### 8.1 Common Metric Patterns
+
+```typescript
+// metrics/common-patterns.ts - Common metric patterns
+
+// Counter pattern for things that only increase
+const requestCounter = new Counter({
+  name: 'http_requests_total',
+  help: 'Total HTTP requests',
+  labelNames: ['method', 'endpoint', 'status_code'],
+});
+
+// Gauge pattern for things that go up and down
+const currentConnections = new Gauge({
+  name: 'active_connections',
+  help: 'Number of active connections',
+  labelNames: ['service'],
+});
+
+// Histogram pattern for distributions
+const requestDuration = new Histogram({
+  name: 'http_request_duration_seconds',
+  help: 'HTTP request duration',
+  labelNames: ['method', 'endpoint'],
+  buckets: [0.01, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10],
+});
+
+// Summary pattern for pre-computed percentiles
+const responseSize = new Summary({
+  name: 'http_response_size_bytes',
+  help: 'HTTP response size in bytes',
+  labelNames: ['method', 'endpoint'],
+  percentiles: [0.25, 0.5, 0.75, 0.95, 0.99],
+});
+
+// Best practices:
+// 1. Use counters for things that only increase
+// 2. Use gauges for things that fluctuate
+// 3. Use histograms for latency/response size
+// 4. Avoid high-cardinality labels
+// 5. Normalize path parameters
+
+// Bad: path="/user/123456" (high cardinality)
+// Good: path="/user/:id" (low cardinality)
+
+// Example: Correct path normalization
+function normalizePath(path: string): string {
+  return path
+    .replace(/\/user\/\d+/, '/user/:id')
+    .replace(/\/order\/\d+/, '/order/:id')
+    .replace(/\/product\/\d+/, '/product/:id');
+}
+
+// Example: Timing wrapper
+async function withMetrics<T>(
+  operation: () => Promise<T>,
+  labels: Record<string, string>
+): Promise<T> {
+  const start = Date.now();
+  try {
+    return await operation();
+  } finally {
+    const duration = (Date.now() - start) / 1000;
+    requestDuration.observe(labels, duration);
+  }
+}
+```
+
+### 8.2 Alert Response Playbooks
+
+```yaml
+# Runbook: High Error Rate Alert
+# Severity: P2 - High
+# Response Time: < 30 minutes
+
+## Symptoms
+- Error rate > 1% for 5+ minutes
+- HTTP 5xx responses increasing
+- User-facing errors reported
+
+## Investigation Steps
+1. Check service health
+   - Review pod logs: kubectl logs -n production -l app=api --tail=100
+   - Check pod status: kubectl get pods -n production -l app=api
+   - Review recent deployments
+
+2. Check dependencies
+   - Database connectivity
+   - Cache availability
+   - External API status
+
+3. Check metrics
+   - Identify which endpoints are failing
+   - Check error types
+   - Compare to baseline
+
+## Resolution Steps
+1. If deployment-related: Rollback last deployment
+   ```
+   kubectl rollout undo deployment/api -n production
+   ```
+
+2. If database-related:
+   - Check connection pool
+   - Review slow queries
+   - Consider scaling
+
+3. If external dependency:
+   - Enable circuit breaker
+   - Fall back to cached data
+
+## Post-Incident
+- Update monitoring if new error pattern discovered
+- Add new alert if needed
+- Document in incident report
+
+---
+
+```yaml
+# Runbook: High Latency Alert
+# Severity: P2 - High
+# Response Time: < 30 minutes
+
+## Symptoms
+- P99 latency > 1s for 5+ minutes
+- P95 latency increasing
+- User complaints of slow responses
+
+## Investigation Steps
+1. Identify slow endpoints
+   - Check which paths are slow
+   - Compare to baseline latency
+
+2. Check resource utilization
+   - CPU usage: kubectl top pods
+   - Memory: check for OOM events
+   - Network: check for saturation
+
+3. Check database
+   - Slow query log
+   - Connection pool
+   - Replication lag
+
+4. Check external services
+   - Third-party API latency
+   - CDN performance
+
+## Resolution Steps
+1. If resource-constrained:
+   - Scale horizontally: kubectl scale deployment/api --replicas=10
+   - Check resource limits
+
+2. If database-related:
+   - Identify slow queries
+   - Add indexes
+   - Consider read replicas
+
+3. If code-related:
+   - Enable caching
+   - Optimize queries
+   - Deploy fix
+
+## Post-Incident
+- Add to performance test suite
+- Schedule optimization work
+- Update SLIs if needed
+```
+
+### 8.3 Custom Exporter Example
+
+```typescript
+// metrics/custom-exporter.ts - Example custom Prometheus exporter
+
+import { Registry, Gauge, Counter, collectDefaultMetrics } from 'prom-client';
+
+class CustomExporter {
+  private registry: Registry;
+  private httpRequests: Counter;
+  private queueDepth: Gauge;
+  private processingTime: Summary;
+  
+  constructor() {
+    this.registry = new Registry();
+    
+    // Collect default metrics (CPU, memory, etc)
+    collectDefaultMetrics({ register: this.registry });
+    
+    // Custom metrics
+    this.httpRequests = new Counter({
+      name: 'myapp_http_requests_total',
+      help: 'Total HTTP requests',
+      labelNames: ['method', 'path', 'status'],
+      registers: [this.registry],
+    });
+    
+    this.queueDepth = new Gauge({
+      name: 'myapp_queue_depth',
+      help: 'Current queue depth',
+      labelNames: ['queue_name'],
+      registers: [this.registry],
+    });
+    
+    this.processingTime = new Summary({
+      name: 'myapp_processing_seconds',
+      help: 'Processing time in seconds',
+      labelNames: ['operation'],
+      percentiles: [0.5, 0.9, 0.99],
+      registers: [this.registry],
+    });
+    
+    // Start collecting queue metrics
+    this.startQueueMetrics();
+  }
+  
+  private startQueueMetrics(): void {
+    setInterval(() => {
+      const queues = ['orders', 'notifications', 'emails'];
+      
+      for (const queue of queues) {
+        const depth = this.getQueueDepth(queue); // Implement actual collection
+        this.queueDepth.set({ queue_name: queue }, depth);
+      }
+    }, 10000);
+  }
+  
+  recordHttpRequest(method: string, path: string, status: number): void {
+    this.httpRequests.inc({ method, path, status });
+  }
+  
+  recordProcessingTime(operation: string, durationMs: number): void {
+    this.processingTime.observe({ operation }, durationMs / 1000);
+  }
+  
+  async getMetrics(): Promise<string> {
+    return this.registry.metrics();
+  }
+  
+  getContentType(): string {
+    return this.registry.contentType;
+  }
+}
+```
+
+### 8.4 Distributed Tracing Integration
+
+```typescript
+// metrics/distributed-tracing.ts - OpenTelemetry integration
+
+import { NodeSDK } from '@opentelemetry/sdk-node';
+import { Resource } from '@opentelemetry/resources';
+import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
+import { JaegerExporter } from '@opentelemetry/exporter-jaeger';
+import { ZipkinExporter } from '@opentelemetry/exporter-zipkin';
+import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
+import { PrometheusExporter } from '@opentelemetry/exporter-prometheus';
+
+const sdk = new NodeSDK({
+  resource: new Resource({
+    [SemanticResourceAttributes.SERVICE_NAME]: 'my-service',
+    [SemanticResourceAttributes.SERVICE_VERSION]: process.env.VERSION || '1.0.0',
+    [SemanticResourceAttributes.DEPLOYMENT_ENVIRONMENT]: process.env.ENV || 'development',
+  }),
+  
+  // Trace exporter (Jaeger/Zipkin)
+  traceExporter: new JaegerExporter({
+    endpoint: process.env.JAEGER_ENDPOINT || 'http://localhost:14268/api/traces',
+  }),
+  
+  // Metrics exporter (Prometheus)
+  metricExporter: new PrometheusExporter({
+    port: 9464,
+    startMetricServer: true,
+  }),
+  
+  // Auto-instrumentation
+  instrumentations: [
+    getNodeAutoInstrumentations({
+      '@opentelemetry/instrumentation-fs': { enabled: false },
+    }),
+  ],
+});
+
+sdk.start();
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  sdk.shutdown()
+    .then(() => console.log('SDK shut down successfully'))
+    .catch((error) => console.log('Error shutting down SDK', error))
+    .finally(() => process.exit(0));
+});
+```
+
+### 8.5 Log Correlation
+
+```yaml
+# Structured logging with correlation
+
+# Configuration for correlated logging
+logging:
+  format: json
+  level: info
+  
+  correlation:
+    enabled: true
+    header: X-Request-ID
+    generate_if_missing: true
+    
+  fields:
+    - timestamp
+    - level
+    - message
+    - request_id
+    - trace_id
+    - span_id
+    - user_id
+    - service
+    - version
+    - environment
+
+# Example log entry:
+# {
+#   "timestamp": "2024-01-15T10:30:00.000Z",
+#   "level": "info",
+#   "message": "Request completed",
+#   "request_id": "abc123",
+#   "trace_id": "xyz789",
+#   "span_id": "span456",
+#   "user_id": "user123",
+#   "service": "api",
+#   "version": "1.0.0",
+#   "environment": "production",
+#   "duration_ms": 245,
+#   "status_code": 200
+# }
+
+# Integration with metrics:
+# - Log entry includes trace_id
+# - Trace includes request_id
+# - Metrics include request_id label for correlation
+# - Enables drill-down from metric to log to trace
+```
+
+### 8.6 Grafana Dashboard Variables
+
+```json
+{
+  "templating": {
+    "list": [
+      {
+        "name": "service",
+        "type": "query",
+        "query": "label_values(http_requests_total, service)",
+        "multi": true,
+        "allValue": ".*"
+      },
+      {
+        "name": "environment",
+        "type": "query", 
+        "query": "label_values(http_requests_total, env)",
+        "multi": true,
+        "includeAll": true
+      },
+      {
+        "name": "alertname",
+        "type": "query",
+        "query": "label_values(ALERTS{alertstate=\"firing\"}, alertname)",
+        "multi": true,
+        "allValue": ".*"
+      }
+    ]
+  }
+}
+```
+
+---
+
+## Links
+
+### Prometheus
+- [Prometheus Documentation](https://prometheus.io/docs/)
+- [Prometheus Best Practices](https://prometheus.io/docs/practices/)
+- [Prometheus Recording Rules](https://prometheus.io/docs/prometheus/latest/recording_rules/)
+- [Alertmanager Documentation](https://prometheus.io/docs/alerting/latest/alertmanager/)
+
+### Grafana
+- [Grafana Documentation](https://grafana.com/docs/)
+- [Grafana Dashboards](https://grafana.com/grafana/dashboards)
+- [Grafana Loki](https://grafana.com/oss/loki/)
+- [Grafana Tempo](https://grafana.com/oss/tempo/)
+
+### SLI/SLO
+- [Google SRE Book - SLIs](https://sre.google/sre-book/part-III/part3-chapter-11/)
+- [Site Reliability Engineering](https://sre.google/sre-book/table-of-contents/)
+- [SLO Certification](https://www.oreilly.com/live-events/slo-based-engineering-c/)
+
+### OpenTelemetry
+- [OpenTelemetry Documentation](https://opentelemetry.io/docs/)
+- [Collector Documentation](https://opentelemetry.io/docs/collector/)
+- [Specification](https://opentelemetry.io/docs/specs/otel/)
+
+### Observability
+- [Observability Engineering](https://www.oreilly.com/library/view/observability-engineering/9781492076438/)
+- [Honeycomb Observability](https://www.honeycomb.io/)
+- [Lightstep](https://lightstep.com/)
+
+### APM Tools
+- [Datadog APM](https://www.datadoghq.com/apm/)
+- [New Relic](https://newrelic.com/)
+- [AWS X-Ray](https://aws.amazon.com/xray/)
+- [Jaeger](https://www.jaegertracing.io/)
+
+### Service Level Objectives
+- [Definitive SLO Guide](https://sre.google/resources/practices-and-processes/building-slos/)
+- [Error Budget Calculator](https://error-budget-calculator.com/)
+- [SLO Generator](https://github.com/Nike-Inc/gimme-slo)
