@@ -101,16 +101,19 @@ Every RPC response includes:
 ## Standards Resolution
 
 Decapod resolves standards from:
-1. Industry Engineering Excellence (built-in Oracle: see `ENGINEERING_EXCELLENCE.md`)
-2. Canonical Industry Coding Standards (see `architecture/CODING_STANDARDS.md`):
-   - Uncle Bob Martin (Clean Code / SOLID)
-   - Martin Fowler (Refactoring / Patterns)
-   - Pragmatic Programmer (Engineering Principles)
-   - Gang of Four (Design Patterns)
-   - DRY (Don't Repeat Yourself)
-   - Unix Philosophy
-3. Industry defaults (built-in)
-4. `.decapod/OVERRIDE.md` (project-specific overrides)
+1. **Constitutional Core** - Industry Engineering Excellence (see `ENGINEERING_EXCELLENCE.md`)
+2. **Security Standards** - Threat modeling, cryptography, supply chain, SECCOMP (see `architecture/SECURITY.md`)
+3. **Coding Standards** - Uncle Bob Martin, Fowler, Pragmatic, GoF, DRY, Unix (see `architecture/CODING_STANDARDS.md`)
+4. **Platform Engineering** - SRE, SLIs/SLOs, error budgets, on-call (see `methodology/SRE.md`)
+5. **Systems Design** - Distributed systems, CAP, PACELC, scalability (see `architecture/DISTRIBUTED_SYSTEMS.md`)
+6. **Product Development** - OKRs, prioritization, betas, feature flags (see `methodology/PRODUCT.md`)
+7. **Enterprise Architecture** - TOGAF, microservices, DDD (see `architecture/ENTERPRISE.md`)
+8. **Infrastructure** - Cloud patterns, networking, storage (see `architecture/CLOUD.md`)
+9. **Data Engineering** - Data modeling, pipelines, governance (see `architecture/DATA.md`)
+10. **Quality Assurance** - Testing strategies, TDD, BDD (see `methodology/TESTING.md`)
+11. **Operations** - Incident response, postmortems, chaos (see `methodology/INCIDENT_RESPONSE.md`)
+12. **Research** - Seminal papers, latest proofs (see `research/SEMINAL_PAPERS.md`)
+13. **Project Overrides** - `.decapod/OVERRIDE.md` (project-specific deviations)
 
 Query with: `decapod rpc --op standards.resolve`
 
