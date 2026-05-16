@@ -272,7 +272,7 @@ decapod todo --root /tmp/my-todos list
 **Example of what NOT to do:**
 ```bash
 # WRONG
-vim .decapod/project/todos.json
+vim <repo>/.decapod/project/todos.json
 ```
 
 ### 6.5 Claiming Compliance Without Running Proof

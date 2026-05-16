@@ -69,7 +69,7 @@ This is the default sequence when operating in a Decapod-managed repo:
 
 3. Use Decapod as the interface
    └─ read/write shared state through `decapod ...` commands
-   └─ never directly manipulate .decapod/* files
+   └─ never directly manipulate `<repo>/.decapod/*` files
 
 4. Add a repo TODO for multi-step work (dogfood mode)
    └─ decapod todo add "Expand METHODOLOGY.md" --priority high
@@ -221,7 +221,7 @@ Decapod supports multiple stores. The store is part of the request context.
 | Store | Path | Purpose | Default |
 |-------|------|---------|---------|
 | **User store** | `~/.decapod` | User's personal state | Yes (default) |
-| **Repo store** | `<repo>/.decapod/project` | Project-specific state | No |
+| **Repo store** | `<repo>/.decapod/project` (store directory) | Project-specific state | No |
 
 ### 6.2 Store Rules
 
