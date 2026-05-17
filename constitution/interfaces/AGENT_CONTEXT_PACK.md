@@ -180,19 +180,22 @@ Planned (not yet enforced):
 ## Links
 
 ### Core Router
-- `core/DECAPOD.md` - Router and navigation charter
+- [core/DECAPOD.md](core/DECAPOD.md) - Router and navigation charter
+- [core/INTERFACES.md](core/INTERFACES.md) - Interface contracts index
 
-### Registry (Core Indices)
-- `core/INTERFACES.md` - Interface contracts index
+### Authority (Constitution Layer)
+- [specs/INTENT.md](specs/INTENT.md) - **Methodology contract (READ FIRST)**
+- [specs/SYSTEM.md](specs/SYSTEM.md) - System definition and authority doctrine
 
 ### Contracts (Interfaces Layer)
-- `interfaces/CLAIMS.md` - Claims registry
-- `interfaces/DOC_RULES.md` - Doc compiler and truth-label rules
-- `interfaces/STORE_MODEL.md` - Store semantics
-- `interfaces/MEMORY_SCHEMA.md` - Memory schema contract
-- `interfaces/KNOWLEDGE_SCHEMA.md` - Knowledge schema contract
-- `interfaces/RISK_POLICY_GATE.md` - Deterministic PR risk policy contract
+- [interfaces/CLAIMS.md](interfaces/CLAIMS.md) - Claims registry
+- [interfaces/DOC_RULES.md](interfaces/DOC_RULES.md) - Doc compiler and truth-label rules
+- [interfaces/STORE_MODEL.md](interfaces/STORE_MODEL.md) - Store semantics
+- [interfaces/CONTROL_PLANE.md](interfaces/CONTROL_PLANE.md) - Sequencing patterns
+- [interfaces/MEMORY_SCHEMA.md](interfaces/MEMORY_SCHEMA.md) - Memory schema contract
+- [interfaces/KNOWLEDGE_STORE.md](interfaces/KNOWLEDGE_STORE.md) - Knowledge store contract
+- [interfaces/RISK_POLICY_GATE.md](interfaces/RISK_POLICY_GATE.md) - Deterministic PR risk policy contract
 
 ### Practice (Methodology Layer)
-- `methodology/MEMORY.md` - Memory practice
-- `methodology/KNOWLEDGE.md` - Knowledge practice
+- [methodology/MEMORY.md](methodology/MEMORY.md) - Memory practice
+- [methodology/KNOWLEDGE.md](methodology/KNOWLEDGE.md) - Knowledge practice
