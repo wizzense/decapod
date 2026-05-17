@@ -8,11 +8,11 @@ pub fn container_runtime_available() -> bool {
 }
 
 pub fn find_container_runtime() -> Result<String, error::DecapodError> {
-    if command_present("docker") {
-        return Ok("docker".to_string());
-    }
     if command_present("podman") {
         return Ok("podman".to_string());
+    }
+    if command_present("docker") {
+        return Ok("docker".to_string());
     }
     Err(error::DecapodError::NotFound(
         "No container runtime found (docker/podman)".to_string(),

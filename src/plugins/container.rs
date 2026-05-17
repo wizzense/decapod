@@ -1185,7 +1185,8 @@ fn build_docker_spec(
     args.push("-e".to_string());
     args.push("GIT_CONFIG_GLOBAL=/tmp/decapod-home/.gitconfig".to_string());
 
-    if env_bool("DECAPOD_CONTAINER_MAP_HOST_USER", true)
+    if runtime == "docker"
+        && env_bool("DECAPOD_CONTAINER_MAP_HOST_USER", true)
         && let Some((uid, gid)) = current_uid_gid()
     {
         args.push("--user".to_string());
@@ -1252,6 +1253,9 @@ fn build_container_script(
          unset GIT_DIR GIT_WORK_TREE\n\
          git config --global user.name \"${DECAPOD_GIT_USER_NAME:-Decapod Agent}\"\n\
          git config --global user.email \"${DECAPOD_GIT_USER_EMAIL:-agent@decapod.local}\"\n\
+         if ! command -v decapod >/dev/null 2>&1 && [ -f Cargo.toml ] && command -v cargo >/dev/null 2>&1; then\n\
+           decapod() { cargo run --quiet -- \"$@\"; }\n\
+         fi\n\
          if command -v decapod >/dev/null 2>&1; then\n\
            decapod version >/dev/null 2>&1 || true\n\
            if decapod --help 2>/dev/null | grep -qE \"(^|[[:space:]])update([[:space:]]|$)\"; then\n\
@@ -1401,6 +1405,7 @@ mod tests {
         );
         assert!(joined.contains("-v /tmp/repo/.decapod:/tmp/repo/.decapod/workspaces/w1/.decapod"));
         assert!(joined.contains("DECAPOD_LOCAL_ONLY=1"));
+        assert!(joined.contains("decapod() { cargo run --quiet -- \"$@\"; }"));
         assert!(joined.contains("git_safe checkout -B 'ahr/branch'"));
         assert!(!joined.contains("git_safe fetch --no-write-fetch-head origin 'master'"));
         assert!(!joined.contains("git_safe rebase origin/'master'"));
@@ -1439,6 +1444,33 @@ mod tests {
         assert!(!joined.contains("gh pr create --base 'master' --head 'ahr/branch'"));
         assert!(!joined.contains("ssh-keyscan -t ed25519 github.com"));
         assert!(joined.contains("git_safe checkout -B 'ahr/branch' 'master'"));
+    }
+
+    #[test]
+    fn podman_spec_does_not_force_host_uid_mapping() {
+        let repo = PathBuf::from("/tmp/repo");
+        let workspace = PathBuf::from("/tmp/repo/.decapod/workspaces/w1");
+        let spec = build_docker_spec(
+            "podman",
+            &repo,
+            &workspace,
+            "rust:1.91.1",
+            "agent-a",
+            "decapod validate",
+            "ahr/branch",
+            "master",
+            "2g",
+            "2.0",
+            Some("R_123"),
+            false,
+            true,
+        )
+        .expect("spec");
+
+        assert!(
+            !spec.args.iter().any(|arg| arg == "--user"),
+            "rootless podman should use its default user namespace for mounted worktree writes"
+        );
     }
 
     #[test]
