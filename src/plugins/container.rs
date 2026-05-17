@@ -769,6 +769,7 @@ fn dockerfile_template_schema_component() -> DockerfileTemplateSchemaComponent {
             "bash",
             "curl",
             "coreutils",
+            "sqlite-dev",
         ],
         stack_packages,
         extra_packages_env: "DECAPOD_CONTAINER_APK_PACKAGES",
@@ -1505,6 +1506,7 @@ mod tests {
         assert!(content.contains("git"));
         assert!(content.contains("openssh-client"));
         assert!(content.contains("coreutils"));
+        assert!(content.contains("sqlite-dev"));
     }
 
     #[test]
