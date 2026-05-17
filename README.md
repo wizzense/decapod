@@ -63,6 +63,7 @@ flowchart TD
 
     AgentPost -. "optional proof path" .-> DecapodPost
     DecapodPost -. "boundaries · checks · proof" .-> AgentPost
+    DecapodPost -. "failed validation · focused context" .-> AgentPre
 ```
 
 Decapod is called by the agent at governance boundaries. Before inference, the agent may branch into Decapod to shape intent, context, and gates. After inference, the agent may branch into Decapod when the work needs boundary checks, verification, proof, or another governed pass.
