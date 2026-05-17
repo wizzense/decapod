@@ -315,7 +315,9 @@ Agent must clear the disable marker through Decapod self-heal before retrying.",
     let start = Instant::now();
     let output = execute_container_with_timeout(&docker, &spec.args, timeout_seconds).map_err(
         |exec_err| {
-            let sync_msg =
+            let sync_msg = if local_only {
+                "branch foldback: skipped for local-only container run".to_string()
+            } else {
                 match sync_workspace_branch_to_host_repo(&repo, &workspace.path, &workspace.branch)
                 {
                     Ok(_) => "branch foldback: synced to host repo after container termination"
@@ -324,7 +326,8 @@ Agent must clear the disable marker through Decapod self-heal before retrying.",
                         "branch foldback: sync failed after container termination: {}",
                         sync_err
                     ),
-                };
+                }
+            };
             if !keep_worktree {
                 let _ = cleanup_workspace_clone(&workspace.path);
             }
@@ -345,8 +348,12 @@ Agent must clear the disable marker through Decapod self-heal before retrying.",
     } else {
         "error"
     };
-    sync_workspace_branch_to_host_repo(&repo, &workspace.path, &workspace.branch)?;
-    let branch_returned_to_host = true;
+    let branch_returned_to_host = if local_only {
+        false
+    } else {
+        sync_workspace_branch_to_host_repo(&repo, &workspace.path, &workspace.branch)?;
+        true
+    };
 
     if push {
         push_branch_to_origin(&repo, &workspace.branch)?;
