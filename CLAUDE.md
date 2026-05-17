@@ -1,27 +1,24 @@
 # CLAUDE.md - Agent Entrypoint
 
 You are working in a Decapod-managed repository.
-See [AGENTS.md](AGENTS.md) for the universal contract.
+See `AGENTS.md` for the universal contract.
 
 ## Project Context
 
-- Read [.decapod/config.toml](.decapod/config.toml) before planning; it captures project name, summary, architecture, primary languages, and entrypoint preferences.
-- Treat [.decapod/config.toml](.decapod/config.toml) as human-editable project context. You may update it when user intent or project direction changes.
-- Read [.decapod/OVERRIDE.md](.decapod/OVERRIDE.md) when present; it is the repo-local place for constitution overrides.
+- Read `.decapod/config.toml` before planning; it captures project name, summary, architecture, primary languages, and entrypoint preferences.
+- Treat `.decapod/config.toml` as human-editable project context. You may update it when user intent or project direction changes.
+- Read `.decapod/OVERRIDE.md` when present; it is the repo-local place for constitution overrides.
 - Do not mutate Decapod-owned state under `.decapod/` directly; use Decapod CLI surfaces for generated specs, data, workspaces, and sessions.
 
 ## Quick Start
 
 ```bash
 cargo install decapod
-
-decapod validate
-decapod docs ingest
-decapod session acquire
+decapod validate && decapod docs ingest && decapod session acquire
 decapod rpc --op agent.init
 decapod workspace status
-decapod todo add "<task>"
-decapod todo claim --id <task-id>
+decapod todo add "<task>" && decapod todo claim --id <task-id>
+decapod infer orientation --task-id <task-id>
 decapod workspace ensure
 cd .decapod/workspaces/<your-worktree>
 decapod rpc --op context.resolve
@@ -42,9 +39,9 @@ decapod data schema --deterministic
 - request elevated permissions before Docker/container workspace commands.
 - `.decapod files are accessed only via decapod CLI`.
 - Read and update `.decapod/config.toml` as project context; use Decapod CLI for other `.decapod/` state.
-- Read [.decapod/OVERRIDE.md](.decapod/OVERRIDE.md) for repo-local constitution overrides when present.
+- Read `.decapod/OVERRIDE.md` for repo-local constitution overrides when present.
 - `DECAPOD_SESSION_PASSWORD` is required for session-scoped operations.
-- Read canonical router: `decapod docs show` [core/DECAPOD.md](core/DECAPOD.md).
+- Read canonical router: `decapod docs show core/DECAPOD.md`.
 - Use shared aptitude memory for human-taught preferences across sessions/providers: `decapod data memory add|get` (aliases: `decapod data aptitude`).
 - Operator reference: `decapod docs show docs/PLAYBOOK.md`.
 - Capability authority: `decapod capabilities --format json`.

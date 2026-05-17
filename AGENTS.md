@@ -86,14 +86,9 @@ Call Decapod before editing. Let Decapod validate after editing.
 
 - Read `.decapod/config.toml` (human-editable) for project context and architecture direction.
 - Read `.decapod/OVERRIDE.md` for repo-local constitution overrides.
-- DO NOT mutate `.decapod/` state directly; use CLI for specs, data, workspaces, and sessions.
+- DO NOT mutate `.decapod/` state directly; use Decapod CLI for specs, data, workspaces, and sessions. Access to `.decapod/` is strictly via decapod CLI.
 - Use `decapod docs show core/DECAPOD.md` for binding contracts.
 - Use `decapod capabilities --format json` to discover available operations.
 - Stop if requirements conflict, intent is ambiguous, or policy boundaries are unclear.
 - Respect the Interface abstraction boundary.
 - Treat lock/contention failures as blocking until resolved.
-
-
-<!-- decapod-validator-anchors
-via decapod CLI
--->

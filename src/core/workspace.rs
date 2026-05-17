@@ -243,6 +243,17 @@ pub fn get_workspace_status(repo_root: &Path) -> Result<WorkspaceStatus, Decapod
 }
 
 fn check_git_status(repo_root: &Path) -> Result<GitStatus, DecapodError> {
+    if !repo_root.join(".git").exists() {
+        return Ok(GitStatus {
+            current_branch: "none".to_string(),
+            is_protected: false,
+            in_worktree: false,
+            worktree_path: None,
+            is_main_repo: false,
+            has_local_mods: false,
+        });
+    }
+
     let current_branch = get_current_branch(repo_root)?;
     let is_protected = is_branch_protected(&current_branch);
     let in_worktree = is_worktree(repo_root)?;

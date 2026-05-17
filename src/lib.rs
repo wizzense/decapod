@@ -3627,7 +3627,7 @@ fn heal_agents_contract(
     let mut content = fs::read_to_string(&path).map_err(error::DecapodError::IoError)?;
     let mut anchors = Vec::new();
     for marker in [
-        "stop if",
+        "Stop if",
         "via decapod CLI",
         "Interface abstraction boundary",
         "Strict Dependency: You are strictly bound to the Decapod control plane",
