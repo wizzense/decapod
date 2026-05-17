@@ -51,10 +51,10 @@ AI coding agents often lose the plot: they forget intent, pull too much context,
 │ Agent  │◄────────────────────────┐
 └───┬────┘                         │
     │ calls                        │
-    ▼                              │
-┌────────┐                         │
-│Decapod │ ── intent · context · gates
-└───┬────┘
+    │                              │
+    │        ┌─────────┐           │
+    ├──────▶ │ Decapod │ ── intent · context · gates
+    │        └─────────┘
     │ governed request
     ▼
 ┌────────┐
@@ -62,20 +62,22 @@ AI coding agents often lose the plot: they forget intent, pull too much context,
 └───┬────┘
     │ response
     ▼
-┌────────┐        proof loop
-│ Agent  │◄────────────────────────┐
-└───┬────┘                         │
-    │ calls                        │
-    ▼                              │
-┌────────┐                         │
-│Decapod │ ── boundaries · checks · proof
-└───┬────┘
+┌────────┐          proof loop
+│ Agent  │◄───────────────────────────┐
+└───┬────┘                            │
+    │ calls                           │
+    │                                 │
+    │        ┌─────────┐              │
+    ├──────▶ │ Decapod │ ── boundaries · checks · proof
+    │        └─────────┘
     │ verified result
     ▼
 ┌────────┐
 │  User  │
 └────────┘
 ```
+
+Decapod is called by the agent at governance boundaries. Before inference, the agent may branch into Decapod to shape intent, context, and gates. After inference, the agent may branch into Decapod when the work needs boundary checks, verification, proof, or another governed pass.
 
 Each Decapod call may recurse until the work is shaped, bounded, and provable. Decapod is not the agent and not the model; it is the governance kernel the agent calls whenever work needs control.
 
