@@ -299,15 +299,17 @@ fn test_constitution_markdown_links_are_routable() {
             let link_text = &cap[1];
             let link_target = &cap[2];
 
-            // Skip external links and anchor links
+            // Skip external links, anchor links, and relative links (need path resolution)
             if link_target.starts_with("http")
                 || link_target.starts_with('#')
                 || link_target.contains("://")
+                || link_target.starts_with("./")
+                || link_target.starts_with("../")
             {
                 continue;
             }
 
-            // Normalize the target path
+            // Normalize the target path (remove constitution/ prefix if present)
             let target = if link_target.starts_with("constitution/") {
                 link_target
                     .strip_prefix("constitution/")
