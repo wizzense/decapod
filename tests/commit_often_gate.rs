@@ -63,7 +63,9 @@ fn setup_repo() -> (TempDir, PathBuf, String) {
         .expect("git commit");
     assert!(commit.status.success(), "git commit failed");
 
-    let worktree_dir = tmp.path().join("worktree");
+    let worktree_dir = repo_dir.join(".decapod").join("workspaces").join("test-worktree");
+    fs::create_dir_all(worktree_dir.parent().unwrap()).unwrap();
+
     let worktree = Command::new("git")
         .current_dir(&repo_dir)
         .args([

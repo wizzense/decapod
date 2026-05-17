@@ -27,6 +27,7 @@ decapod data schema --deterministic
 
 # Resolve precise orientation before implementation
 decapod infer orientation --intent "<your-goal>" --task-id <id>
+decapod govern capsule query --topic "<topic>" --scope interfaces --task-id <task-id>
 decapod rpc --op context.scope --params '{"query":"<problem>","limit":8}'
 ```
 
