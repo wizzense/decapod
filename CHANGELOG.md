@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.47.34](https://github.com/DecapodLabs/decapod/compare/v0.47.33...v0.47.34) - 2026-05-17
+
+### Other
+
+- Revise governance loop and Decapod description
+- Enhance README with Decapod workflow details
+- Improve README.md content for clarity and detail
+
 ## [0.47.33](https://github.com/DecapodLabs/decapod/compare/v0.47.32...v0.47.33) - 2026-05-17
 
 ### Added
