@@ -10,7 +10,8 @@
 </p>
 
 <p align="center">
-  Decapod is the daemonless, local-first governance kernel behind AI coding agents. Agents call it on demand to converge on human intent, shape context before inference, enforce boundaries, and deliver proof-backed completion across concurrent multi-agent work.
+  Agents call Decapod on demand to converge on human intent, shape context before inference,<br />
+  enforce boundaries, and deliver proof-backed completion across concurrent multi-agent work.
 </p>
 
 <p align="center">
@@ -36,33 +37,52 @@ Your **conversational** workflow does not change. You keep talking to your agent
 
 ## How it works
 
-AI coding agents often lose the plot: they forget intent, pull too much context, skip dependencies, and touch protected files. Decapod provides a repo-native checkpoint system to absorb these deficiencies.
+AI coding agents often lose the plot: they forget intent, pull too much context, skip dependencies, and touch protected files. Decapod gives them a repo-native governance layer that makes intent explicit, boundaries enforceable, context deliberate, and completion provable.
 
 ### The Loop
 
 ```text
-     User
-       │
-       ▼
-    Agent ───────┐
-       │         │
-       │    ┌────▼────┐
-       │    │ Decapod │
-       │    │ (check) │
-       │    └────┬────┘
-       │         │
-       ├─────────┤
-       │         │
-     Model     Agent
-       │         │
-       └────┬────┘
-            ▼
-          User
+┌────────┐
+│  User  │
+└───┬────┘
+    │ intent
+    ▼
+┌────────┐        governance loop
+│ Agent  │◄────────────────────────┐
+└───┬────┘                         │
+    │ calls                        │
+    ▼                              │
+┌────────┐                         │
+│Decapod │ ── intent · context · gates
+└───┬────┘
+    │ governed request
+    ▼
+┌────────┐
+│ Model  │
+└───┬────┘
+    │ response
+    ▼
+┌────────┐        proof loop
+│ Agent  │◄────────────────────────┐
+└───┬────┘                         │
+    │ calls                        │
+    ▼                              │
+┌────────┐                         │
+│Decapod │ ── boundaries · checks · proof
+└───┬────┘
+    │ verified result
+    ▼
+┌────────┐
+│  User  │
+└────────┘
 ```
 
-Decapod is not the agent. It is the **governance kernel** called before:
+Each Decapod call may recurse until the work is shaped, bounded, and provable. Decapod is not the agent and not the model; it is the governance kernel the agent calls whenever work needs control.
+
+Decapod is called before:
+
 - **Acting** — clarify intent and generate specs
-- **Inference** — resolve surgical context capsules
+- **Inference** — resolve focused context capsules
 - **Touching Code** — enforce boundaries and protected paths
 - **Completing** — produce verification and proof
 
@@ -93,7 +113,7 @@ Decapod preserves what agent workbenches lose: reusable, repo-native knowledge t
   OVERRIDE.md      # Local rules that override embedded defaults
 ```
 
-Every run leaves operational evidence. The generated files are the human-visible proof surface—inspect them locally, review them in PRs, and use them to re-establish state across different agents (Claude, Codex, Gemini, Cursor).
+Every run leaves operational evidence. The generated files are the human-visible proof surface: inspect them locally, review them in PRs, and use them to re-establish state across different agents like Claude, Codex, Gemini, Cursor, and Kilo.
 
 ---
 
@@ -109,7 +129,7 @@ Everything an engineering org usually keeps in tribal memory or review culture b
 
 - **Daemonless** — Runs on demand like `git` or `grep`.
 - **Repo-native** — All state lives in your repository.
-- **Provider-agnostic** — Works across all agent workbenches.
+- **Provider-agnostic** — Works across agent workbenches.
 - **Proof-gated** — Completion requires passed verification gates.
 - **Boundary-aware** — Enforces protected paths and branch isolation.
 
