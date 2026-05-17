@@ -225,9 +225,9 @@ See `AGENTS.md` for the universal contract.
 
 ## Project Context
 
-- Read `.decapod/config.toml` before planning; it captures project name, summary, architecture, primary languages, and entrypoint preferences.
-- Treat `.decapod/config.toml` as human-editable project context. You may update it when user intent or project direction changes.
-- Read `.decapod/OVERRIDE.md` when present; it is the repo-local place for constitution overrides.
+- Read [.decapod/config.toml](../.decapod/config.toml) before planning; it captures project name, summary, architecture, primary languages, and entrypoint preferences.
+- Treat [.decapod/config.toml](../.decapod/config.toml) as human-editable project context. You may update it when user intent or project direction changes.
+- Read [.decapod/OVERRIDE.md](../.decapod/OVERRIDE.md) when present; it is the repo-local place for constitution overrides.
 - Do not mutate Decapod-owned state under `.decapod/` directly; use Decapod CLI surfaces for generated specs, data, workspaces, and sessions.
 
 ## Quick Start
@@ -264,9 +264,9 @@ decapod data schema --deterministic
 - Read and update `.decapod/config.toml` as project context; use Decapod CLI for other `.decapod/` state.
 - Read `.decapod/OVERRIDE.md` for repo-local constitution overrides when present.
 - `DECAPOD_SESSION_PASSWORD` is required for session-scoped operations.
-- Read canonical router: `decapod docs show core/DECAPOD.md`.
+- Read canonical router: [core/DECAPOD.md](../constitution/core/DECAPOD.md).
 - Use shared aptitude memory for human-taught preferences across sessions/providers: `decapod data memory add|get` (aliases: `decapod data aptitude`).
-- Operator reference: `decapod docs show docs/PLAYBOOK.md`.
+- Operator reference: [docs/PLAYBOOK.md](../constitution/docs/PLAYBOOK.md).
 - Capability authority: `decapod capabilities --format json`.
 - Scoped context feature: `decapod docs search --query "<problem>" --op <op>` or `decapod rpc --op context.scope`.
 
@@ -319,7 +319,7 @@ decapod eval plan --task-set-id <id> --task-ref <task-id> --model-id <model> --p
 
 1. **MUST** refine intent with the user before inference-heavy work.
 2. **MUST NOT** work on main/master. **MUST** use `.decapod/workspaces/*`.
-3. **MUST** read `.decapod/config.toml` as user-editable project context and may update it when user intent changes.
+3. **MUST** read [.decapod/config.toml](.decapod/config.toml) as user-editable project context and may update it when user intent changes.
 4. **MUST NOT** claim done without `decapod validate` passing.
 5. **MUST NOT** invent capabilities that are not exposed by the binary.
 6. **MUST** stop if requirements conflict, intent is ambiguous, or policy boundaries are unclear.
@@ -337,7 +337,7 @@ These invariants are directly enforced by tests. Violations will cause CI failur
 - **INV-WORKSPACE-ISOLATION**: Protected branches (main/master) MUST NOT be directly mutated. (enforced by workspace validation)
 
 ## Safety Invariants
-- ✅ Router pointer: `core/DECAPOD.md`
+- ✅ Router pointer: [core/DECAPOD.md](constitution/core/DECAPOD.md)
 - ✅ Validation gate: `decapod validate`
 - ✅ Constitution ingestion gate: `decapod docs ingest`
 - ✅ Workspace status gate: `decapod workspace status`
@@ -368,11 +368,11 @@ Call Decapod before editing. Let Decapod validate after editing.
 
 ## Operating Notes
 
-- Read `.decapod/config.toml` before planning; it captures project name, summary, architecture, primary languages, and agent entrypoint preferences.
-- Treat `.decapod/config.toml` as human-editable project context. You may update it when user intent or project direction changes.
-- Read `.decapod/OVERRIDE.md` when present; it is the repo-local place for constitution overrides.
+- Read [.decapod/config.toml](.decapod/config.toml) before planning; it captures project name, summary, architecture, primary languages, and agent entrypoint preferences.
+- Treat [.decapod/config.toml](.decapod/config.toml) as human-editable project context. You may update it when user intent or project direction changes.
+- Read [.decapod/OVERRIDE.md](.decapod/OVERRIDE.md) when present; it is the repo-local place for constitution overrides.
 - Do not mutate Decapod-owned state under `.decapod/` directly; generated specs, data, workspaces, and sessions stay via decapod CLI.
-- Use `decapod docs show core/DECAPOD.md` for binding contracts; `decapod capabilities --format json` for available ops.
+- Use `decapod docs show` [core/DECAPOD.md](constitution/core/DECAPOD.md) for binding contracts; `decapod capabilities --format json` for available ops.
 - Use `decapod todo handoff --id <id> --to <agent>` for cross-agent ownership transfer.
 - Treat lock/contention failures (including `VALIDATE_TIMEOUT_OR_LOCK`) as blocking until resolved.
 "#

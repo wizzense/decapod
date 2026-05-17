@@ -414,13 +414,13 @@ These files are the project-local contract for humans and agents.
 - Detected surfaces: {surfaces}
 
 ## How to use this folder
-- `INTENT.md`: what success means and what is explicitly out of scope.
-- `ARCHITECTURE.md`: topology, runtime model, data boundaries, and ADR trail.
-- `INTERFACES.md`: API/CLI/events/storage contracts and failure behavior.
-- `VALIDATION.md`: proof commands, quality gates, and evidence artifacts.
-- `SEMANTICS.md`: state machines, invariants, replay rules, and idempotency.
-- `OPERATIONS.md`: SLOs, monitoring, incident response, and rollout strategy.
-- `SECURITY.md`: threat model, trust boundaries, auth/authz, and supply-chain posture.
+- [INTENT.md](./INTENT.md): what success means and what is explicitly out of scope.
+- [ARCHITECTURE.md](./ARCHITECTURE.md): topology, runtime model, data boundaries, and ADR trail.
+- [INTERFACES.md](./INTERFACES.md): API/CLI/events/storage contracts and failure behavior.
+- [VALIDATION.md](./VALIDATION.md): proof commands, quality gates, and evidence artifacts.
+- [SEMANTICS.md](./SEMANTICS.md): state machines, invariants, replay rules, and idempotency.
+- [OPERATIONS.md](./OPERATIONS.md): SLOs, monitoring, incident response, and rollout strategy.
+- [SECURITY.md](./SECURITY.md): threat model, trust boundaries, auth/authz, and supply-chain posture.
 
 ## Canonical `.decapod/` Layout
 - `.decapod/data/`: canonical control-plane state (SQLite + ledgers).
@@ -434,13 +434,13 @@ These files are the project-local contract for humans and agents.
 
 ## Day-0 Onboarding Checklist
 - [ ] Replace all placeholders in all 8 spec files.
-- [ ] Confirm primary user outcome and acceptance criteria in `INTENT.md`.
-- [ ] Confirm topology and runtime model in `ARCHITECTURE.md`.
-- [ ] Document all inbound/outbound contracts in `INTERFACES.md`.
-- [ ] Define validation gates and CI proof surfaces in `VALIDATION.md`.
-- [ ] Define state machines and invariants in `SEMANTICS.md`.
-- [ ] Define SLOs, alerting, and incident process in `OPERATIONS.md`.
-- [ ] Define threat model and auth/authz decisions in `SECURITY.md`.
+- [ ] Confirm primary user outcome and acceptance criteria in [INTENT.md](./INTENT.md).
+- [ ] Confirm topology and runtime model in [ARCHITECTURE.md](./ARCHITECTURE.md).
+- [ ] Document all inbound/outbound contracts in [INTERFACES.md](./INTERFACES.md).
+- [ ] Define validation gates and CI proof surfaces in [VALIDATION.md](./VALIDATION.md).
+- [ ] Define state machines and invariants in [SEMANTICS.md](./SEMANTICS.md).
+- [ ] Define SLOs, alerting, and incident process in [OPERATIONS.md](./OPERATIONS.md).
+- [ ] Define threat model and auth/authz decisions in [SECURITY.md](./SECURITY.md).
 - [ ] Ensure architecture diagram, docs, changelog, and tests are mapped to promotion gates.
 - [ ] Run all validation/test commands and attach evidence artifacts.
 
@@ -502,8 +502,8 @@ flowchart LR
 | Area | In Scope | Proof Surface |
 |---|---|---|
 | Core workflow | Define a concrete user-visible workflow | Acceptance criteria + tests |
-| Data contracts | Document canonical inputs/outputs | `INTERFACES.md` and schema checks |
-| Delivery quality | Block promotion on broken proof surfaces | `VALIDATION.md` blocking gates |
+| Data contracts | Document canonical inputs/outputs | [INTERFACES.md](./INTERFACES.md) and schema checks |
+| Delivery quality | Block promotion on broken proof surfaces | [VALIDATION.md](./VALIDATION.md) blocking gates |
 
 ## Non-Goals (Falsifiable)
 | Non-goal | How to falsify |
