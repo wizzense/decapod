@@ -11,11 +11,11 @@
 //! - `allowed_next_ops`: Contract for what to do next
 //! - `blocked_by`: Missing answers/proofs
 
+use crate::core::container_runtime;
 use crate::core::docs::{DocFragment, Mandate};
 use serde::{Deserialize, Serialize};
 use sha2::Digest;
 use std::collections::HashMap;
-use std::process::Command;
 
 /// Standard RPC request envelope
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -294,11 +294,7 @@ pub struct Attestation {
 
 /// Generate capabilities report
 pub fn generate_capabilities() -> CapabilitiesReport {
-    let docker_available = Command::new("docker")
-        .arg("version")
-        .output()
-        .map(|output| output.status.success())
-        .unwrap_or(false);
+    let docker_available = container_runtime::container_runtime_available();
 
     CapabilitiesReport {
         version: env!("CARGO_PKG_VERSION").to_string(),

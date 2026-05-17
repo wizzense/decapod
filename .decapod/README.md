@@ -1,7 +1,6 @@
 # .decapod - Decapod Control Plane
 
-Decapod is a software engineering harness interfaced through AI coding agents.
-You get governed execution, proof-backed delivery, and integrated project management with near-zero operator overhead.
+Decapod is the daemonless, local-first governance kernel behind AI coding agents. Agents call it on demand to converge on human intent, shape context before inference, enforce boundaries, and deliver proof-backed completion across concurrent multi-agent work.
 
 GitHub: https://github.com/DecapodLabs/decapod
 

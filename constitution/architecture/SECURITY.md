@@ -890,11 +890,18 @@ munmap, mremap, statfs
 
 ## Links
 
-- `specs/SECURITY.md` - Security doctrine (binding)
-- `methodology/ARCHITECTURE.md` - binding architecture
-- `architecture/WEB.md` - Web security
-- `architecture/CLOUD.md` - Cloud security
-- `architecture/CODING_STANDARDS.md` - Coding standards with security implications
+- [SECURITY](../specs/SECURITY.md) - Security doctrine (binding)
+- [ARCHITECTURE](../methodology/ARCHITECTURE.md) - binding architecture
+- [WEB](WEB.md) - Web security
+- [CLOUD](CLOUD.md) - Cloud security
+- [CODING_STANDARDS](CODING_STANDARDS.md) - Coding standards with security implications
+- [COMPLIANCE](COMPLIANCE.md) - Compliance frameworks
+- [DR](DR.md) - Disaster recovery patterns
+
+### Parent Docs
+- [DECAPOD](../core/DECAPOD.md) - Router and navigation charter
+- [INTERFACES](../core/INTERFACES.md) - Interface contracts
+- [INTENT](../specs/INTENT.md) - Intent specification
 
 ---
 

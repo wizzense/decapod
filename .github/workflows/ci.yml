@@ -324,6 +324,7 @@ jobs:
                 cargo test --all-features --test contract_conformance -- --test-threads=4
                 cargo test --all-features --test constitution_claims -- --test-threads=4
                 cargo test --all-features --test spec_conformance -- --test-threads=4
+                cargo test --all-features --test substrate_integrity -- --test-threads=4
               fi
               ;;
           esac

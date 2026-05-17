@@ -332,8 +332,13 @@ The frontend is not a layer — it is the product. Every decision that degrades 
 
 ## Links
 
-- [methodology/ARCHITECTURE.md](../methodology/ARCHITECTURE.md) - binding architecture doctrine
-- [architecture/WEB.md](WEB.md) - Web architecture
-- [architecture/CACHING.md](CACHING.md) - Caching strategies
-- [architecture/SECURITY.md](SECURITY.md) - Frontend security
-- [architecture/OBSERVABILITY.md](OBSERVABILITY.md) - Observability patterns
+- [ARCHITECTURE](../methodology/ARCHITECTURE.md) - binding architecture doctrine
+- [WEB](WEB.md) - Web architecture
+- [CACHING](CACHING.md) - Caching strategies
+- [SECURITY](SECURITY.md) - Frontend security
+- [PERFORMANCE](PERFORMANCE.md) - Performance patterns
+
+### Parent Docs
+- [DECAPOD](../core/DECAPOD.md) - Router and navigation charter
+- [INTERFACES](../core/INTERFACES.md) - Interface contracts
+- [INTENT](../specs/INTENT.md) - Intent specification

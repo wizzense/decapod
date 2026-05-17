@@ -243,10 +243,14 @@ When exact answer requires too much memory:
 
 ## Links
 
-- `methodology/ARCHITECTURE.md` - binding architecture doctrine
-- `architecture/DATA.md` - Data architecture
-- `architecture/CACHING.md` - Caching patterns
-- `architecture/CONCURRENCY.md` - Shared memory patterns
+- [ARCHITECTURE](../methodology/ARCHITECTURE.md) - binding architecture doctrine
+- [DATA](DATA.md) - Data architecture
+- [CONCURRENCY](CONCURRENCY.md) - Shared memory patterns
+
+### Parent Docs
+- [DECAPOD](../core/DECAPOD.md) - Router and navigation charter
+- [INTERFACES](../core/INTERFACES.md) - Interface contracts
+- [INTENT](../specs/INTENT.md) - Intent specification
 
 ---
 

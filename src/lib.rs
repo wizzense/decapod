@@ -195,45 +195,25 @@ fn infer_repo_context(target_dir: &Path) -> RepoContext {
     let intent_path = target_dir.join(core::project_specs::LOCAL_PROJECT_SPECS_INTENT);
     if intent_path.exists()
         && let Ok(intent) = fs::read_to_string(intent_path)
+        && let Some(summary) = core::project_specs::first_markdown_content_line(&intent)
     {
-        for line in intent.lines() {
-            let trimmed = line.trim();
-            if !trimmed.is_empty() && !trimmed.starts_with('#') && !trimmed.starts_with('-') {
-                ctx.product_summary = Some(trimmed.to_string());
-                break;
-            }
-        }
+        ctx.product_summary = Some(summary);
     }
     let architecture_path = target_dir.join(core::project_specs::LOCAL_PROJECT_SPECS_ARCHITECTURE);
     if architecture_path.exists()
         && let Ok(arch) = fs::read_to_string(architecture_path)
+        && let Some(direction) = core::project_specs::first_markdown_content_line(&arch)
     {
-        for line in arch.lines() {
-            let trimmed = line.trim();
-            if !trimmed.is_empty() && !trimmed.starts_with('#') && !trimmed.starts_with('-') {
-                ctx.architecture_direction = Some(trimmed.to_string());
-                break;
-            }
-        }
+        ctx.architecture_direction = Some(direction);
     }
 
     if ctx.product_summary.is_none() {
         let readme_path = target_dir.join("README.md");
         if readme_path.exists()
             && let Ok(readme) = fs::read_to_string(readme_path)
+            && let Some(summary) = core::project_specs::first_markdown_content_line(&readme)
         {
-            for line in readme.lines() {
-                let trimmed = line.trim();
-                if trimmed.is_empty()
-                    || trimmed.starts_with('#')
-                    || trimmed.starts_with("<")
-                    || trimmed.starts_with("![")
-                {
-                    continue;
-                }
-                ctx.product_summary = Some(trimmed.to_string());
-                break;
-            }
+            ctx.product_summary = Some(summary);
         }
     }
 
@@ -291,6 +271,58 @@ fn read_seed_list_env(var: &str) -> Vec<String> {
 fn dedupe_sorted(list: &mut Vec<String>) {
     list.sort();
     list.dedup();
+}
+
+fn apply_substrate_adoption(ctx: &mut RepoContext, target_dir: &Path) {
+    // Adoption: if OVERRIDE.md exists, it has the highest priority for docs.
+    // Existing INTENT.md or README.md are lower priority than config.toml.
+
+    // Check OVERRIDE.md (explicit user-defined override)
+    if let Some(override_intent) = core::assets::get_override_doc(target_dir, "specs/INTENT.md")
+        && let Some(summary) = core::project_specs::first_markdown_content_line(&override_intent)
+    {
+        ctx.product_summary = Some(summary);
+    }
+
+    // Fallback to existing generated spec ONLY if not already set by config.toml or OVERRIDE.md
+    if ctx.product_summary.is_none() {
+        let intent_path = target_dir.join(core::project_specs::LOCAL_PROJECT_SPECS_INTENT);
+        if intent_path.exists()
+            && let Ok(intent) = fs::read_to_string(intent_path)
+            && let Some(summary) = core::project_specs::first_markdown_content_line(&intent)
+        {
+            ctx.product_summary = Some(summary);
+        }
+    }
+
+    // README fallback if still none
+    if ctx.product_summary.is_none() {
+        let readme_path = target_dir.join("README.md");
+        if readme_path.exists()
+            && let Ok(readme) = fs::read_to_string(readme_path)
+            && let Some(summary) = core::project_specs::first_markdown_content_line(&readme)
+        {
+            ctx.product_summary = Some(summary);
+        }
+    }
+
+    // Architecture adoption (OVERRIDE.md wins, then config.toml, then ARCHITECTURE.md)
+    if let Some(override_arch) = core::assets::get_override_doc(target_dir, "specs/ARCHITECTURE.md")
+        && let Some(direction) = core::project_specs::first_markdown_content_line(&override_arch)
+    {
+        ctx.architecture_direction = Some(direction);
+    }
+
+    if ctx.architecture_direction.is_none() {
+        let architecture_path =
+            target_dir.join(core::project_specs::LOCAL_PROJECT_SPECS_ARCHITECTURE);
+        if architecture_path.exists()
+            && let Ok(arch) = fs::read_to_string(architecture_path)
+            && let Some(direction) = core::project_specs::first_markdown_content_line(&arch)
+        {
+            ctx.architecture_direction = Some(direction);
+        }
+    }
 }
 
 fn apply_repo_context_env_overrides(ctx: &mut RepoContext) {
@@ -872,13 +904,13 @@ fn init_with_from_config(
         agents: has("AGENTS.md"),
         specs: config.init.specs,
         diagram_style: config.init.diagram_style,
-        product_name: None,
-        product_summary: None,
-        architecture_direction: None,
-        product_type: None,
-        done_criteria: None,
-        primary_languages: Vec::new(),
-        detected_surfaces: Vec::new(),
+        product_name: config.repo.product_name.clone(),
+        product_summary: config.repo.product_summary.clone(),
+        architecture_direction: config.repo.architecture_direction.clone(),
+        product_type: config.repo.product_type.clone(),
+        done_criteria: config.repo.done_criteria.clone(),
+        primary_languages: config.repo.primary_languages.clone(),
+        detected_surfaces: config.repo.detected_surfaces.clone(),
     }
 }
 
@@ -1291,6 +1323,7 @@ pub fn run() -> Result<(), error::DecapodError> {
             let mut repo_ctx = infer_repo_context(&init_target);
             apply_repo_context_env_overrides(&mut repo_ctx);
             apply_repo_context_cli_overrides(&mut repo_ctx, &init_with);
+            apply_substrate_adoption(&mut repo_ctx, &init_target);
             apply_architecture_language_recommendation(&mut repo_ctx);
             if base_init_invocation && io::stdin().is_terminal() {
                 enrich_repo_context_interactive(&mut repo_ctx)?;

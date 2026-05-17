@@ -33,7 +33,7 @@ decapod docs search --query "<problem>" --op <op> --path <path> --tag <tag>
 decapod rpc --op context.scope --params '{"query":"<problem>","limit":8}'
 
 # Convergence/proof surfaces (call when relevant)
-decapod workunit init --task-id <task-id> --intent-ref <intent>
+decapod govern workunit init --task-id <task-id> --intent-ref <intent>
 decapod govern capsule query --topic "<topic>" --scope interfaces --task-id <task-id>
 decapod eval plan --task-set-id <id> --task-ref <task-id> --model-id <model> --prompt-hash <hash> --judge-model-id <judge> --judge-prompt-hash <hash>
 ```
@@ -71,22 +71,22 @@ These invariants are directly enforced by tests. Violations will cause CI failur
 
 ## Universal Agent Operating Contract
 
-**Doctrine:** Establish intent, shape context, bound mutation, and define proof before implementation.
+**Doctrine:** Agents should establish intent, shape context, bound mutation, and define proof before implementation.
 
-**Before:** Determine what's asked; identify files/modules; define scope; surface assumptions; create dependency-aware todos.
+**Before:** Determine what's asked; identify files/commands/modules/artifacts; define in/out scope; surface assumptions/clarifications; create dependency-aware todos.
 
-**During:** Avoid opportunistic rewrites; preserve behavior unless task requires change; stop before crossing subsystem boundaries; verify before completion.
+**During:** Avoid opportunistic rewrites; preserve behavior unless required; stop before crossing subsystem boundaries; run the strongest practical verification.
 
 **After:** Report what changed, tested, not tested, and uncertainty. Ensure `decapod validate` passes.
 
 ## Decapod Governance
 
-Decapod is the repo-native control plane agents call on demand. It reduces wasted inference, prevents scope drift, enforces boundaries, and requires proof-backed completion.
+Decapod is the daemonless, local-first governance kernel behind AI coding agents. Agents call it on demand to converge on human intent, shape context before inference, enforce boundaries, and deliver proof-backed completion across concurrent multi-agent work.
 
 - **The agent performs the work.** Decapod does not implement or decide.
 - **Decapod governs the work.** It validates, tracks, and surfaces convergence proof.
-- **Decapod does not replace agents.** It makes Claude, Codex, OpenCode, Kilo, Pi, Cursor, and others more reliable by absorbing common deficiencies.
-
+- **Decapod does not replace agents.** It makes Claude, Codex, Gemini, Cursor, Kilo, and others more reliable by absorbing common deficiencies.
+- **Authority is hierarchical.** Constitution, project/spec intent, task boundaries, proof requirements, and generated artifacts outrank agent-local execution.
 Call Decapod before editing. Let Decapod validate after editing.
 
 ## Operating Notes

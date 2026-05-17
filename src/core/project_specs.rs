@@ -90,12 +90,35 @@ fn read_if_exists(project_root: &Path, rel_path: &str) -> Option<String> {
     fs::read_to_string(path).ok()
 }
 
-fn first_meaningful_line(markdown: &str) -> Option<String> {
-    markdown
-        .lines()
-        .map(str::trim)
-        .find(|line| !line.is_empty() && !line.starts_with('#') && !line.starts_with('-'))
-        .map(|s| s.to_string())
+pub fn first_markdown_content_line(markdown: &str) -> Option<String> {
+    let mut in_fence = false;
+    for line in markdown.lines() {
+        let mut trimmed = line.trim();
+        if trimmed.starts_with("```") || trimmed.starts_with("~~~") {
+            in_fence = !in_fence;
+            continue;
+        }
+        if in_fence
+            || trimmed.is_empty()
+            || trimmed.starts_with('#')
+            || trimmed.starts_with('<')
+            || trimmed.starts_with("![")
+            || trimmed.starts_with('|')
+            || trimmed == "---"
+        {
+            continue;
+        }
+        if let Some(rest) = trimmed.strip_prefix("- ") {
+            trimmed = rest.trim();
+        } else if let Some(rest) = trimmed.strip_prefix("* ") {
+            trimmed = rest.trim();
+        }
+        if trimmed.is_empty() || trimmed.starts_with("[ ]") || trimmed.starts_with("[x]") {
+            continue;
+        }
+        return Some(trimmed.to_string());
+    }
+    None
 }
 
 pub fn local_project_specs_context(project_root: &Path) -> LocalProjectSpecsContext {
@@ -109,19 +132,19 @@ pub fn local_project_specs_context(project_root: &Path) -> LocalProjectSpecsCont
     ctx.constitution_refs.dedup();
 
     ctx.intent = read_if_exists(project_root, LOCAL_PROJECT_SPECS_INTENT)
-        .and_then(|s| first_meaningful_line(&s));
+        .and_then(|s| first_markdown_content_line(&s));
     ctx.architecture = read_if_exists(project_root, LOCAL_PROJECT_SPECS_ARCHITECTURE)
-        .and_then(|s| first_meaningful_line(&s));
+        .and_then(|s| first_markdown_content_line(&s));
     ctx.interfaces = read_if_exists(project_root, LOCAL_PROJECT_SPECS_INTERFACES)
-        .and_then(|s| first_meaningful_line(&s));
+        .and_then(|s| first_markdown_content_line(&s));
     ctx.validation = read_if_exists(project_root, LOCAL_PROJECT_SPECS_VALIDATION)
-        .and_then(|s| first_meaningful_line(&s));
+        .and_then(|s| first_markdown_content_line(&s));
     ctx.semantics = read_if_exists(project_root, LOCAL_PROJECT_SPECS_SEMANTICS)
-        .and_then(|s| first_meaningful_line(&s));
+        .and_then(|s| first_markdown_content_line(&s));
     ctx.operations = read_if_exists(project_root, LOCAL_PROJECT_SPECS_OPERATIONS)
-        .and_then(|s| first_meaningful_line(&s));
+        .and_then(|s| first_markdown_content_line(&s));
     ctx.security = read_if_exists(project_root, LOCAL_PROJECT_SPECS_SECURITY)
-        .and_then(|s| first_meaningful_line(&s));
+        .and_then(|s| first_markdown_content_line(&s));
     ctx.update_guidance = "Treat .decapod/generated/specs/*.md as living project contracts: when user intent, interfaces, architecture, or proof gates change, update these specs before implementation proceeds.".to_string();
     ctx
 }
@@ -250,4 +273,45 @@ pub fn read_specs_manifest(
         error::DecapodError::ValidationError(format!("Invalid project specs manifest: {}", e))
     })?;
     Ok(Some(manifest))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn first_markdown_content_line_uses_bullet_text_before_code_fence() {
+        let markdown = r#"# Intent
+
+## Product Outcome
+- Decapod governs agent work.
+
+## Product View
+```mermaid
+flowchart LR
+```
+"#;
+
+        assert_eq!(
+            first_markdown_content_line(markdown).as_deref(),
+            Some("Decapod governs agent work.")
+        );
+    }
+
+    #[test]
+    fn first_markdown_content_line_ignores_html_and_fenced_blocks() {
+        let markdown = r#"<p align="center">ignored</p>
+
+```bash
+cargo install decapod
+```
+
+Real product summary.
+"#;
+
+        assert_eq!(
+            first_markdown_content_line(markdown).as_deref(),
+            Some("Real product summary.")
+        );
+    }
 }
