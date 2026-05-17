@@ -87,3 +87,17 @@ When agents make resource decisions:
 2. Use conservative resource estimates
 3. Implement auto-scaling where possible
 4. Clean up unused resources
+
+---
+
+## Links
+
+### Related Architecture
+- [CLOUD](CLOUD.md) - Cloud infrastructure
+- [PERFORMANCE](PERFORMANCE.md) - Performance patterns
+- [CACHING](CACHING.md) - Caching strategies
+
+### Parent Docs
+- [DECAPOD](../core/DECAPOD.md) - Router and navigation charter
+- [INTERFACES](../core/INTERFACES.md) - Interface contracts
+- [INTENT](../specs/INTENT.md) - Intent specification

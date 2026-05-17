@@ -297,8 +297,18 @@ GET /users/123/update
 
 ## Links
 
-- `methodology/ARCHITECTURE.md` - binding architecture doctrine
-- `architecture/SECURITY.md` - Security architecture
-- `architecture/CACHING.md` - HTTP caching
-- `architecture/FRONTEND.md` - Frontend architecture
-- `architecture/CLOUD.md` - Cloud deployment
+- [ARCHITECTURE](../methodology/ARCHITECTURE.md) - binding architecture doctrine
+- [SECURITY](SECURITY.md) - Security architecture
+- [CACHING](CACHING.md) - HTTP caching
+- [FRONTEND](FRONTEND.md) - Frontend architecture
+- [CLOUD](CLOUD.md) - Cloud deployment
+
+### Parent Docs
+- [DECAPOD](../core/DECAPOD.md) - Router and navigation charter
+- [INTERFACES](../core/INTERFACES.md) - Interface contracts
+- [INTENT](../specs/INTENT.md) - Intent specification
+
+### Related Architecture
+- [API_DESIGN](API_DESIGN.md) - API design standards
+- [UI](UI.md) - UI architecture
+- [OBSERVABILITY](OBSERVABILITY.md) - Observability patterns

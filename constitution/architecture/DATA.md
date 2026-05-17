@@ -223,10 +223,15 @@ Data decisions compound over years. Schema choices made at week one outlive thre
 
 ## Links
 
-- `methodology/ARCHITECTURE.md` - binding architecture doctrine
-- `architecture/CACHING.md` - Caching patterns
-- `architecture/SECURITY.md` - Security architecture
-- `architecture/OBSERVABILITY.md` - Data observability
+- [ARCHITECTURE](../methodology/ARCHITECTURE.md) - binding architecture doctrine
+- [CACHING](CACHING.md) - Caching patterns
+- [SECURITY](SECURITY.md) - Security architecture
+- [OBSERVABILITY](OBSERVABILITY.md) - Data observability
+
+### Parent Docs
+- [DECAPOD](../core/DECAPOD.md) - Router and navigation charter
+- [INTERFACES](../core/INTERFACES.md) - Interface contracts
+- [INTENT](../specs/INTENT.md) - Intent specification
 
 ---
 

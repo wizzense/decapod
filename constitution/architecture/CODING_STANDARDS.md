@@ -208,14 +208,18 @@ For Decapod's architecture:
 ## Links
 
 ### Core Router
-- `core/DECAPOD.md` - Router and navigation charter (START HERE)
-- `core/ENGINEERING_EXCELLENCE.md` - Engineering quality standards
+- [DECAPOD](../core/DECAPOD.md) - Router and navigation charter (START HERE)
+- [ENGINEERING_EXCELLENCE](../core/ENGINEERING_EXCELLENCE.md) - Engineering quality standards
 
 ### Practice (Methodology Layer)
-- `methodology/ARCHITECTURE.md` - Architecture practice
-- `methodology/TESTING.md` - Testing practice
+- [ARCHITECTURE](../methodology/ARCHITECTURE.md) - Architecture practice
+- [TESTING](../methodology/TESTING.md) - Testing practice
 
 ### Architecture Patterns
-- `architecture/ALGORITHMS.md` - Algorithm selection
-- `architecture/API_DESIGN.md` - API design standards
-- `architecture/CONCURRENCY.md` - Concurrency architecture
+- [ALGORITHMS](ALGORITHMS.md) - Algorithm selection
+- [API_DESIGN](API_DESIGN.md) - API design standards
+- [CONCURRENCY](CONCURRENCY.md) - Concurrency architecture
+
+### Parent Docs
+- [INTERFACES](../core/INTERFACES.md) - Interface contracts
+- [INTENT](../specs/INTENT.md) - Intent specification

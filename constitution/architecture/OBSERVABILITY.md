@@ -182,7 +182,12 @@ Run mechanical checks in CI, not just locally. Every merge must pass:
 
 ## Links
 
-- `methodology/ARCHITECTURE.md` - binding architecture
-- `architecture/SECURITY.md` - Security patterns
-- `architecture/CONCURRENCY.md` - Concurrency patterns
-- `specs/SYSTEM.md` - System definition
+- [ARCHITECTURE](../methodology/ARCHITECTURE.md) - binding architecture
+- [SECURITY](SECURITY.md) - Security patterns
+- [CONCURRENCY](CONCURRENCY.md) - Concurrency patterns
+- [SYSTEM](../specs/SYSTEM.md) - System definition
+
+### Parent Docs
+- [DECAPOD](../core/DECAPOD.md) - Router and navigation charter
+- [INTERFACES](../core/INTERFACES.md) - Interface contracts
+- [INTENT](../specs/INTENT.md) - Intent specification

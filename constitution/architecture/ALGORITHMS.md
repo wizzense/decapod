@@ -358,7 +358,12 @@ The gap between academic algorithm knowledge and production engineering is real:
 
 ## Links
 
-- `methodology/ARCHITECTURE.md` - binding architecture doctrine
-- `architecture/MEMORY.md` - Memory and cache efficiency
-- `architecture/CONCURRENCY.md` - Parallel algorithms
-- `architecture/PERFORMANCE.md` - Performance optimization
+- [ARCHITECTURE](../methodology/ARCHITECTURE.md) - binding architecture doctrine
+- [MEMORY](MEMORY.md) - Memory and cache efficiency
+- [CONCURRENCY](CONCURRENCY.md) - Parallel algorithms
+- [PERFORMANCE](PERFORMANCE.md) - Performance optimization
+
+### Parent Docs
+- [DECAPOD](../core/DECAPOD.md) - Router and navigation charter
+- [INTERFACES](../core/INTERFACES.md) - Interface contracts
+- [INTENT](../specs/INTENT.md) - Intent specification

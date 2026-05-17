@@ -100,3 +100,18 @@ When agents design APIs:
 2. Document all endpoints
 3. Include OpenAPI specs in PR
 4. Add integration tests for critical paths
+
+---
+
+## Links
+
+### Related Architecture
+- [WEB](WEB.md) - Web architecture
+- [SECURITY](SECURITY.md) - API security
+- [GRAPHQL](GRAPHQL.md) - GraphQL patterns
+- [GRPC](GRPC.md) - gRPC patterns
+
+### Parent Docs
+- [DECAPOD](../core/DECAPOD.md) - Router and navigation charter
+- [INTERFACES](../core/INTERFACES.md) - Interface contracts
+- [INTENT](../specs/INTENT.md) - Intent specification

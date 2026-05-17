@@ -156,7 +156,12 @@ When an external service fails repeatedly, stop calling it temporarily. Prevents
 
 ## Links
 
-- `methodology/ARCHITECTURE.md` - binding architecture
-- `architecture/ALGORITHMS.md` - Algorithm selection
-- `architecture/CLOUD.md` - Cloud infrastructure patterns
-- `architecture/OBSERVABILITY.md` - Monitoring and debugging
+- [ARCHITECTURE](../methodology/ARCHITECTURE.md) - binding architecture
+- [ALGORITHMS](ALGORITHMS.md) - Algorithm selection
+- [CLOUD](CLOUD.md) - Cloud infrastructure patterns
+- [OBSERVABILITY](OBSERVABILITY.md) - Monitoring and debugging
+
+### Parent Docs
+- [DECAPOD](../core/DECAPOD.md) - Router and navigation charter
+- [INTERFACES](../core/INTERFACES.md) - Interface contracts
+- [INTENT](../specs/INTENT.md) - Intent specification
