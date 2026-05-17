@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.47.37](https://github.com/DecapodLabs/decapod/compare/v0.47.36...v0.47.37) - 2026-05-17
+
+### Fixed
+
+- use embedded constitution paths in AGENTS.md template
+
 ## [0.47.36](https://github.com/DecapodLabs/decapod/compare/v0.47.35...v0.47.36) - 2026-05-17
 
 ### Fixed
