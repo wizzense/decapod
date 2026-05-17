@@ -247,16 +247,11 @@ fn test_interlock_drift_detection_capability() {
 
 #[test]
 fn test_constitution_markdown_links_are_routable() {
-    use regex::Regex;
-
     let (_tmp, dir) = setup_repo();
 
     // Get list of all embedded docs
     let list_output = run_decapod(&dir, &["docs", "list"]);
-    assert!(
-        list_output.status.success(),
-        "docs list should succeed"
-    );
+    assert!(list_output.status.success(), "docs list should succeed");
 
     let docs_list = String::from_utf8_lossy(&list_output.stdout);
     let all_doc_paths: Vec<&str> = docs_list
@@ -272,23 +267,25 @@ fn test_constitution_markdown_links_are_routable() {
     // Track all broken links for reporting
     let mut broken_links: Vec<(String, String)> = Vec::new();
 
+    // Compile regex once outside the loop
+    let link_regex = regex::Regex::new(r"\[([^\]]+)\]\(([^)]+\.md)\)").expect("valid regex");
+
     // For each doc, check its links
     for doc_path in &all_doc_paths {
         let show_output = run_decapod(&dir, &["docs", "show", doc_path]);
 
         if !show_output.status.success() {
-            // If a doc itself can't be shown, that's a problem
             broken_links.push((
                 doc_path.to_string(),
-                format!("doc not accessible: {}", String::from_utf8_lossy(&show_output.stderr)),
+                format!(
+                    "doc not accessible: {}",
+                    String::from_utf8_lossy(&show_output.stderr)
+                ),
             ));
             continue;
         }
 
         let doc_content = String::from_utf8_lossy(&show_output.stdout);
-
-        // Extract all markdown links: [text](path)
-        let link_regex = Regex::new(r"\[([^\]]+)\]\(([^)]+\.md)\)").expect("valid regex");
 
         for cap in link_regex.captures_iter(&doc_content) {
             let link_text = &cap[1];
@@ -296,7 +293,7 @@ fn test_constitution_markdown_links_are_routable() {
 
             // Skip external links and anchor links
             if link_target.starts_with("http")
-                || link_target.starts_with("#")
+                || link_target.starts_with('#')
                 || link_target.contains("://")
             {
                 continue;
@@ -304,23 +301,18 @@ fn test_constitution_markdown_links_are_routable() {
 
             // Normalize the target path
             let target = if link_target.starts_with("constitution/") {
-                link_target.strip_prefix("constitution/").unwrap_or(link_target)
+                link_target
+                    .strip_prefix("constitution/")
+                    .unwrap_or(link_target)
             } else {
                 link_target
             };
 
-            // Check if target exists in embedded docs
-            let target_exists = all_doc_paths.iter().any(|d| {
-                let normalized_d = d.strip_prefix("constitution/").unwrap_or(*d);
-                normalized_d == target
-                    || *d == target
-                    || d.ends_with(&format!("/{}", target))
-                    || target.ends_with(&format!("/{}", d))
-            });
-
-            // Also verify with docs show
+            // Verify with docs show
             let verify_output = run_decapod(&dir, &["docs", "show", target]);
-            if !verify_output.status.success() || !String::from_utf8_lossy(&verify_output.stdout).contains("decapod") {
+            if !verify_output.status.success()
+                || !String::from_utf8_lossy(&verify_output.stdout).contains("decapod")
+            {
                 broken_links.push((
                     doc_path.to_string(),
                     format!(
@@ -341,8 +333,7 @@ fn test_constitution_markdown_links_are_routable() {
             .join("\n");
 
         panic!(
-            "Found {} broken link(s) in constitution:\n{}\n\n\
-             All embedded docs: {:?}",
+            "Found {} broken link(s) in constitution:\n{}\n\nAll embedded docs: {:?}",
             broken_links.len(),
             report,
             all_doc_paths
@@ -374,10 +365,6 @@ fn test_constitution_docs_ingest_shows_links() {
     ];
 
     for doc_path in &required_docs {
-        assert!(
-            output.contains(doc_path),
-            "docs ingest should include {}",
-            doc_path
-        );
+        assert!(output.contains(doc_path), "docs ingest should include {}", doc_path);
     }
 }
