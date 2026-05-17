@@ -347,10 +347,7 @@ fn test_constitution_docs_ingest_shows_links() {
 
     // Run docs ingest which dumps all docs
     let ingest = run_decapod(&dir, &["docs", "ingest"]);
-    assert!(
-        ingest.status.success(),
-        "docs ingest should succeed"
-    );
+    assert!(ingest.status.success(), "docs ingest should succeed");
 
     let output = String::from_utf8_lossy(&ingest.stdout);
 
@@ -365,6 +362,10 @@ fn test_constitution_docs_ingest_shows_links() {
     ];
 
     for doc_path in &required_docs {
-        assert!(output.contains(doc_path), "docs ingest should include {}", doc_path);
+        assert!(
+            output.contains(doc_path),
+            "docs ingest should include {}",
+            doc_path
+        );
     }
 }
