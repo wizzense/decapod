@@ -31,7 +31,7 @@ decapod init
 
 `decapod init` creates `.decapod/`, a local folder your agent uses to remember intent, rules, context, specs, and proof.
 
-Your **conversational** workflow does not change. You keep talking to your agent normally; behind the scenes, the agent calls Decapod to ensure work happens in isolated environments and adheres to your project's constitution.
+Your **conversational** workflow does not change. You keep working through your agent; Decapod gives the agent the missing control plane. Intent is captured, scope is bounded, context is shaped, protected areas are respected, work is isolated, and completion is proven against the project’s rules and the Decapod constitution.
 
 ---
 
