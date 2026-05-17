@@ -49,9 +49,8 @@ mod tests {
 
     #[test]
     fn missing_runtime_error_names_both_supported_runtimes() {
-        let err = error::DecapodError::NotFound(
-            "No container runtime found (docker/podman)".to_string(),
-        );
+        let err =
+            error::DecapodError::NotFound("No container runtime found (docker/podman)".to_string());
         assert!(err.to_string().contains("docker/podman"));
     }
 }

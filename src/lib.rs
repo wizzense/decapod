@@ -278,10 +278,10 @@ fn apply_substrate_adoption(ctx: &mut RepoContext, target_dir: &Path) {
     // Existing INTENT.md or README.md are lower priority than config.toml.
 
     // Check OVERRIDE.md (explicit user-defined override)
-    if let Some(override_intent) = core::assets::get_override_doc(target_dir, "specs/INTENT.md") {
-        if let Some(summary) = core::project_specs::first_markdown_content_line(&override_intent) {
-            ctx.product_summary = Some(summary);
-        }
+    if let Some(override_intent) = core::assets::get_override_doc(target_dir, "specs/INTENT.md")
+        && let Some(summary) = core::project_specs::first_markdown_content_line(&override_intent)
+    {
+        ctx.product_summary = Some(summary);
     }
 
     // Fallback to existing generated spec ONLY if not already set by config.toml or OVERRIDE.md
