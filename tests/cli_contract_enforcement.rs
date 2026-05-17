@@ -250,7 +250,7 @@ fn test_constitution_markdown_links_are_routable() {
     let (_tmp, dir) = setup_repo();
 
     // Get list of all embedded docs
-    let list_output = run_decapod(&dir, &["docs", "list"]);
+    let list_output = run_decapod(dir, &["docs", "list"]);
     assert!(list_output.status.success(), "docs list should succeed");
 
     let docs_list = String::from_utf8_lossy(&list_output.stdout);
@@ -272,7 +272,7 @@ fn test_constitution_markdown_links_are_routable() {
 
     // For each doc, check its links
     for doc_path in &all_doc_paths {
-        let show_output = run_decapod(&dir, &["docs", "show", doc_path]);
+        let show_output = run_decapod(dir, &["docs", "show", doc_path]);
 
         if !show_output.status.success() {
             broken_links.push((
@@ -309,7 +309,7 @@ fn test_constitution_markdown_links_are_routable() {
             };
 
             // Verify with docs show
-            let verify_output = run_decapod(&dir, &["docs", "show", target]);
+            let verify_output = run_decapod(dir, &["docs", "show", target]);
             if !verify_output.status.success()
                 || !String::from_utf8_lossy(&verify_output.stdout).contains("decapod")
             {
@@ -346,7 +346,7 @@ fn test_constitution_docs_ingest_shows_links() {
     let (_tmp, dir) = setup_repo();
 
     // Run docs ingest which dumps all docs
-    let ingest = run_decapod(&dir, &["docs", "ingest"]);
+    let ingest = run_decapod(dir, &["docs", "ingest"]);
     assert!(ingest.status.success(), "docs ingest should succeed");
 
     let output = String::from_utf8_lossy(&ingest.stdout);
