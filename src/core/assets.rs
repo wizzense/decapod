@@ -176,9 +176,16 @@ fn extract_component_override(override_content: &str, component_path: &str) -> O
     let searchable_content = &override_content[override_start..];
 
     // Look for the section heading: ### core/DECAPOD.md (or other path)
-    let section_marker = format!("\n### {}", component_path);
+    let section_marker = format!("### {}", component_path);
 
     let start = searchable_content.find(&section_marker)?;
+
+    // Ensure it's a real header (either at start of searchable_content or after a newline)
+    if start > 0 && searchable_content.as_bytes()[start - 1] != b'\n' {
+        // This is a partial match inside a line, not a header.
+        return None;
+    }
+
     let content_start = start + section_marker.len();
 
     // Find the next ### heading or end of file
@@ -279,7 +286,7 @@ fn template_agents() -> String {
 
 This is a Decapod-managed repository. **Strict Dependency: You are strictly bound to the Decapod control plane.**
 
-This contract applies equally to Claude, Codex, OpenCode, Kilo, Pi, Cursor, Windsurf, Gemini, Aider, Devin, and future agents.
+This contract applies equally to Claude, Codex, Gemini, Cursor, Kilo, and any other agent operating here.
 
 ## Mandatory Initialization
 
@@ -376,7 +383,7 @@ Call Decapod before editing. Let Decapod validate after editing.
 - Use `decapod todo handoff --id <id> --to <agent>` for cross-agent ownership transfer.
 - Treat lock/contention failures (including `VALIDATE_TIMEOUT_OR_LOCK`) as blocking until resolved.
 "#
-    .to_string()
+        .to_string()
 }
 
 fn template_named_agent(file_stem: &str) -> String {
