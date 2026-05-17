@@ -323,9 +323,7 @@ fn test_constitution_markdown_links_are_routable() {
                     doc_path.to_string(),
                     format!(
                         "broken link: [{}]({}) -> doc not routable (status: {})",
-                        link_text,
-                        link_target,
-                        verify_output.status
+                        link_text, link_target, verify_output.status
                     ),
                 ));
             }
