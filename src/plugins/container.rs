@@ -1,4 +1,5 @@
 use crate::core::error;
+use crate::core::container_runtime;
 use crate::core::store::Store;
 use crate::core::time;
 use clap::{Parser, Subcommand, ValueEnum};
@@ -263,7 +264,7 @@ fn run_container(
     local_only: bool,
 ) -> Result<RunSummary, error::DecapodError> {
     let repo = resolve_repo_path(repo_override)?;
-    let docker = match find_container_runtime() {
+    let docker = match container_runtime::find_container_runtime() {
         Ok(runtime) => runtime,
         Err(_) => {
             let message = "No container runtime found (docker/podman).\n\
@@ -532,7 +533,7 @@ fn clear_container_runtime_override(repo_root: &Path) -> Result<bool, error::Dec
 pub(crate) fn heal_container_runtime_override(
     repo_root: &Path,
 ) -> Result<ContainerRuntimeOverrideHeal, error::DecapodError> {
-    match find_container_runtime() {
+    match container_runtime::find_container_runtime() {
         Ok(runtime) if ensure_container_runtime_access(&runtime).is_ok() => {
             if clear_container_runtime_override(repo_root)? {
                 Ok(ContainerRuntimeOverrideHeal::Cleared)
@@ -590,18 +591,6 @@ fn repo_root_from_store(store: &Store) -> Result<PathBuf, error::DecapodError> {
                 "unable to resolve repo root from store root".to_string(),
             )
         })
-}
-
-fn find_container_runtime() -> Result<String, error::DecapodError> {
-    if command_exists("docker") {
-        return Ok("docker".to_string());
-    }
-    if command_exists("podman") {
-        return Ok("podman".to_string());
-    }
-    Err(error::DecapodError::NotFound(
-        "No container runtime found (docker/podman)".to_string(),
-    ))
 }
 
 fn ensure_container_runtime_access(runtime: &str) -> Result<(), error::DecapodError> {
@@ -672,16 +661,6 @@ fn push_branch_to_origin(repo: &Path, branch: &str) -> Result<(), error::Decapod
         branch,
         String::from_utf8_lossy(&output.stderr).trim()
     )))
-}
-
-fn command_exists(cmd: &str) -> bool {
-    Command::new(cmd)
-        .arg("--version")
-        .stdout(Stdio::null())
-        .stderr(Stdio::null())
-        .status()
-        .map(|s| s.success())
-        .unwrap_or(false)
 }
 
 fn default_image_for_profile(profile: ImageProfile) -> &'static str {

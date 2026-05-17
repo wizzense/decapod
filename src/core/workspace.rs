@@ -6,6 +6,7 @@
 //! - optional containerized execution for reproducible builds
 
 use crate::core::db;
+use crate::core::container_runtime;
 use crate::core::error::DecapodError;
 use crate::core::rpc::{AllowedOp, Blocker, BlockerKind};
 use crate::core::todo;
@@ -269,11 +270,7 @@ fn check_container_status(_repo_root: &Path) -> Result<ContainerStatus, DecapodE
         None
     };
 
-    let docker_available = Command::new("docker")
-        .arg("version")
-        .output()
-        .map(|o| o.status.success())
-        .unwrap_or(false);
+    let docker_available = container_runtime::container_runtime_available();
 
     Ok(ContainerStatus {
         in_container,
