@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.48.0](https://github.com/DecapodLabs/decapod/compare/v0.47.37...v0.48.0) - 2026-05-17
+
+### Added
+
+- harden root isolation and mandatory Docker execution
+- enforce strict root repository isolation for agents
+
+### Fixed
+
+- rustfmt in tests/commit_often_gate.rs
+
+### Other
+
+- sync entrypoints with hardened templates
+- Merge master into feat/orientation-precision and resolve conflicts
+
 ## [0.47.37](https://github.com/DecapodLabs/decapod/compare/v0.47.36...v0.47.37) - 2026-05-17
 
 ### Fixed
