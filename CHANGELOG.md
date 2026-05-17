@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.47.35](https://github.com/DecapodLabs/decapod/compare/v0.47.34...v0.47.35) - 2026-05-17
+
+### Fixed
+
+- ci lint fmt and clippy
+- allow local-only validation containers
+- add static sqlite to validation image
+- include sqlite headers in validation image
+- preserve rust path in validation shell
+- expose cargo in generated validation image
+- preserve container toolchain path
+- run validation inside podman workspaces
+- align spec extraction and runtime reporting
+- *(architecture)* proper markdown links between architecture files
+
+### Other
+
+- Merge branch 'master' into agent/unknown/todo-01krsn-1778978357
+- align README with governance loop
+
 ## [0.47.34](https://github.com/DecapodLabs/decapod/compare/v0.47.33...v0.47.34) - 2026-05-17
 
 ### Other
