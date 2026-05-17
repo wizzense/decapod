@@ -45,26 +45,31 @@ AI coding agents often lose the plot: they forget intent, pull too much context,
 
 ```mermaid
 flowchart TD
-    UserIn["User"]
-    AgentPre["Agent"]
-    Model["Model"]
-    AgentPost["Agent"]
-    UserOut["User"]
-    DecapodPre["Decapod"]
-    DecapodPost["Decapod"]
+    style UserIn fill:#ff6b9d,stroke:#c44569,color:#fff
+    style UserOut fill:#ff6b9d,stroke:#c44569,color:#fff
+    style AgentPre fill:#a855f7,stroke:#7c3aed,color:#fff
+    style AgentPost fill:#a855f7,stroke:#7c3aed,color:#fff
+    style Model fill:#06b6d4,stroke:#0891b2,color:#fff
+    style DecapodPre fill:#fbbf24,stroke:#f59e0b,color:#000
+    style DecapodPost fill:#fbbf24,stroke:#f59e0b,color:#000
 
-    UserIn -->|"intent"| AgentPre
+    UserIn["User"] -->|"intent"| AgentPre
     AgentPre -->|"governed request"| Model
     Model -->|"response"| AgentPost
     AgentPost -->|"verified result"| UserOut
+
+    AgentPre -.->|"ping for context"| UserIn
+    AgentPost -.->|"ping for context"| UserOut
 
     AgentPre -. "optional governance path" .-> DecapodPre
     DecapodPre -. "intent · context · gates" .-> AgentPre
 
     AgentPost -. "optional proof path" .-> DecapodPost
     DecapodPost -. "boundaries · checks · proof" .-> AgentPost
-    DecapodPost -. "failed validation · focused context" .-> AgentPre
+    DecapodPost -. "needs more context" .-> AgentPre
 ```
+
+**Agent ↔ User pings** — The 1st agent (governance) and 2nd agent (proof) can ping the user for additional context when intent is unclear or verification needs human input.
 
 Decapod is called by the agent at governance boundaries. Before inference, the agent may branch into Decapod to shape intent, context, and gates. After inference, the agent may branch into Decapod when the work needs boundary checks, verification, proof, or another governed pass.
 
