@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.47.33](https://github.com/DecapodLabs/decapod/compare/v0.47.32...v0.47.33) - 2026-05-17
+
+### Added
+
+- *(constitution)* expand METRICS.md to meet 1500+ line requirement
+- *(constitution)* add dense architecture leaf documents
+- *(constitution)* expand architecture files to dense knowledge base
+- *(constitution)* add dense ENCRYPTION leaf
+- *(constitution)* add dense leaf docs with comprehensive LINKS
+- *(build)* add compression build script for constitution
+- *(constitution)* add dense knowledge base with verbose leaf docs
+
+### Fixed
+
+- resolve embedded constitution .decapod/ reference validation
+- use expanded CLAIMS.md from origin/master with subsections and tables
+
+### Other
+
+- Expand constitution knowledge base with dense documents
+
 ## [0.47.32](https://github.com/DecapodLabs/decapod/compare/v0.47.31...v0.47.32) - 2026-05-16
 
 ### Other
