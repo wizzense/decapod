@@ -686,17 +686,17 @@ For every significant architectural change, document:
 - [methodology/CI_CD.md](./CI_CD.md) - CI/CD practice
 
 ### Domain Architecture Patterns
-- [architecture/UI.md](../../architecture/UI.md) - **UI architecture patterns and component design**
-- [architecture/FRONTEND.md](../../architecture/FRONTEND.md) - Frontend architecture patterns
-- [architecture/WEB.md](../../architecture/WEB.md) - Web architecture patterns
-- [architecture/DATA.md](../../architecture/DATA.md) - Data architecture patterns
-- [architecture/SECURITY.md](../../architecture/SECURITY.md) - Security architecture patterns
-- [architecture/CLOUD.md](../../architecture/CLOUD.md) - Cloud deployment patterns
-- [architecture/CACHING.md](../../architecture/CACHING.md) - Caching architecture patterns
-- [architecture/MEMORY.md](../../architecture/MEMORY.md) - Memory architecture patterns
-- [architecture/OBSERVABILITY.md](../../architecture/OBSERVABILITY.md) - Observability patterns
-- [architecture/CONCURRENCY.md](../../architecture/CONCURRENCY.md) - Concurrency patterns
-- [architecture/ALGORITHMS.md](../../architecture/ALGORITHMS.md) - Algorithm patterns
+- [architecture/UI.md](../architecture/UI.md) - **UI architecture patterns and component design**
+- [architecture/FRONTEND.md](../architecture/FRONTEND.md) - Frontend architecture patterns
+- [architecture/WEB.md](../architecture/WEB.md) - Web architecture patterns
+- [architecture/DATA.md](../architecture/DATA.md) - Data architecture patterns
+- [architecture/SECURITY.md](../architecture/SECURITY.md) - Security architecture patterns
+- [architecture/CLOUD.md](../architecture/CLOUD.md) - Cloud deployment patterns
+- [architecture/CACHING.md](../architecture/CACHING.md) - Caching architecture patterns
+- [architecture/MEMORY.md](../architecture/MEMORY.md) - Memory architecture patterns
+- [architecture/OBSERVABILITY.md](../architecture/OBSERVABILITY.md) - Observability patterns
+- [architecture/CONCURRENCY.md](../architecture/CONCURRENCY.md) - Concurrency patterns
+- [architecture/ALGORITHMS.md](../architecture/ALGORITHMS.md) - Algorithm patterns
 
 ### Operations (Plugins Layer)
 - [plugins/TODO.md](../plugins/TODO.md) - Work tracking

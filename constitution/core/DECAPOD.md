@@ -145,11 +145,11 @@ If Decapod is blocking legitimate work:
 - [core/EMERGENCY_PROTOCOL.md](core/EMERGENCY_PROTOCOL.md) - Emergency procedures
 
 ### Architecture (by Domain)
-- [architecture/SECURITY.md](architecture/SECURITY.md) - Threat modeling, cryptography, supply chain
-- [architecture/CLOUD.md](architecture/CLOUD.md) - Cloud patterns, networking, storage
-- [architecture/DATA.md](architecture/DATA.md) - Data modeling, pipelines, governance
-- [architecture/CACHING.md](architecture/CACHING.md) - Caching patterns and strategies
-- [architecture/OBSERVABILITY.md](architecture/OBSERVABILITY.md) - Observability and monitoring
+- [architecture/SECURITY.md](../architecture/SECURITY.md) - Threat modeling, cryptography, supply chain
+- [architecture/CLOUD.md](../architecture/CLOUD.md) - Cloud patterns, networking, storage
+- [architecture/DATA.md](../architecture/DATA.md) - Data modeling, pipelines, governance
+- [architecture/CACHING.md](../architecture/CACHING.md) - Caching patterns and strategies
+- [architecture/OBSERVABILITY.md](../architecture/OBSERVABILITY.md) - Observability and monitoring
 
 ### Methodology
 - [methodology/TESTING.md](methodology/TESTING.md) - Testing strategies, TDD, BDD

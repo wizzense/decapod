@@ -83,10 +83,10 @@ When agents interface with Decapod-managed repositories, these standards are the
 - [methodology/MEMORY.md](methodology/MEMORY.md) - Memory and learning
 
 ### Architecture Patterns
-- [architecture/ALGORITHMS.md](architecture/ALGORITHMS.md) - Algorithm selection
-- [architecture/DATA.md](architecture/DATA.md) - Data architecture
-- [architecture/SECURITY.md](architecture/SECURITY.md) - Security architecture (threat modeling, cryptography, supply chain, SECCOMP)
-- [architecture/OBSERVABILITY.md](architecture/OBSERVABILITY.md) - Observability architecture
-- [architecture/CONCURRENCY.md](architecture/CONCURRENCY.md) - Concurrency architecture
-- [architecture/CLOUD.md](architecture/CLOUD.md) - Cloud deployment patterns
-- [architecture/CACHING.md](architecture/CACHING.md) - Caching patterns
+- [architecture/ALGORITHMS.md](../architecture/ALGORITHMS.md) - Algorithm selection
+- [architecture/DATA.md](../architecture/DATA.md) - Data architecture
+- [architecture/SECURITY.md](../architecture/SECURITY.md) - Security architecture (threat modeling, cryptography, supply chain, SECCOMP)
+- [architecture/OBSERVABILITY.md](../architecture/OBSERVABILITY.md) - Observability architecture
+- [architecture/CONCURRENCY.md](../architecture/CONCURRENCY.md) - Concurrency architecture
+- [architecture/CLOUD.md](../architecture/CLOUD.md) - Cloud deployment patterns
+- [architecture/CACHING.md](../architecture/CACHING.md) - Caching patterns

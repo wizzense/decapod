@@ -43,40 +43,26 @@ AI coding agents often lose the plot: they forget intent, pull too much context,
 
 ### The Loop
 
-```text
-┌────────┐
-│  User  │
-└───┬────┘
-    │ intent
-    ▼
-┌────────┐        governance loop
-│ Agent  │◄────────────────────────┐
-└───┬────┘                         │
-    │ calls                        │
-    │                              │
-    │        ┌─────────┐           │
-    ├──────▶ │ Decapod │ ── intent · context · gates
-    │        └─────────┘
-    │ governed request
-    ▼
-┌────────┐
-│ Model  │
-└───┬────┘
-    │ response
-    ▼
-┌────────┐          proof loop
-│ Agent  │◄───────────────────────────┐
-└───┬────┘                            │
-    │ calls                           │
-    │                                 │
-    │        ┌─────────┐              │
-    ├──────▶ │ Decapod │ ── boundaries · checks · proof
-    │        └─────────┘
-    │ verified result
-    ▼
-┌────────┐
-│  User  │
-└────────┘
+```mermaid
+flowchart TD
+    UserIn["User"]
+    AgentPre["Agent"]
+    Model["Model"]
+    AgentPost["Agent"]
+    UserOut["User"]
+    DecapodPre["Decapod"]
+    DecapodPost["Decapod"]
+
+    UserIn -->|"intent"| AgentPre
+    AgentPre -->|"governed request"| Model
+    Model -->|"response"| AgentPost
+    AgentPost -->|"verified result"| UserOut
+
+    AgentPre -. "optional governance path" .-> DecapodPre
+    DecapodPre -. "intent · context · gates" .-> AgentPre
+
+    AgentPost -. "optional proof path" .-> DecapodPost
+    DecapodPost -. "boundaries · checks · proof" .-> AgentPost
 ```
 
 Decapod is called by the agent at governance boundaries. Before inference, the agent may branch into Decapod to shape intent, context, and gates. After inference, the agent may branch into Decapod when the work needs boundary checks, verification, proof, or another governed pass.

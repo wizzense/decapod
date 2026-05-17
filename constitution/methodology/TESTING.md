@@ -615,7 +615,7 @@ For tests that document behavior:
 - [methodology/CI_CD.md](./CI_CD.md) - CI/CD practice
 
 ### Architecture
-- [architecture/TESTING_STRATEGY.md](../../architecture/TESTING_STRATEGY.md) - Testing strategy patterns
+- [architecture/TESTING_STRATEGY.md](../architecture/TESTING_STRATEGY.md) - Testing strategy patterns
 
 ### Operations (Plugins Layer)
 - [plugins/TODO.md](../plugins/TODO.md) - Work tracking

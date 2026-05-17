@@ -431,4 +431,4 @@ This document is binding. Agents must:
 - [plugins/EMERGENCY_PROTOCOL.md](../plugins/EMERGENCY_PROTOCOL.md) - Emergency protocols
 
 ### Architecture Patterns
-- [architecture/SECURITY.md](../../architecture/SECURITY.md) - Security architecture patterns
+- [architecture/SECURITY.md](../architecture/SECURITY.md) - Security architecture patterns

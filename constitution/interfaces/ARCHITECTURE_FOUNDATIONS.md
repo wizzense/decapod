@@ -67,23 +67,23 @@ Architecture reasoning MUST be present in governed artifacts and reviewable evid
 - [interfaces/PLAN_GOVERNED_EXECUTION.md](interfaces/PLAN_GOVERNED_EXECUTION.md) - Plan-governed execution
 
 ### Architecture (Domain-Specific)
-- [architecture/ALGORITHMS.md](architecture/ALGORITHMS.md) - Algorithm design patterns
-- [architecture/CACHING.md](architecture/CACHING.md) - Caching strategies
-- [architecture/CLOUD.md](architecture/CLOUD.md) - Cloud architecture
-- [architecture/CONCURRENCY.md](architecture/CONCURRENCY.md) - Concurrency patterns
-- [architecture/COST_OPTIMIZATION.md](architecture/COST_OPTIMIZATION.md) - Cost optimization
-- [architecture/DATA.md](architecture/DATA.md) - Data architecture
-- [architecture/DISTRIBUTED_SYSTEMS.md](architecture/DISTRIBUTED_SYSTEMS.md) - Distributed systems
-- [architecture/ENCRYPTION.md](architecture/ENCRYPTION.md) - Encryption and security
-- [architecture/EVENT_DRIVEN.md](architecture/EVENT_DRIVEN.md) - Event-driven architecture
-- [architecture/FRONTEND.md](architecture/FRONTEND.md) - Frontend architecture
-- [architecture/INFRASTRUCTURE.md](architecture/INFRASTRUCTURE.md) - Infrastructure patterns
-- [architecture/MEMORY.md](architecture/MEMORY.md) - Memory architecture
-- [architecture/MICROSERVICES.md](architecture/MICROSERVICES.md) - Microservices patterns
-- [architecture/NETWORKING.md](architecture/NETWORKING.md) - Networking patterns
-- [architecture/OBSERVABILITY.md](architecture/OBSERVABILITY.md) - Observability
-- [architecture/SECRETS.md](architecture/SECRETS.md) - Secrets management
-- [architecture/SECURITY.md](architecture/SECURITY.md) - Security architecture
-- [architecture/TESTING_STRATEGY.md](architecture/TESTING_STRATEGY.md) - Testing strategy
-- [architecture/UI.md](architecture/UI.md) - UI architecture
-- [architecture/WEB.md](architecture/WEB.md) - Web architecture
+- [architecture/ALGORITHMS.md](../architecture/ALGORITHMS.md) - Algorithm design patterns
+- [architecture/CACHING.md](../architecture/CACHING.md) - Caching strategies
+- [architecture/CLOUD.md](../architecture/CLOUD.md) - Cloud architecture
+- [architecture/CONCURRENCY.md](../architecture/CONCURRENCY.md) - Concurrency patterns
+- [architecture/COST_OPTIMIZATION.md](../architecture/COST_OPTIMIZATION.md) - Cost optimization
+- [architecture/DATA.md](../architecture/DATA.md) - Data architecture
+- [architecture/DISTRIBUTED_SYSTEMS.md](../architecture/DISTRIBUTED_SYSTEMS.md) - Distributed systems
+- [architecture/ENCRYPTION.md](../architecture/ENCRYPTION.md) - Encryption and security
+- [architecture/EVENT_DRIVEN.md](../architecture/EVENT_DRIVEN.md) - Event-driven architecture
+- [architecture/FRONTEND.md](../architecture/FRONTEND.md) - Frontend architecture
+- [architecture/INFRASTRUCTURE.md](../architecture/INFRASTRUCTURE.md) - Infrastructure patterns
+- [architecture/MEMORY.md](../architecture/MEMORY.md) - Memory architecture
+- [architecture/MICROSERVICES.md](../architecture/MICROSERVICES.md) - Microservices patterns
+- [architecture/NETWORKING.md](../architecture/NETWORKING.md) - Networking patterns
+- [architecture/OBSERVABILITY.md](../architecture/OBSERVABILITY.md) - Observability
+- [architecture/SECRETS.md](../architecture/SECRETS.md) - Secrets management
+- [architecture/SECURITY.md](../architecture/SECURITY.md) - Security architecture
+- [architecture/TESTING_STRATEGY.md](../architecture/TESTING_STRATEGY.md) - Testing strategy
+- [architecture/UI.md](../architecture/UI.md) - UI architecture
+- [architecture/WEB.md](../architecture/WEB.md) - Web architecture
