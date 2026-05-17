@@ -3665,39 +3665,39 @@ fn validate_git_workspace_context(
         return Ok(());
     }
 
+    let git_dir = repo_root.join(".git");
+    let is_worktree = git_dir.is_file() && {
+        let content = std::fs::read_to_string(&git_dir).unwrap_or_default();
+        content.contains("gitdir:")
+    };
+
+    let is_isolated = is_worktree || repo_root.to_string_lossy().contains(".decapod/workspaces");
+
+    if is_isolated {
+        pass("Running in isolated workspace (.decapod/workspaces/)", ctx);
+    } else {
+        fail(
+            "Not running in isolated git worktree - must use .decapod/workspaces/ to prevent disrupting the root repository",
+            ctx,
+        );
+    }
+
     let container_reasons = container_signal_reasons(repo_root);
     if !container_reasons.is_empty() {
-        skip(
+        pass(
             &format!(
-                "Container-detected: git workspace gates skipped (signals: {}; validate verifies build only - commit/push/PR happens on host after container exit)",
+                "Container-detected: (signals: {})",
                 container_reasons.join(", ")
             ),
             ctx,
         );
-        validate_commit_often_gate(ctx, repo_root)?;
-        return Ok(());
     } else {
         fail(
             &auto_remediable_validation_message(
                 "container_workspace_required",
                 "Not running in container workspace - git-tracked work must execute in Docker-isolated workspace (claim.git.container_workspace_required)",
-                "Agent: rerun through `decapod auto container run`, or continue inside a Decapod-created container workspace.",
+                "Agent: rerun through `decapod workspace ensure`, or continue inside a Decapod-created container workspace.",
             ),
-            ctx,
-        );
-    }
-
-    let git_dir = repo_root.join(".git");
-    let is_worktree = git_dir.is_file() && {
-        let content = fs::read_to_string(&git_dir).unwrap_or_default();
-        content.contains("gitdir:")
-    };
-
-    if is_worktree {
-        pass("Running in git worktree (isolated branch)", ctx);
-    } else {
-        fail(
-            "Not running in isolated git worktree - must use container workspace for implementation work",
             ctx,
         );
     }
@@ -3857,18 +3857,6 @@ fn validate_git_protected_branch(
     if !is_inside_git_work_tree(repo_root) {
         skip(
             "Git protected branch gate skipped: initialized project is not a git repository",
-            ctx,
-        );
-        return Ok(());
-    }
-
-    let container_reasons = container_signal_reasons(repo_root);
-    if !container_reasons.is_empty() {
-        skip(
-            &format!(
-                "Git protected branch gate skipped inside container (signals: {}; host performs commit/push/PR checks after container exit)",
-                container_reasons.join(", ")
-            ),
             ctx,
         );
         return Ok(());
