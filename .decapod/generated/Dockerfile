@@ -2,5 +2,6 @@
 # Path: .decapod/generated/Dockerfile
 # Regenerate via: decapod auto container run --image-profile alpine
 FROM rust:1.91.1-alpine
+ENV PATH="/usr/local/cargo/bin:${PATH}"
 RUN apk add --no-cache bash ca-certificates coreutils curl git openssh-client
 RUN update-ca-certificates

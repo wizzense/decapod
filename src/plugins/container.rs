@@ -1208,7 +1208,7 @@ fn build_docker_spec(
 
     args.push(image.to_string());
     args.push("/bin/sh".to_string());
-    args.push("-lc".to_string());
+    args.push("-c".to_string());
     args.push(build_container_script(
         user_cmd,
         branch,
