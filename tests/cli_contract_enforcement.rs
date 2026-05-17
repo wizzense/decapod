@@ -254,9 +254,17 @@ fn test_constitution_markdown_links_are_routable() {
     assert!(list_output.status.success(), "docs list should succeed");
 
     let docs_list = String::from_utf8_lossy(&list_output.stdout);
-    let all_doc_paths: Vec<&str> = docs_list
+    let all_doc_paths: Vec<String> = docs_list
         .lines()
-        .filter(|l| !l.is_empty() && l.ends_with(".md"))
+        .filter_map(|l| {
+            let parts: Vec<&str> = l.splitn(2, '-').collect();
+            let path = parts.last().unwrap_or(l).trim();
+            if path.ends_with(".md") && !path.is_empty() {
+                Some(path.to_string())
+            } else {
+                None
+            }
+        })
         .collect();
 
     assert!(
