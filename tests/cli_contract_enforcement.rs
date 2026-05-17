@@ -258,7 +258,7 @@ fn test_constitution_markdown_links_are_routable() {
         .lines()
         .filter_map(|l| {
             let parts: Vec<&str> = l.splitn(2, '-').collect();
-            let path = parts.last().unwrap_or(l).trim();
+            let path = parts.last().copied().unwrap_or(l).trim();
             if path.ends_with(".md") && !path.is_empty() {
                 Some(path.to_string())
             } else {
