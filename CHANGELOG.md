@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.47.36](https://github.com/DecapodLabs/decapod/compare/v0.47.35...v0.47.36) - 2026-05-17
+
+### Fixed
+
+- add decapod docs show literal to agent entrypoint template
+- remove malformed test and garbage lines
+
+### Other
+
+- Merge branch 'master' into feat/constitution-links-20260516171153
+
 ## [0.47.35](https://github.com/DecapodLabs/decapod/compare/v0.47.34...v0.47.35) - 2026-05-17
 
 ### Fixed
