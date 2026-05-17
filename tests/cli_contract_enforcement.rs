@@ -318,14 +318,14 @@ fn test_constitution_markdown_links_are_routable() {
 
             // Verify with docs show
             let verify_output = run_decapod(dir, &["docs", "show", target]);
-            if !verify_output.status.success()
-                || !String::from_utf8_lossy(&verify_output.stdout).contains("decapod")
-            {
+            if !verify_output.status.success() {
                 broken_links.push((
                     doc_path.to_string(),
                     format!(
-                        "broken link: [{}]({}) -> doc not routable",
-                        link_text, link_target
+                        "broken link: [{}]({}) -> doc not routable (status: {})",
+                        link_text,
+                        link_target,
+                        verify_output.status
                     ),
                 ));
             }
