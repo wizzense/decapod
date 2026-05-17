@@ -518,12 +518,8 @@ Dedicated files created for previously spliced contract content:
 - [methodology/MEMORY.md](methodology/MEMORY.md) - Memory and learning
 - [methodology/TESTING.md](methodology/TESTING.md) - Testing practice and quality workflow
 - [methodology/CI_CD.md](methodology/CI_CD.md) - CI/CD and release workflow practice
-- [methodology/INCIDENT_RESPONSE.md](methodology/INCIDENT_RESPONSE.md) - Incident response practice
-- [methodology/RELEASE_MANAGEMENT.md](methodology/RELEASE_MANAGEMENT.md) - Release management practice
-- [methodology/METRICS.md](methodology/METRICS.md) - Metrics and observability practice
 
 ### Architecture Patterns (Domain Layer)
-- [architecture/UI.md](architecture/UI.md) - **UI architecture patterns and component design**
 - [architecture/FRONTEND.md](architecture/FRONTEND.md) - Frontend architecture patterns
 - [architecture/WEB.md](architecture/WEB.md) - Web architecture patterns
 - [architecture/DATA.md](architecture/DATA.md) - Data architecture patterns

@@ -358,7 +358,7 @@ The gap between academic algorithm knowledge and production engineering is real:
 
 ## Links
 
-- `methodology/ARCHITECTURE.md` - binding architecture doctrine
-- `architecture/MEMORY.md` - Memory and cache efficiency
-- `architecture/CONCURRENCY.md` - Parallel algorithms
-- `architecture/PERFORMANCE.md` - Performance optimization
+- [methodology/ARCHITECTURE.md](../methodology/ARCHITECTURE.md) - binding architecture doctrine
+- [architecture/MEMORY.md](MEMORY.md) - Memory and cache efficiency
+- [architecture/CONCURRENCY.md](CONCURRENCY.md) - Parallel algorithms
+- [architecture/DATA.md](DATA.md) - Data architecture patterns

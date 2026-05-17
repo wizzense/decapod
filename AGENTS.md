@@ -60,7 +60,7 @@ These invariants are directly enforced by tests. Violations will cause CI failur
 - **INV-WORKSPACE-ISOLATION**: Protected branches (main/master) MUST NOT be directly mutated. (enforced by workspace validation)
 
 ## Safety Invariants
-- ✅ Router pointer: [core/DECAPOD.md](constitution/core/DECAPOD.md)
+- ✅ Router pointer: [core/DECAPOD.md](core/DECAPOD.md)
 - ✅ Validation gate: `decapod validate`
 - ✅ Constitution ingestion gate: `decapod docs ingest`
 - ✅ Workspace status gate: `decapod workspace status`
@@ -95,6 +95,6 @@ Call Decapod before editing. Let Decapod validate after editing.
 - Treat [.decapod/config.toml](.decapod/config.toml) as human-editable project context. You may update it when user intent or project direction changes.
 - Read [.decapod/OVERRIDE.md](.decapod/OVERRIDE.md) when present; it is the repo-local place for constitution overrides.
 - Do not mutate Decapod-owned state under `.decapod/` directly; generated specs, data, workspaces, and sessions stay via decapod CLI.
-- Use `decapod docs show` [core/DECAPOD.md](constitution/core/DECAPOD.md) for binding contracts; `decapod capabilities --format json` for available ops.
+- Use `decapod docs show` [core/DECAPOD.md](core/DECAPOD.md) for binding contracts; `decapod capabilities --format json` for available ops.
 - Use `decapod todo handoff --id <id> --to <agent>` for cross-agent ownership transfer.
 - Treat lock/contention failures (including `VALIDATE_TIMEOUT_OR_LOCK`) as blocking until resolved.

@@ -104,16 +104,10 @@ Decapod resolves standards from:
 1. **Constitutional Core** - Industry Engineering Excellence (see `ENGINEERING_EXCELLENCE.md`)
 2. **Security Standards** - Threat modeling, cryptography, supply chain, SECCOMP (see `architecture/SECURITY.md`)
 3. **Coding Standards** - Uncle Bob Martin, Fowler, Pragmatic, GoF, DRY, Unix (see `architecture/CODING_STANDARDS.md`)
-4. **Platform Engineering** - SRE, SLIs/SLOs, error budgets, on-call (see `methodology/SRE.md`)
-5. **Systems Design** - Distributed systems, CAP, PACELC, scalability (see `architecture/DISTRIBUTED_SYSTEMS.md`)
-6. **Product Development** - OKRs, prioritization, betas, feature flags (see `methodology/PRODUCT.md`)
-7. **Enterprise Architecture** - TOGAF, microservices, DDD (see `architecture/ENTERPRISE.md`)
-8. **Infrastructure** - Cloud patterns, networking, storage (see `architecture/CLOUD.md`)
-9. **Data Engineering** - Data modeling, pipelines, governance (see `architecture/DATA.md`)
-10. **Quality Assurance** - Testing strategies, TDD, BDD (see `methodology/TESTING.md`)
-11. **Operations** - Incident response, postmortems, chaos (see `methodology/INCIDENT_RESPONSE.md`)
-12. **Research** - Seminal papers, latest proofs (see `research/SEMINAL_PAPERS.md`)
-13. **Project Overrides** - `.decapod/OVERRIDE.md` (project-specific deviations)
+4. **Infrastructure** - Cloud patterns, networking, storage (see `architecture/CLOUD.md`)
+5. **Data Engineering** - Data modeling, pipelines, governance (see `architecture/DATA.md`)
+6. **Quality Assurance** - Testing strategies, TDD, BDD (see `methodology/TESTING.md`)
+7. **Project Overrides** - `.decapod/OVERRIDE.md` (project-specific deviations)
 
 Query with: `decapod rpc --op standards.resolve`
 
@@ -152,16 +146,12 @@ If Decapod is blocking legitimate work:
 
 ### Architecture (by Domain)
 - [architecture/SECURITY.md](architecture/SECURITY.md) - Threat modeling, cryptography, supply chain
-- [architecture/DISTRIBUTED_SYSTEMS.md](architecture/DISTRIBUTED_SYSTEMS.md) - CAP, PACELC, scalability patterns
-- [architecture/ENTERPRISE.md](architecture/ENTERPRISE.md) - TOGAF, microservices, DDD
 - [architecture/CLOUD.md](architecture/CLOUD.md) - Cloud patterns, networking, storage
 - [architecture/DATA.md](architecture/DATA.md) - Data modeling, pipelines, governance
+- [architecture/CACHING.md](architecture/CACHING.md) - Caching patterns and strategies
+- [architecture/OBSERVABILITY.md](architecture/OBSERVABILITY.md) - Observability and monitoring
 
 ### Methodology
-- [methodology/SRE.md](methodology/SRE.md) - SRE, SLIs/SLOs, error budgets
-- [methodology/PRODUCT.md](methodology/PRODUCT.md) - OKRs, prioritization, feature flags
 - [methodology/TESTING.md](methodology/TESTING.md) - Testing strategies, TDD, BDD
-- [methodology/INCIDENT_RESPONSE.md](methodology/INCIDENT_RESPONSE.md) - Incident response, postmortems, chaos
-
-### Research
-- [research/SEMINAL_PAPERS.md](research/SEMINAL_PAPERS.md) - Seminal papers and latest proofs
+- [methodology/CI_CD.md](methodology/CI_CD.md) - CI/CD and release workflow
+- [methodology/SOUL.md](methodology/SOUL.md) - Agent identity and behavioral style

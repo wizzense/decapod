@@ -78,9 +78,9 @@ When agents interface with Decapod-managed repositories, these standards are the
 - [methodology/ARCHITECTURE.md](methodology/ARCHITECTURE.md) - Architecture practice
 - [methodology/TESTING.md](methodology/TESTING.md) - Testing practice
 - [methodology/CI_CD.md](methodology/CI_CD.md) - CI/CD practice
-- [methodology/METRICS.md](methodology/METRICS.md) - Metrics and performance measurement
-- [methodology/INCIDENT_RESPONSE.md](methodology/INCIDENT_RESPONSE.md) - Incident handling procedures
-- [methodology/RELEASE_MANAGEMENT.md](methodology/RELEASE_MANAGEMENT.md) - Release and deployment standards
+- [methodology/SOUL.md](methodology/SOUL.md) - Agent identity and behavioral style
+- [methodology/KNOWLEDGE.md](methodology/KNOWLEDGE.md) - Knowledge curation
+- [methodology/MEMORY.md](methodology/MEMORY.md) - Memory and learning
 
 ### Architecture Patterns
 - [architecture/ALGORITHMS.md](architecture/ALGORITHMS.md) - Algorithm selection
@@ -88,6 +88,5 @@ When agents interface with Decapod-managed repositories, these standards are the
 - [architecture/SECURITY.md](architecture/SECURITY.md) - Security architecture (threat modeling, cryptography, supply chain, SECCOMP)
 - [architecture/OBSERVABILITY.md](architecture/OBSERVABILITY.md) - Observability architecture
 - [architecture/CONCURRENCY.md](architecture/CONCURRENCY.md) - Concurrency architecture
-- [architecture/API_DESIGN.md](architecture/API_DESIGN.md) - API design standards
-- [architecture/COST_OPTIMIZATION.md](architecture/COST_OPTIMIZATION.md) - Cloud and token cost management
-- [architecture/CODING_STANDARDS.md](architecture/CODING_STANDARDS.md) - Uncle Bob Martin, Martin Fowler, Pragmatic Engineering, Gang of Four, DRY, Unix Philosophy
+- [architecture/CLOUD.md](architecture/CLOUD.md) - Cloud deployment patterns
+- [architecture/CACHING.md](architecture/CACHING.md) - Caching patterns

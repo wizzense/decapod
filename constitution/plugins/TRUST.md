@@ -42,7 +42,6 @@ Trust status was computed entirely from health claim states and proof events. Mo
 ### See Also
 
 - `HEALTH.md` - Complete health subsystem documentation
-- `MIGRATION.md` (project root) - Full CLI migration guide
 - `HEARTBEAT.md` - Also deprecated, use `decapod govern health summary`
 
 ---

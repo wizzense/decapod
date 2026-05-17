@@ -332,8 +332,8 @@ The frontend is not a layer — it is the product. Every decision that degrades 
 
 ## Links
 
-- `methodology/ARCHITECTURE.md` - binding architecture doctrine
-- `architecture/WEB.md` - Web architecture
-- `architecture/CACHING.md` - Caching strategies
-- `architecture/SECURITY.md` - Frontend security
-- `architecture/PERFORMANCE.md` - Performance patterns
+- [methodology/ARCHITECTURE.md](../methodology/ARCHITECTURE.md) - binding architecture doctrine
+- [architecture/WEB.md](WEB.md) - Web architecture
+- [architecture/CACHING.md](CACHING.md) - Caching strategies
+- [architecture/SECURITY.md](SECURITY.md) - Frontend security
+- [architecture/OBSERVABILITY.md](OBSERVABILITY.md) - Observability patterns
