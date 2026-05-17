@@ -520,14 +520,14 @@ Dedicated files created for previously spliced contract content:
 - [methodology/CI_CD.md](methodology/CI_CD.md) - CI/CD and release workflow practice
 
 ### Architecture Patterns (Domain Layer)
-- [architecture/FRONTEND.md](../architecture/FRONTEND.md) - Frontend architecture patterns
-- [architecture/WEB.md](../architecture/WEB.md) - Web architecture patterns
-- [architecture/DATA.md](../architecture/DATA.md) - Data architecture patterns
-- [architecture/SECURITY.md](../architecture/SECURITY.md) - Security architecture patterns
-- [architecture/CLOUD.md](../architecture/CLOUD.md) - Cloud deployment patterns
-- [architecture/CACHING.md](../architecture/CACHING.md) - Caching architecture patterns
-- [architecture/MEMORY.md](../architecture/MEMORY.md) - Memory architecture patterns
-- [architecture/OBSERVABILITY.md](../architecture/OBSERVABILITY.md) - Observability patterns
+- [architecture/FRONTEND.md](architecture/FRONTEND.md) - Frontend architecture patterns
+- [architecture/WEB.md](architecture/WEB.md) - Web architecture patterns
+- [architecture/DATA.md](architecture/DATA.md) - Data architecture patterns
+- [architecture/SECURITY.md](architecture/SECURITY.md) - Security architecture patterns
+- [architecture/CLOUD.md](architecture/CLOUD.md) - Cloud deployment patterns
+- [architecture/CACHING.md](architecture/CACHING.md) - Caching architecture patterns
+- [architecture/MEMORY.md](architecture/MEMORY.md) - Memory architecture patterns
+- [architecture/OBSERVABILITY.md](architecture/OBSERVABILITY.md) - Observability patterns
 
 ### Operations (Plugins Layer)
 - [plugins/TODO.md](plugins/TODO.md) - Work tracking

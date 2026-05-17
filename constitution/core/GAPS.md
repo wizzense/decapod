@@ -957,12 +957,12 @@ decapod validate 2>&1 | grep -i warning
 - [methodology/CI_CD.md](methodology/CI_CD.md) - CI/CD practice
 
 ### Domain Architecture Patterns
-- [architecture/FRONTEND.md](../architecture/FRONTEND.md) - Frontend architecture patterns
-- [architecture/WEB.md](../architecture/WEB.md) - Web architecture patterns
-- [architecture/DATA.md](../architecture/DATA.md) - Data architecture patterns
-- [architecture/SECURITY.md](../architecture/SECURITY.md) - Security architecture patterns
-- [architecture/CLOUD.md](../architecture/CLOUD.md) - Cloud deployment patterns
-- [architecture/MEMORY.md](../architecture/MEMORY.md) - Memory architecture patterns
+- [architecture/FRONTEND.md](architecture/FRONTEND.md) - Frontend architecture patterns
+- [architecture/WEB.md](architecture/WEB.md) - Web architecture patterns
+- [architecture/DATA.md](architecture/DATA.md) - Data architecture patterns
+- [architecture/SECURITY.md](architecture/SECURITY.md) - Security architecture patterns
+- [architecture/CLOUD.md](architecture/CLOUD.md) - Cloud deployment patterns
+- [architecture/MEMORY.md](architecture/MEMORY.md) - Memory architecture patterns
 
 ### Operations (Plugins Layer)
 - [plugins/TODO.md](plugins/TODO.md) - Work tracking

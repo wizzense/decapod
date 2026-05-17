@@ -529,7 +529,7 @@ This contract is enforced through:
 - [interfaces/DOC_RULES.md](../../interfaces/DOC_RULES.md) - Doc compilation rules
 
 ### Architecture
-- [architecture/WEB.md](../architecture/WEB.md) - Web architecture patterns (git workflows)
+- [architecture/WEB.md](architecture/WEB.md) - Web architecture patterns (git workflows)
 
 ### Operations (Plugins Layer)
 - [plugins/TODO.md](../plugins/TODO.md) - Work tracking
