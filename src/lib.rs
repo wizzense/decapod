@@ -6110,6 +6110,7 @@ mod rpc_handlers {
                     owner: "".to_string(),
                     due: None,
                     r#ref: "".to_string(),
+                    scope: "".to_string(),
                     dir: None,
                     depends_on: "".to_string(),
                     blocks: "".to_string(),
@@ -7140,6 +7141,9 @@ fn run_infer_command(cli: InferCli, project_root: &Path) -> Result<(), error::De
 
     match cli.command {
         InferCommand::Init(init_cli) => run_infer_init(init_cli, &project_root)?,
+        InferCommand::Orientation(orientation_cli) => {
+            run_infer_orientation(orientation_cli, &project_root)?
+        }
         InferCommand::Validate(validate_cli) => run_infer_validate(validate_cli)?,
         InferCommand::Budget(budget_cli) => run_infer_budget(budget_cli, &project_root)?,
     }
@@ -7245,6 +7249,115 @@ fn run_infer_init(cli: InferInitCli, project_root: &Path) -> Result<(), error::D
                 .unwrap_or(0)
         );
         println!("Token budget: ~{}", token_budget);
+    }
+
+    Ok(())
+}
+
+fn run_infer_orientation(
+    cli: InferOrientationCli,
+    project_root: &Path,
+) -> Result<(), error::DecapodError> {
+    use crate::core::rpc::{DecisionGate, DecisionOption, OrientationPacket};
+
+    let mut packet = OrientationPacket {
+        user_goal: cli.intent.clone().unwrap_or_else(|| "Unknown".to_string()),
+        task_id: cli.task_id.clone(),
+        constraints: vec!["Strict adherence to AGENTS.md".to_string()],
+        allowed_scope: vec![],
+        forbidden_scope: vec![".decapod/".to_string()],
+        relevant_areas: vec![],
+        proof_required: vec!["decapod validate passes".to_string()],
+        known_unknowns: vec![],
+        decision_gates: vec![],
+        next_action: "Perform research to map relevant files and symbols.".to_string(),
+    };
+
+    if let Some(ref id) = cli.task_id {
+        let store_root = project_root.join(".decapod").join("data");
+        if let Some(task) = todo::get_task(&store_root, id)? {
+            packet.user_goal = task.title.clone();
+            if !task.description.is_empty() {
+                packet.known_unknowns
+                    .push(format!("Task detail: {}", task.description));
+            }
+            if !task.scope.is_empty() {
+                packet.allowed_scope =
+                    task.scope.split(',').map(|s| s.trim().to_string()).collect();
+            }
+        }
+    }
+
+    let intent_lower = packet.user_goal.to_lowercase();
+
+    // Heuristics for precision
+    if intent_lower.contains("fix") || intent_lower.contains("bug") {
+        packet.proof_required.push("Reproduction test case".to_string());
+        packet.constraints.push("Do not introduce regressions".to_string());
+    }
+
+    if intent_lower.contains("refactor")
+        || intent_lower.contains("architecture")
+        || intent_lower.contains("interface")
+    {
+        packet.decision_gates.push(DecisionGate {
+            decision: "Architectural alignment".to_string(),
+            rationale: "Changes to core structures or interfaces require human alignment on long-term maintainability.".to_string(),
+            options: vec![
+                DecisionOption {
+                    label: "Conservative (wrapper/adapter)".to_string(),
+                    impact: "Minimizes immediate breakage".to_string(),
+                },
+                DecisionOption {
+                    label: "Aggressive (breaking change)".to_string(),
+                    impact: "Cleaner long-term architecture, requires migration".to_string(),
+                },
+            ],
+            recommendation: "Prefer conservative adaptation unless the current interface is fundamentally broken.".to_string(),
+            validation_proof: "Contract conformance tests and migration guide".to_string(),
+        });
+        packet.next_action = "STOP: A decision gate is active. Present options to the human before proceeding.".to_string();
+    }
+
+    if intent_lower.contains("test") {
+        packet.relevant_areas.push("tests/fixtures".to_string());
+    }
+
+    if packet.allowed_scope.is_empty() {
+        if intent_lower.contains("test") {
+            packet.allowed_scope = vec!["tests/".to_string()];
+        } else {
+            packet.allowed_scope = vec!["src/".to_string(), "tests/".to_string()];
+        }
+    }
+
+    if cli.format == "json" {
+        println!("{}", serde_json::to_string_pretty(&packet).unwrap());
+    } else {
+        println!("=== ORIENTATION PACKET ===");
+        println!("Goal:    {}", packet.user_goal);
+        if let Some(ref id) = packet.task_id {
+            println!("Task:    {}", id);
+        }
+        println!("Next:    {}", packet.next_action);
+        println!(
+            "Scope:   +{:?} -{:?}",
+            packet.allowed_scope, packet.forbidden_scope
+        );
+        println!("Proof:   {:?}", packet.proof_required);
+
+        if !packet.decision_gates.is_empty() {
+            println!("\n⚠ DECISION GATES REQUIRED:");
+            for gate in &packet.decision_gates {
+                println!("  - DECISION:       {}", gate.decision);
+                println!("    RATIONALE:      {}", gate.rationale);
+                println!("    RECOMMENDATION: {}", gate.recommendation);
+                println!("    OPTIONS:");
+                for opt in &gate.options {
+                    println!("      * {}: {}", opt.label, opt.impact);
+                }
+            }
+        }
     }
 
     Ok(())

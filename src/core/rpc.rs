@@ -17,6 +17,35 @@ use serde::{Deserialize, Serialize};
 use sha2::Digest;
 use std::collections::HashMap;
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct OrientationPacket {
+    pub user_goal: String,
+    pub task_id: Option<String>,
+    pub constraints: Vec<String>,
+    pub allowed_scope: Vec<String>,
+    pub forbidden_scope: Vec<String>,
+    pub relevant_areas: Vec<String>,
+    pub proof_required: Vec<String>,
+    pub known_unknowns: Vec<String>,
+    pub decision_gates: Vec<DecisionGate>,
+    pub next_action: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct DecisionGate {
+    pub decision: String,
+    pub rationale: String,
+    pub options: Vec<DecisionOption>,
+    pub recommendation: String,
+    pub validation_proof: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct DecisionOption {
+    pub label: String,
+    pub impact: String,
+}
+
 /// Standard RPC request envelope
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct RpcRequest {
@@ -467,6 +496,16 @@ pub fn generate_capabilities() -> CapabilitiesReport {
                     "aggregate".to_string(),
                     "gate".to_string(),
                     "bucket-failures".to_string(),
+                ],
+            },
+            SubsystemInfo {
+                name: "infer".to_string(),
+                status: "active".to_string(),
+                ops: vec![
+                    "init".to_string(),
+                    "orientation".to_string(),
+                    "validate".to_string(),
+                    "budget".to_string(),
                 ],
             },
         ],

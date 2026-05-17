@@ -16,6 +16,7 @@ decapod rpc --op agent.init
 decapod workspace status
 decapod todo add "<task>"
 decapod todo claim --id <task-id>
+decapod infer orientation --task-id <task-id>
 decapod workspace ensure
 cd .decapod/workspaces/<your-worktree>
 decapod rpc --op context.resolve
@@ -28,8 +29,8 @@ decapod rpc --op context.resolve
 decapod capabilities --format json
 decapod data schema --deterministic
 
-# Resolve scoped governance context before implementation
-decapod docs search --query "<problem>" --op <op> --path <path> --tag <tag>
+# Resolve precise orientation before implementation
+decapod infer orientation --intent "<your-goal>" --task-id <id>
 decapod rpc --op context.scope --params '{"query":"<problem>","limit":8}'
 
 # Convergence/proof surfaces (call when relevant)
@@ -41,12 +42,23 @@ decapod eval plan --task-set-id <id> --task-ref <task-id> --model-id <model> --p
 ## Golden Rules (Non-Negotiable)
 
 1. **MUST** refine intent with the user before inference-heavy work.
-2. **MUST NOT** work on main/master. **MUST** use `.decapod/workspaces/*`.
-3. **MUST** read `.decapod/config.toml` as user-editable project context and may update it when user intent changes.
-4. **MUST NOT** claim done without `decapod validate` passing.
-5. **MUST NOT** invent capabilities that are not exposed by the binary.
-6. **MUST** stop if requirements conflict, intent is ambiguous, or policy boundaries are unclear.
-7. **MUST** respect the Interface abstraction boundary.
+2. **MUST** use `decapod infer orientation` before non-trivial implementation.
+3. **MUST** stop and ask the human when Decapod emits a **Decision Gate**.
+4. **MUST NOT** work on main/master. **MUST** use `.decapod/workspaces/*`.
+5. **MUST** read `.decapod/config.toml` as user-editable project context and may update it when user intent changes.
+6. **MUST NOT** claim done without `decapod validate` passing.
+7. **MUST NOT** invent capabilities that are not exposed by the binary.
+8. **MUST** stop if requirements conflict, intent is ambiguous, or policy boundaries are unclear.
+9. **MUST** respect the Interface abstraction boundary.
+
+## Orientation & Precision (Doctrine)
+
+Before starting expensive exploration, broad refactors, or multi-path architecture work:
+- Call `decapod infer orientation`.
+- Treat the returned `orientation_packet` as the authoritative starting context.
+- If the packet contains `decision_gates`, present the options to the human and wait for a choice.
+- Do not bypass decision gates; they are placed where ambiguity would otherwise cause expensive waste.
+- Use the `allowed_scope` and `proof_required` fields to bound your work.
 
 ## Invariants (Normative)
 

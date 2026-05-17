@@ -1093,10 +1093,25 @@ pub(crate) struct InferCli {
 pub(crate) enum InferCommand {
     /// Initialize inference context: returns selected_context, excluded_context, token_budget
     Init(InferInitCli),
+    /// Return a precise orientation packet before agent inference
+    Orientation(InferOrientationCli),
     /// Validate inference result against intent and proof expectations
     Validate(InferValidateCli),
     /// Estimate token budget for a given intent and context
     Budget(InferBudgetCli),
+}
+
+#[derive(clap::Args, Debug)]
+pub(crate) struct InferOrientationCli {
+    /// Task intent (what the human asked for)
+    #[clap(long)]
+    pub intent: Option<String>,
+    /// Optional specific task ID
+    #[clap(long)]
+    pub task_id: Option<String>,
+    /// Format output: json | text
+    #[clap(long, default_value = "json")]
+    pub format: String,
 }
 
 #[derive(clap::Args, Debug)]
