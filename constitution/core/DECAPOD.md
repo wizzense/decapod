@@ -138,30 +138,30 @@ If Decapod is blocking legitimate work:
 ## Links
 
 ### Core Entry Points
-- `core/DECAPOD.md` - **Router and navigation charter (START HERE)** ← You are here
-- `core/INTERFACES.md` - Interface contracts index
-- `core/METHODOLOGY.md` - Methodology guides index
-- `core/PLUGINS.md` - Subsystem registry
-- `core/ENGINEERING_EXCELLENCE.md` - Engineering standards oracle
-- `core/GAPS.md` - Gap analysis methodology
+- [core/DECAPOD.md](core/DECAPOD.md) - **Router and navigation charter (START HERE)** ← You are here
+- [core/INTERFACES.md](core/INTERFACES.md) - Interface contracts index
+- [core/METHODOLOGY.md](core/METHODOLOGY.md) - Methodology guides index
+- [core/PLUGINS.md](core/PLUGINS.md) - Subsystem registry
+- [core/ENGINEERING_EXCELLENCE.md](core/ENGINEERING_EXCELLENCE.md) - Engineering standards oracle
+- [core/GAPS.md](core/GAPS.md) - Gap analysis methodology
 
 ### Governance
-- `core/DEMANDS.md` - Non-negotiable demands
-- `core/DEPRECATION.md` - Deprecation contract
-- `core/EMERGENCY_PROTOCOL.md` - Emergency procedures
+- [core/DEMANDS.md](core/DEMANDS.md) - Non-negotiable demands
+- [core/DEPRECATION.md](core/DEPRECATION.md) - Deprecation contract
+- [core/EMERGENCY_PROTOCOL.md](core/EMERGENCY_PROTOCOL.md) - Emergency procedures
 
 ### Architecture (by Domain)
-- `architecture/SECURITY.md` - Threat modeling, cryptography, supply chain
-- `architecture/DISTRIBUTED_SYSTEMS.md` - CAP, PACELC, scalability patterns
-- `architecture/ENTERPRISE.md` - TOGAF, microservices, DDD
-- `architecture/CLOUD.md` - Cloud patterns, networking, storage
-- `architecture/DATA.md` - Data modeling, pipelines, governance
+- [architecture/SECURITY.md](architecture/SECURITY.md) - Threat modeling, cryptography, supply chain
+- [architecture/DISTRIBUTED_SYSTEMS.md](architecture/DISTRIBUTED_SYSTEMS.md) - CAP, PACELC, scalability patterns
+- [architecture/ENTERPRISE.md](architecture/ENTERPRISE.md) - TOGAF, microservices, DDD
+- [architecture/CLOUD.md](architecture/CLOUD.md) - Cloud patterns, networking, storage
+- [architecture/DATA.md](architecture/DATA.md) - Data modeling, pipelines, governance
 
 ### Methodology
-- `methodology/SRE.md` - SRE, SLIs/SLOs, error budgets
-- `methodology/PRODUCT.md` - OKRs, prioritization, feature flags
-- `methodology/TESTING.md` - Testing strategies, TDD, BDD
-- `methodology/INCIDENT_RESPONSE.md` - Incident response, postmortems, chaos
+- [methodology/SRE.md](methodology/SRE.md) - SRE, SLIs/SLOs, error budgets
+- [methodology/PRODUCT.md](methodology/PRODUCT.md) - OKRs, prioritization, feature flags
+- [methodology/TESTING.md](methodology/TESTING.md) - Testing strategies, TDD, BDD
+- [methodology/INCIDENT_RESPONSE.md](methodology/INCIDENT_RESPONSE.md) - Incident response, postmortems, chaos
 
 ### Research
-- `research/SEMINAL_PAPERS.md` - Seminal papers and latest proofs
+- [research/SEMINAL_PAPERS.md](research/SEMINAL_PAPERS.md) - Seminal papers and latest proofs

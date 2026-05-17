@@ -68,26 +68,26 @@ When agents interface with Decapod-managed repositories, these standards are the
 ## Links
 
 ### Core Router
-- `core/DECAPOD.md` - **Router and navigation charter (START HERE)**
+- [core/DECAPOD.md](core/DECAPOD.md) - **Router and navigation charter (START HERE)**
 
 ### Authority (Constitution Layer)
-- `specs/INTENT.md` - **Methodology contract (READ FIRST)**
-- `specs/SYSTEM.md` - System definition and authority doctrine
+- [specs/INTENT.md](specs/INTENT.md) - **Methodology contract (READ FIRST)**
+- [specs/SYSTEM.md](specs/SYSTEM.md) - System definition and authority doctrine
 
 ### Practice (Methodology Layer)
-- `methodology/ARCHITECTURE.md` - Architecture practice
-- `methodology/TESTING.md` - Testing practice
-- `methodology/CI_CD.md` - CI/CD practice
-- `methodology/METRICS.md` - Metrics and performance measurement
-- `methodology/INCIDENT_RESPONSE.md` - Incident handling procedures
-- `methodology/RELEASE_MANAGEMENT.md` - Release and deployment standards
+- [methodology/ARCHITECTURE.md](methodology/ARCHITECTURE.md) - Architecture practice
+- [methodology/TESTING.md](methodology/TESTING.md) - Testing practice
+- [methodology/CI_CD.md](methodology/CI_CD.md) - CI/CD practice
+- [methodology/METRICS.md](methodology/METRICS.md) - Metrics and performance measurement
+- [methodology/INCIDENT_RESPONSE.md](methodology/INCIDENT_RESPONSE.md) - Incident handling procedures
+- [methodology/RELEASE_MANAGEMENT.md](methodology/RELEASE_MANAGEMENT.md) - Release and deployment standards
 
 ### Architecture Patterns
-- `architecture/ALGORITHMS.md` - Algorithm selection
-- `architecture/DATA.md` - Data architecture
-- `architecture/SECURITY.md` - Security architecture (threat modeling, cryptography, supply chain, SECCOMP)
-- `architecture/OBSERVABILITY.md` - Observability architecture
-- `architecture/CONCURRENCY.md` - Concurrency architecture
-- `architecture/API_DESIGN.md` - API design standards
-- `architecture/COST_OPTIMIZATION.md` - Cloud and token cost management
-- `architecture/CODING_STANDARDS.md` - Uncle Bob Martin, Martin Fowler, Pragmatic Engineering, Gang of Four, DRY, Unix Philosophy
+- [architecture/ALGORITHMS.md](architecture/ALGORITHMS.md) - Algorithm selection
+- [architecture/DATA.md](architecture/DATA.md) - Data architecture
+- [architecture/SECURITY.md](architecture/SECURITY.md) - Security architecture (threat modeling, cryptography, supply chain, SECCOMP)
+- [architecture/OBSERVABILITY.md](architecture/OBSERVABILITY.md) - Observability architecture
+- [architecture/CONCURRENCY.md](architecture/CONCURRENCY.md) - Concurrency architecture
+- [architecture/API_DESIGN.md](architecture/API_DESIGN.md) - API design standards
+- [architecture/COST_OPTIMIZATION.md](architecture/COST_OPTIMIZATION.md) - Cloud and token cost management
+- [architecture/CODING_STANDARDS.md](architecture/CODING_STANDARDS.md) - Uncle Bob Martin, Martin Fowler, Pragmatic Engineering, Gang of Four, DRY, Unix Philosophy
