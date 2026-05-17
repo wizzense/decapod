@@ -367,3 +367,4 @@ The gap between academic algorithm knowledge and production engineering is real:
 - [DECAPOD](../core/DECAPOD.md) - Router and navigation charter
 - [INTERFACES](../core/INTERFACES.md) - Interface contracts
 - [INTENT](../specs/INTENT.md) - Intent specification
+- 

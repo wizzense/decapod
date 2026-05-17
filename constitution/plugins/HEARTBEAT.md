@@ -36,9 +36,8 @@ Heartbeat was a thin aggregator over health, policy, and watcher data. Moving it
 
 ### See Also
 
-- `HEALTH.md` - Complete health subsystem documentation
-- `MIGRATION.md` (project root) - Full CLI migration guide
-- `TRUST.md` - Also deprecated, use `decapod govern health autonomy`
+- [plugins/HEALTH.md](./HEALTH.md) - Complete health subsystem documentation
+- [plugins/TRUST.md](./TRUST.md) - Also deprecated, use `decapod govern health autonomy`
 
 ---
 

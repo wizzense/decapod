@@ -1,5 +1,11 @@
 # Migration Policy
 
+## Links
+
+- [core/DECAPOD.md](../../core/DECAPOD.md) - **Router and navigation charter (START HERE)**
+- [specs/SYSTEM.md](../../specs/SYSTEM.md) - System definition
+- [methodology/RELEASE_MANAGEMENT.md](../methodology/RELEASE_MANAGEMENT.md) - Release management
+
 ## Rules
 
 - Migrations are forward-only.

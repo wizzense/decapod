@@ -44,26 +44,26 @@ At minimum, validation checks:
 ## Links
 
 ### Core Router
-- `core/DECAPOD.md` - **Router and navigation charter (START HERE)**
+- [core/DECAPOD.md](core/DECAPOD.md) - **Router and navigation charter (START HERE)**
 
 ### Authority (Constitution Layer)
-- `specs/INTENT.md` - **Methodology contract (READ FIRST)**
-- `specs/SYSTEM.md` - System definition and authority doctrine
-- `specs/SECURITY.md` - Security contract
-- `specs/GIT.md` - Git etiquette contract
-- `specs/AMENDMENTS.md` - Change control
+- [specs/INTENT.md](specs/INTENT.md) - **Methodology contract (READ FIRST)**
+- [specs/SYSTEM.md](specs/SYSTEM.md) - System definition and authority doctrine
+- [specs/SECURITY.md](specs/SECURITY.md) - Security contract
+- [specs/GIT.md](specs/GIT.md) - Git etiquette contract
+- [specs/AMENDMENTS.md](specs/AMENDMENTS.md) - Change control
 
 ### Registry (Core Indices)
-- `core/PLUGINS.md` - Subsystem registry
-- `core/INTERFACES.md` - Interface contracts index
-- `core/METHODOLOGY.md` - Methodology guides index
+- [core/PLUGINS.md](core/PLUGINS.md) - Subsystem registry
+- [core/INTERFACES.md](core/INTERFACES.md) - Interface contracts index
+- [core/METHODOLOGY.md](core/METHODOLOGY.md) - Methodology guides index
 
 ### Contracts (Interfaces Layer)
-- `interfaces/DEMANDS_SCHEMA.md` - Binding demand schema
-- `interfaces/CONTROL_PLANE.md` - Sequencing patterns
-- `interfaces/DOC_RULES.md` - Doc compilation rules
-- `interfaces/GLOSSARY.md` - Term definitions
+- [interfaces/DEMANDS_SCHEMA.md](interfaces/DEMANDS_SCHEMA.md) - Binding demand schema
+- [interfaces/CONTROL_PLANE.md](interfaces/CONTROL_PLANE.md) - Sequencing patterns
+- [interfaces/DOC_RULES.md](interfaces/DOC_RULES.md) - Doc compilation rules
+- [interfaces/GLOSSARY.md](interfaces/GLOSSARY.md) - Term definitions
 
 ### Operations (Plugins Layer)
-- `plugins/TODO.md` - Work tracking
-- `plugins/VERIFY.md` - Validation subsystem
+- [plugins/TODO.md](plugins/TODO.md) - Work tracking
+- [plugins/VERIFY.md](plugins/VERIFY.md) - Validation subsystem

@@ -51,8 +51,8 @@ Resume work only when:
 
 ## Links
 
-- `core/DECAPOD.md` - Router and navigation charter
-- `interfaces/STORE_MODEL.md` - Store semantics
-- `interfaces/DOC_RULES.md` - Decision rights
-- `specs/INTENT.md` - Intent contract
-- `specs/AMENDMENTS.md` - Change control
+- [core/DECAPOD.md](core/DECAPOD.md) - Router and navigation charter
+- [interfaces/STORE_MODEL.md](interfaces/STORE_MODEL.md) - Store semantics
+- [interfaces/DOC_RULES.md](interfaces/DOC_RULES.md) - Decision rights
+- [specs/INTENT.md](specs/INTENT.md) - Intent contract
+- [specs/AMENDMENTS.md](specs/AMENDMENTS.md) - Change control

@@ -4,6 +4,13 @@
 **Layer:** Specs
 **Binding:** Yes
 
+## Links
+
+- [core/DECAPOD.md](../../core/DECAPOD.md) - **Router and navigation charter (START HERE)**
+- [specs/INTENT.md](../INTENT.md) - Methodology contract
+- [specs/evaluations/JUDGE_CONTRACT.md](./JUDGE_CONTRACT.md) - Judge validation contract
+- [specs/engineering/FRONTEND_BACKEND_E2E.md](../engineering/FRONTEND_BACKEND_E2E.md) - E2E governance
+
 ## Purpose
 
 Define how Decapod treats non-deterministic frontend/backend evaluation so promotion decisions remain reproducible and falsifiable.

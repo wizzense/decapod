@@ -29,3 +29,9 @@ Execution still occurs when an agent invokes Decapod.
   - Control Plane Contract Gate
   - Schema Determinism Gate
   - Tooling Validation Gate
+
+## Links
+
+- [core/DECAPOD.md](../../core/DECAPOD.md) - **Router and navigation charter (START HERE)**
+- [core/PLUGINS.md](../../core/PLUGINS.md) - Subsystem registry
+- [interfaces/CONTROL_PLANE.md](../../interfaces/CONTROL_PLANE.md) - Sequencing patterns

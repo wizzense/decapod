@@ -5,6 +5,12 @@
 **Binding:** No
 **Scope:** Metrics collection, reporting, and analysis for agentic projects
 
+## Links
+
+- [core/DECAPOD.md](../../core/DECAPOD.md) - **Router and navigation charter (START HERE)**
+- [specs/SYSTEM.md](../specs/SYSTEM.md) - System definition and authority doctrine
+- [methodology/ARCHITECTURE.md](./ARCHITECTURE.md) - Architecture practice
+
 ---
 
 ## 1. Agent Performance Metrics

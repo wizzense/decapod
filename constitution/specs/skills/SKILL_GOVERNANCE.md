@@ -71,6 +71,12 @@ For new agents, ensure these meta-skills are loaded:
 
 ### Custom Skills
 
+## Links
+
+- [core/DECAPOD.md](../../core/DECAPOD.md) - **Router and navigation charter (START HERE)**
+- [specs/INTENT.md](../INTENT.md) - Methodology contract
+- [specs/SYSTEM.md](../SYSTEM.md) - System definition and authority doctrine
+
 To add domain-specific skills:
 1. Create `metadata/skills/<skill-name>/SKILL.md`
 2. Add YAML frontmatter with `name`, `description`, `allowed-tools`

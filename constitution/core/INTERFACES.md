@@ -56,37 +56,37 @@ This registry defines the canonical binding interface surfaces.
 ## Links
 
 ### Core Router
-- `core/DECAPOD.md` - **Router and navigation charter (START HERE)**
+- [core/DECAPOD.md](core/DECAPOD.md) - **Router and navigation charter (START HERE)**
 
 ### Authority (Constitution Layer)
-- `specs/INTENT.md` - **Methodology contract (READ FIRST)**
-- `specs/SYSTEM.md` - System definition and authority doctrine
-- `specs/SECURITY.md` - Security contract
-- `specs/GIT.md` - Git etiquette contract
-- `specs/evaluations/VARIANCE_EVALS.md` - Variance-aware evaluation contract
-- `specs/evaluations/JUDGE_CONTRACT.md` - Judge JSON/timeout contract
-- `specs/engineering/FRONTEND_BACKEND_E2E.md` - Frontend/backend E2E governance contract
-- `specs/skills/SKILL_GOVERNANCE.md` - Skills-to-kernel artifact and governance contract
-- `specs/AMENDMENTS.md` - Change control
+- [specs/INTENT.md](specs/INTENT.md) - **Methodology contract (READ FIRST)**
+- [specs/SYSTEM.md](specs/SYSTEM.md) - System definition and authority doctrine
+- [specs/SECURITY.md](specs/SECURITY.md) - Security contract
+- [specs/GIT.md](specs/GIT.md) - Git etiquette contract
+- [specs/evaluations/VARIANCE_EVALS.md](specs/evaluations/VARIANCE_EVALS.md) - Variance-aware evaluation contract
+- [specs/evaluations/JUDGE_CONTRACT.md](specs/evaluations/JUDGE_CONTRACT.md) - Judge JSON/timeout contract
+- [specs/engineering/FRONTEND_BACKEND_E2E.md](specs/engineering/FRONTEND_BACKEND_E2E.md) - Frontend/backend E2E governance contract
+- [specs/skills/SKILL_GOVERNANCE.md](specs/skills/SKILL_GOVERNANCE.md) - Skills-to-kernel artifact and governance contract
+- [specs/AMENDMENTS.md](specs/AMENDMENTS.md) - Change control
 
 ### Registry (Core Indices)
-- `core/PLUGINS.md` - Subsystem registry
-- `core/METHODOLOGY.md` - Methodology guides index
-- `core/DEPRECATION.md` - Deprecation contract
+- [core/PLUGINS.md](core/PLUGINS.md) - Subsystem registry
+- [core/METHODOLOGY.md](core/METHODOLOGY.md) - Methodology guides index
+- [core/DEPRECATION.md](core/DEPRECATION.md) - Deprecation contract
 
 ### Contracts (Interfaces Layer - This Registry)
-- `interfaces/CLAIMS.md` - Promises ledger
-- `interfaces/CONTROL_PLANE.md` - Sequencing patterns
-- `interfaces/DOC_RULES.md` - Doc compilation rules
-- `interfaces/STORE_MODEL.md` - Store semantics
-- `interfaces/GLOSSARY.md` - Term definitions
-- `interfaces/TESTING.md` - Testing contract
-- `interfaces/ARCHITECTURE_FOUNDATIONS.md` - Architecture quality primitives
-- `interfaces/RISK_POLICY_GATE.md` - Deterministic PR risk-policy gate
-- `interfaces/AGENT_CONTEXT_PACK.md` - Agent context-pack contract
-- `interfaces/PROJECT_SPECS.md` - Canonical local project specs contract
-- `interfaces/KNOWLEDGE_STORE.md` - Knowledge store and promotion firewall contract
+- [interfaces/CLAIMS.md](interfaces/CLAIMS.md) - Promises ledger
+- [interfaces/CONTROL_PLANE.md](interfaces/CONTROL_PLANE.md) - Sequencing patterns
+- [interfaces/DOC_RULES.md](interfaces/DOC_RULES.md) - Doc compilation rules
+- [interfaces/STORE_MODEL.md](interfaces/STORE_MODEL.md) - Store semantics
+- [interfaces/GLOSSARY.md](interfaces/GLOSSARY.md) - Term definitions
+- [interfaces/TESTING.md](interfaces/TESTING.md) - Testing contract
+- [interfaces/ARCHITECTURE_FOUNDATIONS.md](interfaces/ARCHITECTURE_FOUNDATIONS.md) - Architecture quality primitives
+- [interfaces/RISK_POLICY_GATE.md](interfaces/RISK_POLICY_GATE.md) - Deterministic PR risk-policy gate
+- [interfaces/AGENT_CONTEXT_PACK.md](interfaces/AGENT_CONTEXT_PACK.md) - Agent context-pack contract
+- [interfaces/PROJECT_SPECS.md](interfaces/PROJECT_SPECS.md) - Canonical local project specs contract
+- [interfaces/KNOWLEDGE_STORE.md](interfaces/KNOWLEDGE_STORE.md) - Knowledge store and promotion firewall contract
 
 ### Operations (Plugins Layer)
-- `plugins/TODO.md` - Work tracking
-- `plugins/VERIFY.md` - Validation subsystem
+- [plugins/TODO.md](plugins/TODO.md) - Work tracking
+- [plugins/VERIFY.md](plugins/VERIFY.md) - Validation subsystem

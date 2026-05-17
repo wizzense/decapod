@@ -1,5 +1,12 @@
 # Architecture Overview (Canonical)
 
+## Links
+
+- [core/DECAPOD.md](../../core/DECAPOD.md) - **Router and navigation charter (START HERE)**
+- [core/INTERFACES.md](../../core/INTERFACES.md) - Interface contracts index
+- [specs/SYSTEM.md](../../specs/SYSTEM.md) - System definition and authority doctrine
+- [specs/INTENT.md](../../specs/INTENT.md) - Methodology contract
+
 ## 1. Storage Boundary
 
 Decapod has one governed repo-native state root for project operations: `<repo>/.decapod`.

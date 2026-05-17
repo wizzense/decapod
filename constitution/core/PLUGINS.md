@@ -448,49 +448,49 @@ IDEA (exploratory — may be revived with new design)
 ## Links
 
 ### Core Router
-- `core/DECAPOD.md` - **Router and navigation charter (START HERE)**
-- `core/ENGINEERING_EXCELLENCE.md` - **Oracle for Engineering Standards (CTO->Principal)**
-- `core/GAPS.md` - Gap analysis methodology
+- [core/DECAPOD.md](core/DECAPOD.md) - **Router and navigation charter (START HERE)**
+- [core/ENGINEERING_EXCELLENCE.md](core/ENGINEERING_EXCELLENCE.md) - **Oracle for Engineering Standards (CTO->Principal)**
+- [core/GAPS.md](core/GAPS.md) - Gap analysis methodology
 
 ### Authority (Constitution Layer)
-- `specs/INTENT.md` - **Methodology contract (READ FIRST)**
-- `specs/SYSTEM.md` - System definition and authority doctrine
-- `specs/SECURITY.md` - Security contract
-- `specs/GIT.md` - Git etiquette contract
-- `specs/AMENDMENTS.md` - Change control
+- [specs/INTENT.md](specs/INTENT.md) - **Methodology contract (READ FIRST)**
+- [specs/SYSTEM.md](specs/SYSTEM.md) - System definition and authority doctrine
+- [specs/SECURITY.md](specs/SECURITY.md) - Security contract
+- [specs/GIT.md](specs/GIT.md) - Git etiquette contract
+- [specs/AMENDMENTS.md](specs/AMENDMENTS.md) - Change control
 
 ### Registry (Core Indices)
-- `core/INTERFACES.md` - Interface contracts index
-- `core/METHODOLOGY.md` - Methodology guides index
-- `core/DEPRECATION.md` - Deprecation contract
-- `core/DEMANDS.md` - User demand patterns
+- [core/INTERFACES.md](core/INTERFACES.md) - Interface contracts index
+- [core/METHODOLOGY.md](core/METHODOLOGY.md) - Methodology guides index
+- [core/DEPRECATION.md](core/DEPRECATION.md) - Deprecation contract
+- [core/DEMANDS.md](core/DEMANDS.md) - User demand patterns
 
 ### Contracts (Interfaces Layer)
-- `interfaces/CONTROL_PLANE.md` - Sequencing patterns
-- `interfaces/DOC_RULES.md` - Doc compilation rules
-- `interfaces/CLAIMS.md` - Promises ledger
-- `interfaces/GLOSSARY.md` - Term definitions
-- `interfaces/STORE_MODEL.md` - Store semantics
-- `interfaces/TESTING.md` - Testing contract
+- [interfaces/CONTROL_PLANE.md](interfaces/CONTROL_PLANE.md) - Sequencing patterns
+- [interfaces/DOC_RULES.md](interfaces/DOC_RULES.md) - Doc compilation rules
+- [interfaces/CLAIMS.md](interfaces/CLAIMS.md) - Promises ledger
+- [interfaces/GLOSSARY.md](interfaces/GLOSSARY.md) - Term definitions
+- [interfaces/STORE_MODEL.md](interfaces/STORE_MODEL.md) - Store semantics
+- [interfaces/TESTING.md](interfaces/TESTING.md) - Testing contract
 
 ### Operations (Plugins - This Registry)
-- `plugins/TODO.md` - **Work tracking (PRIMARY)**
-- `plugins/VERIFY.md` - Validation subsystem
-- `plugins/MANIFEST.md` - Canonical vs derived vs state
-- `plugins/EMERGENCY_PROTOCOL.md` - Emergency protocols
-- `plugins/FEDERATION.md` - Federation (governed agent memory)
-- `plugins/DECIDE.md` - Architecture decision prompting
-- `plugins/CONTAINER.md` - Ephemeral isolated container execution
-- `plugins/DB_BROKER.md` - Database broker (SPEC)
-- `plugins/HEALTH.md` - Health monitoring
-- `plugins/POLICY.md` - Policy management
-- `plugins/WATCHER.md` - Change watching
-- `plugins/FEEDBACK.md` - Feedback collection
-- `plugins/APTITUDE.md` - Skill management
-- `plugins/CONTEXT.md` - Context management
-- `plugins/ARCHIVE.md` - Archive storage
-- `plugins/CRON.md` - Scheduled jobs
-- `plugins/REFLEX.md` - Event-driven responses
-- `plugins/INTERNALIZATION_SCHEMA.md` - Internalization schema
-- `plugins/HEARTBEAT.md` - Deprecated: use `govern health summary`
-- `plugins/TRUST.md` - Deprecated: use `govern health autonomy`
+- [plugins/TODO.md](plugins/TODO.md) - **Work tracking (PRIMARY)**
+- [plugins/VERIFY.md](plugins/VERIFY.md) - Validation subsystem
+- [plugins/MANIFEST.md](plugins/MANIFEST.md) - Canonical vs derived vs state
+- [plugins/EMERGENCY_PROTOCOL.md](plugins/EMERGENCY_PROTOCOL.md) - Emergency protocols
+- [plugins/FEDERATION.md](plugins/FEDERATION.md) - Federation (governed agent memory)
+- [plugins/DECIDE.md](plugins/DECIDE.md) - Architecture decision prompting
+- [plugins/CONTAINER.md](plugins/CONTAINER.md) - Ephemeral isolated container execution
+- [plugins/DB_BROKER.md](plugins/DB_BROKER.md) - Database broker (SPEC)
+- [plugins/HEALTH.md](plugins/HEALTH.md) - Health monitoring
+- [plugins/POLICY.md](plugins/POLICY.md) - Policy management
+- [plugins/WATCHER.md](plugins/WATCHER.md) - Change watching
+- [plugins/FEEDBACK.md](plugins/FEEDBACK.md) - Feedback collection
+- [plugins/APTITUDE.md](plugins/APTITUDE.md) - Skill management
+- [plugins/CONTEXT.md](plugins/CONTEXT.md) - Context management
+- [plugins/ARCHIVE.md](plugins/ARCHIVE.md) - Archive storage
+- [plugins/CRON.md](plugins/CRON.md) - Scheduled jobs
+- [plugins/REFLEX.md](plugins/REFLEX.md) - Event-driven responses
+- [plugins/INTERNALIZATION_SCHEMA.md](plugins/INTERNALIZATION_SCHEMA.md) - Internalization schema
+- [plugins/HEARTBEAT.md](plugins/HEARTBEAT.md) - Deprecated: use `govern health summary`
+- [plugins/TRUST.md](plugins/TRUST.md) - Deprecated: use `govern health autonomy`

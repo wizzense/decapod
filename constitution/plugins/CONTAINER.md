@@ -81,3 +81,10 @@ Expected loop:
 - Command output envelope includes runtime, container name, branch/base, exit code, elapsed seconds.
 - `todo claim` output includes nested `container` result when autorun is attempted.
 - Schema: `decapod data schema --subsystem container`
+
+## Links
+
+- [core/DECAPOD.md](../../core/DECAPOD.md) - **Router and navigation charter (START HERE)**
+- [core/PLUGINS.md](../../core/PLUGINS.md) - Subsystem registry
+- [specs/GIT.md](../specs/GIT.md) - Git workflow contract
+- [plugins/TODO.md](./TODO.md) - Work tracking

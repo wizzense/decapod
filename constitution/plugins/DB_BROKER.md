@@ -99,12 +99,12 @@ No code outside the broker opens SQLite.
 
 ## Links
 
-- `core/DECAPOD.md` - Router and navigation charter
-- `core/PLUGINS.md` - Subsystem registry
-- `interfaces/CONTROL_PLANE.md` - Sequencing patterns
-- `plugins/VERIFY.md` - Verification patterns
-- `methodology/ARCHITECTURE.md` - Architecture practice
-- `specs/INTENT.md` - Intent contract
-- `specs/SYSTEM.md` - System definition
+- [core/DECAPOD.md](../../core/DECAPOD.md) - Router and navigation charter
+- [core/PLUGINS.md](../../core/PLUGINS.md) - Subsystem registry
+- [interfaces/CONTROL_PLANE.md](../../interfaces/CONTROL_PLANE.md) - Sequencing patterns
+- [plugins/VERIFY.md](./VERIFY.md) - Verification patterns
+- [methodology/ARCHITECTURE.md](../methodology/ARCHITECTURE.md) - Architecture practice
+- [specs/INTENT.md](../specs/INTENT.md) - Intent contract
+- [specs/SYSTEM.md](../specs/SYSTEM.md) - System definition
 
 When we reach step (3) above, `decapod validate --store repo` should fail if any `rusqlite::Connection::open` (or equivalent open path) is used outside the broker module.

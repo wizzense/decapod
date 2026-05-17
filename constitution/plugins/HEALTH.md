@@ -71,8 +71,8 @@ Health claims are stored in SQLite:
 
 ## See Also
 
-- `POLICY.md` - Policy approval system (risk classification)
-- `WATCHER.md` - Integrity monitoring (staleness detection)
-- `HEARTBEAT.md` - Deprecated, now `summary` subcommand
-- `TRUST.md` - Deprecated, now `autonomy` subcommand
-- `specs/SYSTEM.md` - Authority and proof doctrine
+- [plugins/POLICY.md](./POLICY.md) - Policy approval system (risk classification)
+- [plugins/WATCHER.md](./WATCHER.md) - Integrity monitoring (staleness detection)
+- [plugins/HEARTBEAT.md](./HEARTBEAT.md) - Deprecated, now `summary` subcommand
+- [plugins/TRUST.md](./TRUST.md) - Deprecated, now `autonomy` subcommand
+- [specs/SYSTEM.md](../specs/SYSTEM.md) - Authority and proof doctrine

@@ -68,20 +68,20 @@ For large transitions, maintain a small registry table here:
 ## Links
 
 ### Core Router
-- `core/DECAPOD.md` - **Router and navigation charter (START HERE)**
+- [core/DECAPOD.md](core/DECAPOD.md) - **Router and navigation charter (START HERE)**
 
 ### Authority (Constitution Layer)
-- `specs/INTENT.md` - **Methodology contract (READ FIRST)**
-- `specs/SYSTEM.md` - System definition and authority doctrine
-- `specs/AMENDMENTS.md` - Change control
+- [specs/INTENT.md](specs/INTENT.md) - **Methodology contract (READ FIRST)**
+- [specs/SYSTEM.md](specs/SYSTEM.md) - System definition and authority doctrine
+- [specs/AMENDMENTS.md](specs/AMENDMENTS.md) - Change control
 
 ### Registry (Core Indices)
-- `core/PLUGINS.md` - Subsystem registry
-- `core/INTERFACES.md` - Interface contracts index
-- `core/METHODOLOGY.md` - Methodology guides index
-- `core/GAPS.md` - Gap analysis methodology
+- [core/PLUGINS.md](core/PLUGINS.md) - Subsystem registry
+- [core/INTERFACES.md](core/INTERFACES.md) - Interface contracts index
+- [core/METHODOLOGY.md](core/METHODOLOGY.md) - Methodology guides index
+- [core/GAPS.md](core/GAPS.md) - Gap analysis methodology
 
 ### Contracts (Interfaces Layer)
-- `interfaces/DOC_RULES.md` - Doc compilation rules
-- `interfaces/CLAIMS.md` - Promises ledger
-- `interfaces/GLOSSARY.md` - Term definitions
+- [interfaces/DOC_RULES.md](interfaces/DOC_RULES.md) - Doc compilation rules
+- [interfaces/CLAIMS.md](interfaces/CLAIMS.md) - Promises ledger
+- [interfaces/GLOSSARY.md](interfaces/GLOSSARY.md) - Term definitions

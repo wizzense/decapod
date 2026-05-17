@@ -153,35 +153,35 @@ If this file starts specifying command envelopes, store wiring, subsystem indexi
 ## Links
 
 ### Core Router
-- `core/DECAPOD.md` - **Router and navigation charter (START HERE)**
+- [core/DECAPOD.md](../../core/DECAPOD.md) - **Router and navigation charter (START HERE)**
 
 ### Authority (Constitution Layer)
-- `specs/SYSTEM.md` - System definition and authority doctrine
-- `specs/SECURITY.md` - Security contract
-- `specs/GIT.md` - Git etiquette contract
-- `specs/AMENDMENTS.md` - Change control
+- [specs/SYSTEM.md](./SYSTEM.md) - System definition and authority doctrine
+- [specs/SECURITY.md](./SECURITY.md) - Security contract
+- [specs/GIT.md](./GIT.md) - Git etiquette contract
+- [specs/AMENDMENTS.md](./AMENDMENTS.md) - Change control
 
 ### Registry (Core Indices)
-- `core/PLUGINS.md` - Subsystem registry
-- `core/INTERFACES.md` - Interface contracts index
-- `core/METHODOLOGY.md` - Methodology guides index
+- [core/PLUGINS.md](../../core/PLUGINS.md) - Subsystem registry
+- [core/INTERFACES.md](../../core/INTERFACES.md) - Interface contracts index
+- [core/METHODOLOGY.md](../../core/METHODOLOGY.md) - Methodology guides index
 
 ### Contracts (Interfaces Layer)
-- `interfaces/CONTROL_PLANE.md` - Sequencing patterns
-- `interfaces/DOC_RULES.md` - Doc compilation rules
-- `interfaces/STORE_MODEL.md` - Store semantics
-- `interfaces/CLAIMS.md` - Promises ledger
-- `interfaces/GLOSSARY.md` - Term definitions
+- [interfaces/CONTROL_PLANE.md](../../interfaces/CONTROL_PLANE.md) - Sequencing patterns
+- [interfaces/DOC_RULES.md](../../interfaces/DOC_RULES.md) - Doc compilation rules
+- [interfaces/STORE_MODEL.md](../../interfaces/STORE_MODEL.md) - Store semantics
+- [interfaces/CLAIMS.md](../../interfaces/CLAIMS.md) - Promises ledger
+- [interfaces/GLOSSARY.md](../../interfaces/GLOSSARY.md) - Term definitions
 
 ### Practice (Methodology Layer)
-- `methodology/ARCHITECTURE.md` - Architecture practice
-- `methodology/SOUL.md` - Agent identity
-- `methodology/KNOWLEDGE.md` - Knowledge curation
-- `methodology/MEMORY.md` - Memory and learning
+- [methodology/ARCHITECTURE.md](../methodology/ARCHITECTURE.md) - Architecture practice
+- [methodology/SOUL.md](../methodology/SOUL.md) - Agent identity
+- [methodology/KNOWLEDGE.md](../methodology/KNOWLEDGE.md) - Knowledge curation
+- [methodology/MEMORY.md](../methodology/MEMORY.md) - Memory and learning
 
 ### Operations (Plugins Layer)
-- `plugins/TODO.md` - Work tracking
-- `plugins/VERIFY.md` - Validation subsystem
+- [plugins/TODO.md](../plugins/TODO.md) - Work tracking
+- [plugins/VERIFY.md](../plugins/VERIFY.md) - Validation subsystem
 
 ---
 

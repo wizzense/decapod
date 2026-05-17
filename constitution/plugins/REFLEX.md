@@ -51,3 +51,10 @@ REFLEX defines trigger->action automations that execute when agents invoke Decap
 - Validation gates:
   - Heartbeat Invocation Gate
   - Control Plane Contract Gate
+
+## Links
+
+- [core/DECAPOD.md](../../core/DECAPOD.md) - **Router and navigation charter (START HERE)**
+- [core/PLUGINS.md](../../core/PLUGINS.md) - Subsystem registry
+- [plugins/HEALTH.md](./HEALTH.md) - Health subsystem (for health_state triggers)
+- [plugins/TODO.md](./TODO.md) - Work tracking (for remediation tasks)

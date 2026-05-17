@@ -329,34 +329,34 @@ When given feedback:
 ## Links
 
 ### Core Router
-- `core/DECAPOD.md` - **Router and navigation charter (START HERE)**
-- `core/ENGINEERING_EXCELLENCE.md` - **Oracle for Engineering Standards**
-- `core/GAPS.md` - Gap analysis methodology
+- [core/DECAPOD.md](../../core/DECAPOD.md) - **Router and navigation charter (START HERE)**
+- [core/ENGINEERING_EXCELLENCE.md](../../core/ENGINEERING_EXCELLENCE.md) - **Oracle for Engineering Standards**
+- [core/GAPS.md](../../core/GAPS.md) - Gap analysis methodology
 
 ### Authority (Constitution Layer)
-- `specs/INTENT.md` - **Methodology contract (READ FIRST)**
-- `specs/SYSTEM.md` - System definition and authority doctrine
-- `specs/SECURITY.md` - Security contract
+- [specs/INTENT.md](../specs/INTENT.md) - **Methodology contract (READ FIRST)**
+- [specs/SYSTEM.md](../specs/SYSTEM.md) - System definition and authority doctrine
+- [specs/SECURITY.md](../specs/SECURITY.md) - Security contract
 
 ### Registry (Core Indices)
-- `core/PLUGINS.md` - Subsystem registry
-- `core/METHODOLOGY.md` - Methodology guides index
-- `core/INTERFACES.md` - Interface contracts index
+- [core/PLUGINS.md](../../core/PLUGINS.md) - Subsystem registry
+- [core/METHODOLOGY.md](../../core/METHODOLOGY.md) - Methodology guides index
+- [core/INTERFACES.md](../../core/INTERFACES.md) - Interface contracts index
 
 ### Contracts (Interfaces Layer)
-- `interfaces/CONTROL_PLANE.md` - Sequencing patterns
-- `interfaces/CLAIMS.md` - Promises ledger
-- `interfaces/GLOSSARY.md` - Term definitions
-- `interfaces/DOC_RULES.md` - Doc compilation rules
+- [interfaces/CONTROL_PLANE.md](../../interfaces/CONTROL_PLANE.md) - Sequencing patterns
+- [interfaces/CLAIMS.md](../../interfaces/CLAIMS.md) - Promises ledger
+- [interfaces/GLOSSARY.md](../../interfaces/GLOSSARY.md) - Term definitions
+- [interfaces/DOC_RULES.md](../../interfaces/DOC_RULES.md) - Doc compilation rules
 
 ### Practice (Methodology Layer - This Document)
-- `methodology/ARCHITECTURE.md` - Architecture practice
-- `methodology/KNOWLEDGE.md` - Knowledge curation
-- `methodology/MEMORY.md` - Memory and learning
-- `methodology/TESTING.md` - Testing practice
-- `methodology/CI_CD.md` - CI/CD practice
+- [methodology/ARCHITECTURE.md](./ARCHITECTURE.md) - Architecture practice
+- [methodology/KNOWLEDGE.md](./KNOWLEDGE.md) - Knowledge curation
+- [methodology/MEMORY.md](./MEMORY.md) - Memory and learning
+- [methodology/TESTING.md](./TESTING.md) - Testing practice
+- [methodology/CI_CD.md](./CI_CD.md) - CI/CD practice
 
 ### Operations (Plugins Layer)
-- `plugins/TODO.md` - Work tracking
-- `plugins/EMERGENCY_PROTOCOL.md` - **Emergency protocols**
-- `plugins/VERIFY.md` - Validation subsystem
+- [plugins/TODO.md](../plugins/TODO.md) - Work tracking
+- [plugins/EMERGENCY_PROTOCOL.md](../plugins/EMERGENCY_PROTOCOL.md) - **Emergency protocols**
+- [plugins/VERIFY.md](../plugins/VERIFY.md) - Validation subsystem

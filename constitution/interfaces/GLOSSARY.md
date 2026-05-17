@@ -394,32 +394,32 @@ A claim about system behavior requires proof surface to be credible.
 ## Links
 
 ### Core Router
-- `core/DECAPOD.md` - **Router and navigation charter (START HERE)**
-- `core/ENGINEERING_EXCELLENCE.md` - **Oracle for Engineering Standards**
-- `core/GAPS.md` - Gap analysis methodology
+- [core/DECAPOD.md](core/DECAPOD.md) - **Router and navigation charter (START HERE)**
+- [core/ENGINEERING_EXCELLENCE.md](core/ENGINEERING_EXCELLENCE.md) - **Oracle for Engineering Standards**
+- [core/GAPS.md](core/GAPS.md) - Gap analysis methodology
 
 ### Authority (Constitution Layer)
-- `specs/INTENT.md` - **Methodology contract (READ FIRST)**
-- `specs/SYSTEM.md` - System definition and authority doctrine
-- `specs/SECURITY.md` - Security contract
-- `specs/AMENDMENTS.md` - Change control
+- [specs/INTENT.md](specs/INTENT.md) - **Methodology contract (READ FIRST)**
+- [specs/SYSTEM.md](specs/SYSTEM.md) - System definition and authority doctrine
+- [specs/SECURITY.md](specs/SECURITY.md) - Security contract
+- [specs/AMENDMENTS.md](specs/AMENDMENTS.md) - Change control
 
 ### Registry (Core Indices)
-- `core/PLUGINS.md` - Subsystem registry
-- `core/INTERFACES.md` - Interface contracts index
-- `core/METHODOLOGY.md` - Methodology guides index
-- `core/DEPRECATION.md` - Deprecation contract
+- [core/PLUGINS.md](core/PLUGINS.md) - Subsystem registry
+- [core/INTERFACES.md](core/INTERFACES.md) - Interface contracts index
+- [core/METHODOLOGY.md](core/METHODOLOGY.md) - Methodology guides index
+- [core/DEPRECATION.md](core/DEPRECATION.md) - Deprecation contract
 
 ### Contracts (Interfaces Layer - This Document)
-- `interfaces/DOC_RULES.md` - Doc compilation rules
-- `interfaces/CLAIMS.md` - Promises ledger
-- `interfaces/STORE_MODEL.md` - Store semantics
-- `interfaces/CONTROL_PLANE.md` - Sequencing patterns
-- `interfaces/TESTING.md` - Testing contract
+- [interfaces/DOC_RULES.md](interfaces/DOC_RULES.md) - Doc compilation rules
+- [interfaces/CLAIMS.md](interfaces/CLAIMS.md) - Promises ledger
+- [interfaces/STORE_MODEL.md](interfaces/STORE_MODEL.md) - Store semantics
+- [interfaces/CONTROL_PLANE.md](interfaces/CONTROL_PLANE.md) - Sequencing patterns
+- [interfaces/TESTING.md](interfaces/TESTING.md) - Testing contract
 
 ### Practice (Methodology Layer)
-- `methodology/SOUL.md` - Agent identity
-- `methodology/ARCHITECTURE.md` - Architecture practice
-- `methodology/TESTING.md` - Testing practice
-- `methodology/KNOWLEDGE.md` - Knowledge curation
-- `methodology/MEMORY.md` - Memory and learning
+- [methodology/SOUL.md](methodology/SOUL.md) - Agent identity
+- [methodology/ARCHITECTURE.md](methodology/ARCHITECTURE.md) - Architecture practice
+- [methodology/TESTING.md](methodology/TESTING.md) - Testing practice
+- [methodology/KNOWLEDGE.md](methodology/KNOWLEDGE.md) - Knowledge curation
+- [methodology/MEMORY.md](methodology/MEMORY.md) - Memory and learning
