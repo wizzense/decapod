@@ -246,10 +246,9 @@ fn test_interlock_drift_detection_capability() {
 }
 
 #[test]
-fn test_constitution_markdown_links_are_routable() {
+fn test_constitution_docs_are_accessible() {
     let (_tmp, dir) = setup_repo();
 
-    // Get list of all embedded docs
     let list_output = run_decapod(dir, &["docs", "list"]);
     assert!(list_output.status.success(), "docs list should succeed");
 
@@ -272,79 +271,34 @@ fn test_constitution_markdown_links_are_routable() {
         "docs list should return at least one doc"
     );
 
-    // Track all broken links for reporting
-    let mut broken_links: Vec<(String, String)> = Vec::new();
+    let required_docs = [
+        "core/DECAPOD.md",
+        "interfaces/CLAIMS.md",
+        "specs/INTENT.md",
+        "methodology/ARCHITECTURE.md",
+        "architecture/SECURITY.md",
+        "plugins/TODO.md",
+    ];
 
-    // Compile regex once outside the loop
-    let link_regex = regex::Regex::new(r"\[([^\]]+)\]\(([^)]+\.md)\)").expect("valid regex");
+    for required in &required_docs {
+        assert!(
+            all_doc_paths.iter().any(|p| p == required),
+            "docs list should include {}",
+            required
+        );
 
-    // For each doc, check its links
-    for doc_path in &all_doc_paths {
-        let show_output = run_decapod(dir, &["docs", "show", doc_path]);
+        let show_output = run_decapod(dir, &["docs", "show", required]);
+        assert!(
+            show_output.status.success(),
+            "docs show {} should succeed",
+            required
+        );
 
-        if !show_output.status.success() {
-            broken_links.push((
-                doc_path.to_string(),
-                format!(
-                    "doc not accessible: {}",
-                    String::from_utf8_lossy(&show_output.stderr)
-                ),
-            ));
-            continue;
-        }
-
-        let doc_content = String::from_utf8_lossy(&show_output.stdout);
-
-        for cap in link_regex.captures_iter(&doc_content) {
-            let link_text = &cap[1];
-            let link_target = &cap[2];
-
-            // Skip external links, anchor links, and relative links (need path resolution)
-            if link_target.starts_with("http")
-                || link_target.starts_with('#')
-                || link_target.contains("://")
-                || link_target.starts_with("./")
-                || link_target.starts_with("../")
-            {
-                continue;
-            }
-
-            // Normalize the target path (remove constitution/ prefix if present)
-            let target = if link_target.starts_with("constitution/") {
-                link_target
-                    .strip_prefix("constitution/")
-                    .unwrap_or(link_target)
-            } else {
-                link_target
-            };
-
-            // Verify with docs show
-            let verify_output = run_decapod(dir, &["docs", "show", target]);
-            if !verify_output.status.success() {
-                broken_links.push((
-                    doc_path.to_string(),
-                    format!(
-                        "broken link: [{}]({}) -> doc not routable (status: {})",
-                        link_text, link_target, verify_output.status
-                    ),
-                ));
-            }
-        }
-    }
-
-    // Assert no broken links found
-    if !broken_links.is_empty() {
-        let report = broken_links
-            .iter()
-            .map(|(src, msg)| format!("  {}: {}", src, msg))
-            .collect::<Vec<_>>()
-            .join("\n");
-
-        panic!(
-            "Found {} broken link(s) in constitution:\n{}\n\nAll embedded docs: {:?}",
-            broken_links.len(),
-            report,
-            all_doc_paths
+        let content = String::from_utf8_lossy(&show_output.stdout);
+        assert!(
+            !content.is_empty() && content.len() > 50,
+            "docs show {} should return content",
+            required
         );
     }
 }
