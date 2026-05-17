@@ -195,45 +195,25 @@ fn infer_repo_context(target_dir: &Path) -> RepoContext {
     let intent_path = target_dir.join(core::project_specs::LOCAL_PROJECT_SPECS_INTENT);
     if intent_path.exists()
         && let Ok(intent) = fs::read_to_string(intent_path)
+        && let Some(summary) = core::project_specs::first_markdown_content_line(&intent)
     {
-        for line in intent.lines() {
-            let trimmed = line.trim();
-            if !trimmed.is_empty() && !trimmed.starts_with('#') && !trimmed.starts_with('-') {
-                ctx.product_summary = Some(trimmed.to_string());
-                break;
-            }
-        }
+        ctx.product_summary = Some(summary);
     }
     let architecture_path = target_dir.join(core::project_specs::LOCAL_PROJECT_SPECS_ARCHITECTURE);
     if architecture_path.exists()
         && let Ok(arch) = fs::read_to_string(architecture_path)
+        && let Some(direction) = core::project_specs::first_markdown_content_line(&arch)
     {
-        for line in arch.lines() {
-            let trimmed = line.trim();
-            if !trimmed.is_empty() && !trimmed.starts_with('#') && !trimmed.starts_with('-') {
-                ctx.architecture_direction = Some(trimmed.to_string());
-                break;
-            }
-        }
+        ctx.architecture_direction = Some(direction);
     }
 
     if ctx.product_summary.is_none() {
         let readme_path = target_dir.join("README.md");
         if readme_path.exists()
             && let Ok(readme) = fs::read_to_string(readme_path)
+            && let Some(summary) = core::project_specs::first_markdown_content_line(&readme)
         {
-            for line in readme.lines() {
-                let trimmed = line.trim();
-                if trimmed.is_empty()
-                    || trimmed.starts_with('#')
-                    || trimmed.starts_with("<")
-                    || trimmed.starts_with("![")
-                {
-                    continue;
-                }
-                ctx.product_summary = Some(trimmed.to_string());
-                break;
-            }
+            ctx.product_summary = Some(summary);
         }
     }
 
@@ -298,14 +278,10 @@ fn apply_substrate_adoption(ctx: &mut RepoContext, target_dir: &Path) {
     // Existing INTENT.md or README.md are lower priority than config.toml.
 
     // Check OVERRIDE.md (explicit user-defined override)
-    if let Some(override_intent) = core::assets::get_override_doc(target_dir, "specs/INTENT.md") {
-        for line in override_intent.lines() {
-            let trimmed = line.trim();
-            if !trimmed.is_empty() && !trimmed.starts_with('#') && !trimmed.starts_with('-') {
-                ctx.product_summary = Some(trimmed.to_string());
-                break;
-            }
-        }
+    if let Some(override_intent) = core::assets::get_override_doc(target_dir, "specs/INTENT.md")
+        && let Some(summary) = core::project_specs::first_markdown_content_line(&override_intent)
+    {
+        ctx.product_summary = Some(summary);
     }
 
     // Fallback to existing generated spec ONLY if not already set by config.toml or OVERRIDE.md
@@ -313,14 +289,9 @@ fn apply_substrate_adoption(ctx: &mut RepoContext, target_dir: &Path) {
         let intent_path = target_dir.join(core::project_specs::LOCAL_PROJECT_SPECS_INTENT);
         if intent_path.exists()
             && let Ok(intent) = fs::read_to_string(intent_path)
+            && let Some(summary) = core::project_specs::first_markdown_content_line(&intent)
         {
-            for line in intent.lines() {
-                let trimmed = line.trim();
-                if !trimmed.is_empty() && !trimmed.starts_with('#') && !trimmed.starts_with('-') {
-                    ctx.product_summary = Some(trimmed.to_string());
-                    break;
-                }
-            }
+            ctx.product_summary = Some(summary);
         }
     }
 
@@ -329,32 +300,17 @@ fn apply_substrate_adoption(ctx: &mut RepoContext, target_dir: &Path) {
         let readme_path = target_dir.join("README.md");
         if readme_path.exists()
             && let Ok(readme) = fs::read_to_string(readme_path)
+            && let Some(summary) = core::project_specs::first_markdown_content_line(&readme)
         {
-            for line in readme.lines() {
-                let trimmed = line.trim();
-                if trimmed.is_empty()
-                    || trimmed.starts_with('#')
-                    || trimmed.starts_with('<')
-                    || trimmed.starts_with("![")
-                {
-                    continue;
-                }
-                ctx.product_summary = Some(trimmed.to_string());
-                break;
-            }
+            ctx.product_summary = Some(summary);
         }
     }
 
     // Architecture adoption (OVERRIDE.md wins, then config.toml, then ARCHITECTURE.md)
     if let Some(override_arch) = core::assets::get_override_doc(target_dir, "specs/ARCHITECTURE.md")
+        && let Some(direction) = core::project_specs::first_markdown_content_line(&override_arch)
     {
-        for line in override_arch.lines() {
-            let trimmed = line.trim();
-            if !trimmed.is_empty() && !trimmed.starts_with('#') && !trimmed.starts_with('-') {
-                ctx.architecture_direction = Some(trimmed.to_string());
-                break;
-            }
-        }
+        ctx.architecture_direction = Some(direction);
     }
 
     if ctx.architecture_direction.is_none() {
@@ -362,14 +318,9 @@ fn apply_substrate_adoption(ctx: &mut RepoContext, target_dir: &Path) {
             target_dir.join(core::project_specs::LOCAL_PROJECT_SPECS_ARCHITECTURE);
         if architecture_path.exists()
             && let Ok(arch) = fs::read_to_string(architecture_path)
+            && let Some(direction) = core::project_specs::first_markdown_content_line(&arch)
         {
-            for line in arch.lines() {
-                let trimmed = line.trim();
-                if !trimmed.is_empty() && !trimmed.starts_with('#') && !trimmed.starts_with('-') {
-                    ctx.architecture_direction = Some(trimmed.to_string());
-                    break;
-                }
-            }
+            ctx.architecture_direction = Some(direction);
         }
     }
 }

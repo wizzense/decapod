@@ -292,7 +292,12 @@ Cloud infrastructure decisions have direct business consequences. Apply the same
 
 ## Links
 
-- `methodology/ARCHITECTURE.md` - binding architecture doctrine
-- `architecture/SECURITY.md` - Security architecture
-- `architecture/OBSERVABILITY.md` - Monitoring and observability
-- `architecture/CONCURRENCY.md` - Distributed systems patterns
+- [ARCHITECTURE](../methodology/ARCHITECTURE.md) - binding architecture doctrine
+- [SECURITY](SECURITY.md) - Security architecture
+- [OBSERVABILITY](OBSERVABILITY.md) - Monitoring and observability
+- [CONCURRENCY](CONCURRENCY.md) - Distributed systems patterns
+
+### Parent Docs
+- [DECAPOD](../core/DECAPOD.md) - Router and navigation charter
+- [INTERFACES](../core/INTERFACES.md) - Interface contracts
+- [INTENT](../specs/INTENT.md) - Intent specification

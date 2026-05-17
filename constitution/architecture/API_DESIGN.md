@@ -1217,6 +1217,27 @@ Body: { "version": "2.0", "data": {...} }
 
 ## Version History
 
+When agents design APIs:
+1. Follow existing patterns in the codebase
+2. Document all endpoints
+3. Include OpenAPI specs in PR
+4. Add integration tests for critical paths
+
+---
+
+## Links
+
+### Related Architecture
+- [WEB](WEB.md) - Web architecture
+- [SECURITY](SECURITY.md) - API security
+- [GRAPHQL](GRAPHQL.md) - GraphQL patterns
+- [GRPC](GRPC.md) - gRPC patterns
+
+### Parent Docs
+- [DECAPOD](../core/DECAPOD.md) - Router and navigation charter
+- [INTERFACES](../core/INTERFACES.md) - Interface contracts
+- [INTENT](../specs/INTENT.md) - Intent specification
+
 | Version | Date | Changes |
 |---------|------|---------|
 | 1.0 | 2024-01-15 | Expanded comprehensive API design reference |

@@ -444,35 +444,29 @@ For existing UIs:
 ## Links
 
 ### Core Router
-- `core/DECAPOD.md` - **Router and navigation charter (START HERE)**
+- [DECAPOD](../core/DECAPOD.md) - Router and navigation charter (START HERE)
 
 ### Authority (Constitution Layer)
-- `specs/INTENT.md` - **Methodology contract (READ FIRST)**
-- `specs/SYSTEM.md` - System definition and authority doctrine
-- `specs/SECURITY.md` - Security contract
+- [INTENT](../specs/INTENT.md) - Methodology contract (READ FIRST)
+- [SYSTEM](../specs/SYSTEM.md) - System definition and authority doctrine
+- [SECURITY](../specs/SECURITY.md) - Security contract
 
 ### Registry (Core Indices)
-- `core/PLUGINS.md` - Subsystem registry
-- `core/INTERFACES.md` - Interface contracts index
-- `core/METHODOLOGY.md` - Methodology guides index
-- `core/GAPS.md` - Gap analysis methodology
-
-### Contracts (Interfaces Layer)
-- `interfaces/CONTROL_PLANE.md` - Sequencing patterns
-- `interfaces/STORE_MODEL.md` - Store semantics
-- `interfaces/CLAIMS.md` - Promises ledger
-- `interfaces/TESTING.md` - Testing contract
+- [PLUGINS](../core/PLUGINS.md) - Subsystem registry
+- [INTERFACES](../core/INTERFACES.md) - Interface contracts index
+- [METHODOLOGY](../core/METHODOLOGY.md) - Methodology guides index
+- [GAPS](../core/GAPS.md) - Gap analysis methodology
 
 ### Practice (Methodology Layer - Related Documents)
-- `methodology/SOUL.md` - Agent identity
-- `methodology/ARCHITECTURE.md` - Architecture practice
+- [SOUL](../methodology/SOUL.md) - Agent identity
+- [ARCHITECTURE](../methodology/ARCHITECTURE.md) - Architecture practice
 
 ### Architecture Patterns (Related Domain Docs)
-- `architecture/FRONTEND.md` - Frontend architecture patterns
-- `architecture/WEB.md` - Web architecture patterns
-- `architecture/SECURITY.md` - Security architecture
+- [FRONTEND](FRONTEND.md) - Frontend architecture patterns
+- [WEB](WEB.md) - Web architecture patterns
+- [SECURITY](SECURITY.md) - Security architecture
 
-### Operations (Plugins Layer)
-- `plugins/TODO.md` - Work tracking
-- `plugins/VERIFY.md` - Validation subsystem
-- `plugins/EMERGENCY_PROTOCOL.md` - Emergency protocols
+### Parent Docs
+- [DECAPOD](../core/DECAPOD.md) - Router and navigation charter
+- [INTERFACES](../core/INTERFACES.md) - Interface contracts
+- [INTENT](../specs/INTENT.md) - Intent specification
