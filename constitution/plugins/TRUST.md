@@ -1,5 +1,10 @@
 # TRUST.md
 
+## Links
+
+- [plugins/HEALTH.md](./HEALTH.md) - Complete health subsystem documentation
+- [plugins/HEARTBEAT.md](./HEARTBEAT.md) - Deprecated, use `decapod govern health summary**
+
 ## ⚠️ DEPRECATED - Use Health Autonomy Instead
 
 **This subsystem has been consolidated into HEALTH.md.**
@@ -37,7 +42,6 @@ Trust status was computed entirely from health claim states and proof events. Mo
 ### See Also
 
 - `HEALTH.md` - Complete health subsystem documentation
-- `MIGRATION.md` (project root) - Full CLI migration guide
 - `HEARTBEAT.md` - Also deprecated, use `decapod govern health summary`
 
 ---

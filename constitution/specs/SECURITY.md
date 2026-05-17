@@ -406,29 +406,29 @@ This document is binding. Agents must:
 ## Links
 
 ### Core Router
-- `core/DECAPOD.md` - **Router and navigation charter (START HERE)**
+- [core/DECAPOD.md](../../core/DECAPOD.md) - **Router and navigation charter (START HERE)**
 
 ### Authority (Constitution Layer)
-- `specs/INTENT.md` - **Methodology contract (READ FIRST)**
-- `specs/SYSTEM.md` - System definition and authority doctrine
-- `specs/GIT.md` - Git etiquette contract
-- `specs/AMENDMENTS.md` - Change control
+- [specs/INTENT.md](./INTENT.md) - **Methodology contract (READ FIRST)**
+- [specs/SYSTEM.md](./SYSTEM.md) - System definition and authority doctrine
+- [specs/GIT.md](./GIT.md) - Git etiquette contract
+- [specs/AMENDMENTS.md](./AMENDMENTS.md) - Change control
 
 ### Registry (Core Indices)
-- `core/PLUGINS.md` - Subsystem registry
-- `core/INTERFACES.md` - Interface contracts index
-- `core/METHODOLOGY.md` - Methodology guides index
+- [core/PLUGINS.md](../../core/PLUGINS.md) - Subsystem registry
+- [core/INTERFACES.md](../../core/INTERFACES.md) - Interface contracts index
+- [core/METHODOLOGY.md](../../core/METHODOLOGY.md) - Methodology guides index
 
 ### Contracts (Interfaces Layer)
-- `interfaces/CONTROL_PLANE.md` - Sequencing patterns
-- `interfaces/CLAIMS.md` - Promises ledger
-- `interfaces/GLOSSARY.md` - Term definitions
+- [interfaces/CONTROL_PLANE.md](../../interfaces/CONTROL_PLANE.md) - Sequencing patterns
+- [interfaces/CLAIMS.md](../../interfaces/CLAIMS.md) - Promises ledger
+- [interfaces/GLOSSARY.md](../../interfaces/GLOSSARY.md) - Term definitions
 
 ### Practice (Methodology Layer)
-- `methodology/SOUL.md` - Agent identity
+- [methodology/SOUL.md](../methodology/SOUL.md) - Agent identity
 
 ### Operations (Plugins Layer)
-- `plugins/EMERGENCY_PROTOCOL.md` - Emergency protocols
+- [plugins/EMERGENCY_PROTOCOL.md](../plugins/EMERGENCY_PROTOCOL.md) - Emergency protocols
 
 ### Architecture Patterns
-- `architecture/SECURITY.md` - Security architecture patterns
+- [architecture/SECURITY.md](../../architecture/SECURITY.md) - Security architecture patterns

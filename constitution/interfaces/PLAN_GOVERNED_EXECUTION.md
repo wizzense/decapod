@@ -88,3 +88,25 @@ When Decapod returns `NEEDS_HUMAN_INPUT`, an agent MUST:
 - TODO completion without verified proof hooks is `CLAIMED` (not promotion-ready).
 - TODO becomes `VERIFIED` only when proof checks pass (`last_verified_status in {"VERIFIED","pass"}`).
 - Promotion path (`validate` and `workspace publish`) MUST block on unverified done TODOs.
+
+---
+
+## Links
+
+### Core Router
+- [core/DECAPOD.md](core/DECAPOD.md) - **Router and navigation charter (START HERE)**
+- [core/INTERFACES.md](core/INTERFACES.md) - Interface contracts index
+
+### Authority (Constitution Layer)
+- [specs/INTENT.md](specs/INTENT.md) - **Methodology contract (READ FIRST)**
+- [specs/SYSTEM.md](specs/SYSTEM.md) - System definition and authority doctrine
+
+### Contracts (Interfaces Layer)
+- [interfaces/CONTROL_PLANE.md](interfaces/CONTROL_PLANE.md) - Sequencing patterns
+- [interfaces/CLAIMS.md](interfaces/CLAIMS.md) - **Promises ledger**
+- [interfaces/AGENT_CONTEXT_PACK.md](interfaces/AGENT_CONTEXT_PACK.md) - Agent context-pack contract
+- [interfaces/ARCHITECTURE_FOUNDATIONS.md](interfaces/ARCHITECTURE_FOUNDATIONS.md) - Architecture quality primitives
+- [interfaces/PROJECT_SPECS.md](interfaces/PROJECT_SPECS.md) - Canonical local project specs contract
+
+### Practice (Methodology Layer)
+- [methodology/ARCHITECTURE.md](methodology/ARCHITECTURE.md) - Architecture practice

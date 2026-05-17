@@ -98,26 +98,26 @@ Minimal proof surface:
 ## Links
 
 ### Core Router
-- `core/DECAPOD.md` - **Router and navigation charter (START HERE)**
+- [core/DECAPOD.md](../../core/DECAPOD.md) - **Router and navigation charter (START HERE)**
 
 ### Authority (Constitution Layer)
-- `specs/INTENT.md` - **Methodology contract (READ FIRST)**
-- `specs/SYSTEM.md` - System definition and authority doctrine
+- [specs/INTENT.md](../specs/INTENT.md) - **Methodology contract (READ FIRST)**
+- [specs/SYSTEM.md](../specs/SYSTEM.md) - System definition and authority doctrine
 
 ### Registry (Core Indices)
-- `core/PLUGINS.md` - Subsystem registry
-- `core/INTERFACES.md` - Interface contracts index
-- `core/METHODOLOGY.md` - Methodology guides index
+- [core/PLUGINS.md](../../core/PLUGINS.md) - Subsystem registry
+- [core/INTERFACES.md](../../core/INTERFACES.md) - Interface contracts index
+- [core/METHODOLOGY.md](../../core/METHODOLOGY.md) - Methodology guides index
 
 ### Contracts (Interfaces Layer)
-- `interfaces/DOC_RULES.md` - Doc compilation rules
-- `interfaces/STORE_MODEL.md` - Store semantics
+- [interfaces/DOC_RULES.md](../../interfaces/DOC_RULES.md) - Doc compilation rules
+- [interfaces/STORE_MODEL.md](../../interfaces/STORE_MODEL.md) - Store semantics
 
 ### Operations (Plugins Layer - This Document)
-- `plugins/TODO.md` - Work tracking
-- `plugins/VERIFY.md` - Validation subsystem
-- `plugins/EMERGENCY_PROTOCOL.md` - Emergency protocols
+- [plugins/TODO.md](./TODO.md) - Work tracking
+- [plugins/VERIFY.md](./VERIFY.md) - Validation subsystem
+- [plugins/EMERGENCY_PROTOCOL.md](./EMERGENCY_PROTOCOL.md) - Emergency protocols
 
 ### Derived References
-- `docs/REPO_MAP.md` - Repository structure (derived)
-- `docs/DOC_MAP.md` - Document graph (derived)
+- [docs/REPO_MAP.md](../docs/REPO_MAP.md) - Repository structure (derived)
+- [docs/DOC_MAP.md](../docs/DOC_MAP.md) - Document graph (derived)

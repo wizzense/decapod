@@ -417,35 +417,36 @@ decapod audit log --store user | head -20
 ## Links
 
 ### Core Router
-- `core/DECAPOD.md` - **Router and navigation charter (START HERE)**
-- `core/ENGINEERING_EXCELLENCE.md` - **Oracle for Engineering Standards**
+- [core/DECAPOD.md](core/DECAPOD.md) - **Router and navigation charter (START HERE)**
+- [core/ENGINEERING_EXCELLENCE.md](core/ENGINEERING_EXCELLENCE.md) - **Oracle for Engineering Standards**
 
 ### Authority (Constitution Layer)
-- `specs/INTENT.md` - **Methodology contract (READ FIRST)**
-- `specs/SYSTEM.md` - System definition and authority doctrine
-- `specs/SECURITY.md` - Security contract
-- `specs/AMENDMENTS.md` - Change control
+- [specs/INTENT.md](specs/INTENT.md) - **Methodology contract (READ FIRST)**
+- [specs/SYSTEM.md](specs/SYSTEM.md) - System definition and authority doctrine
+- [specs/SECURITY.md](specs/SECURITY.md) - Security contract
+- [specs/AMENDMENTS.md](specs/AMENDMENTS.md) - Change control
 
 ### Registry (Core Indices)
-- `core/PLUGINS.md` - Subsystem registry
-- `core/INTERFACES.md` - Interface contracts index
-- `core/METHODOLOGY.md` - Methodology guides index
+- [core/PLUGINS.md](core/PLUGINS.md) - Subsystem registry
+- [core/INTERFACES.md](core/INTERFACES.md) - Interface contracts index
+- [core/METHODOLOGY.md](core/METHODOLOGY.md) - Methodology guides index
 
 ### Contracts (Interfaces Layer - This Document)
-- `interfaces/CONTROL_PLANE.md` - Sequencing patterns
-- `interfaces/DOC_RULES.md` - Doc compilation rules
-- `interfaces/CLAIMS.md` - **Promises ledger**
-- `interfaces/GLOSSARY.md` - Term definitions
-- `interfaces/TESTING.md` - Testing contract
+- [interfaces/CONTROL_PLANE.md](interfaces/CONTROL_PLANE.md) - Sequencing patterns
+- [interfaces/DOC_RULES.md](interfaces/DOC_RULES.md) - Doc compilation rules
+- [interfaces/CLAIMS.md](interfaces/CLAIMS.md) - **Promises ledger**
+- [interfaces/GLOSSARY.md](interfaces/GLOSSARY.md) - Term definitions
+- [interfaces/TESTING.md](interfaces/TESTING.md) - Testing contract
+- [interfaces/KNOWLEDGE_STORE.md](interfaces/KNOWLEDGE_STORE.md) - Knowledge store semantics
 
 ### Practice (Methodology Layer)
-- `methodology/SOUL.md` - Agent identity
-- `methodology/ARCHITECTURE.md` - Architecture practice
-- `methodology/TESTING.md` - Testing practice
-- `methodology/KNOWLEDGE.md` - Knowledge curation
-- `methodology/MEMORY.md` - Memory and learning
+- [methodology/SOUL.md](methodology/SOUL.md) - Agent identity
+- [methodology/ARCHITECTURE.md](methodology/ARCHITECTURE.md) - Architecture practice
+- [methodology/TESTING.md](methodology/TESTING.md) - Testing practice
+- [methodology/KNOWLEDGE.md](methodology/KNOWLEDGE.md) - Knowledge curation
+- [methodology/MEMORY.md](methodology/MEMORY.md) - Memory and learning
 
 ### Operations (Plugins Layer)
-- `plugins/TODO.md` - Work tracking
-- `plugins/VERIFY.md` - Validation subsystem
-- `plugins/EMERGENCY_PROTOCOL.md` - Emergency protocols
+- [plugins/TODO.md](plugins/TODO.md) - Work tracking
+- [plugins/VERIFY.md](plugins/VERIFY.md) - Validation subsystem
+- [plugins/EMERGENCY_PROTOCOL.md](plugins/EMERGENCY_PROTOCOL.md) - Emergency protocols

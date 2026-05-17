@@ -13,18 +13,18 @@ Use that document for stop conditions, required recovery sequence, and escalatio
 ## Links
 
 ### Core Router
-- `core/DECAPOD.md` - **Router and navigation charter (START HERE)**
+- [core/DECAPOD.md](../../core/DECAPOD.md) - **Router and navigation charter (START HERE)**
 
 ### Canonical Emergency Contract
-- `core/EMERGENCY_PROTOCOL.md` - Canonical emergency contract (see this first)
+- [core/EMERGENCY_PROTOCOL.md](../../core/EMERGENCY_PROTOCOL.md) - Canonical emergency contract (see this first)
 
 ### Authority (Constitution Layer)
-- `specs/INTENT.md` - **Methodology contract (READ FIRST)**
-- `specs/SYSTEM.md` - System definition and authority doctrine
-- `specs/SECURITY.md` - Security contract
+- [specs/INTENT.md](../specs/INTENT.md) - **Methodology contract (READ FIRST)**
+- [specs/SYSTEM.md](../specs/SYSTEM.md) - System definition and authority doctrine
+- [specs/SECURITY.md](../specs/SECURITY.md) - Security contract
 
 ### Registry (Core Indices)
-- `core/PLUGINS.md` - Subsystem registry
+- [core/PLUGINS.md](../../core/PLUGINS.md) - Subsystem registry
 
 ### Operations (Plugins Layer)
-- `plugins/TODO.md` - Work tracking
+- [plugins/TODO.md](./TODO.md) - Work tracking

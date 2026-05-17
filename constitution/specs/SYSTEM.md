@@ -242,37 +242,37 @@ For operational workflow and TODO governance, see `plugins/TODO.md`.
 ## Links
 
 ### Core Router
-- `core/DECAPOD.md` - **Router and navigation charter (START HERE)**
+- [core/DECAPOD.md](../../core/DECAPOD.md) - **Router and navigation charter (START HERE)**
 
 ### Authority (Constitution Layer)
-- `specs/INTENT.md` - **Methodology contract (READ FIRST)**
-- `specs/SECURITY.md` - Security contract
-- `specs/GIT.md` - Git etiquette contract
-- `specs/AMENDMENTS.md` - Change control
+- [specs/INTENT.md](./INTENT.md) - **Methodology contract (READ FIRST)**
+- [specs/SECURITY.md](./SECURITY.md) - Security contract
+- [specs/GIT.md](./GIT.md) - Git etiquette contract
+- [specs/AMENDMENTS.md](./AMENDMENTS.md) - Change control
 
 ### Registry (Core Indices)
-- `core/PLUGINS.md` - Subsystem registry
-- `core/INTERFACES.md` - Interface contracts index
-- `core/METHODOLOGY.md` - Methodology guides index
-- `core/DEPRECATION.md` - Deprecation contract
+- [core/PLUGINS.md](../../core/PLUGINS.md) - Subsystem registry
+- [core/INTERFACES.md](../../core/INTERFACES.md) - Interface contracts index
+- [core/METHODOLOGY.md](../../core/METHODOLOGY.md) - Methodology guides index
+- [core/DEPRECATION.md](../../core/DEPRECATION.md) - Deprecation contract
 
 ### Contracts (Interfaces Layer)
-- `interfaces/CONTROL_PLANE.md` - Sequencing patterns
-- `interfaces/DOC_RULES.md` - Doc compilation rules
-- `interfaces/STORE_MODEL.md` - Store semantics
-- `interfaces/CLAIMS.md` - Promises ledger
-- `interfaces/GLOSSARY.md` - Term definitions
+- [interfaces/CONTROL_PLANE.md](../../interfaces/CONTROL_PLANE.md) - Sequencing patterns
+- [interfaces/DOC_RULES.md](../../interfaces/DOC_RULES.md) - Doc compilation rules
+- [interfaces/STORE_MODEL.md](../../interfaces/STORE_MODEL.md) - Store semantics
+- [interfaces/CLAIMS.md](../../interfaces/CLAIMS.md) - Promises ledger
+- [interfaces/GLOSSARY.md](../../interfaces/GLOSSARY.md) - Term definitions
 
 ### Practice (Methodology Layer)
-- `methodology/SOUL.md` - Agent identity
-- `methodology/ARCHITECTURE.md` - Architecture practice
-- `methodology/KNOWLEDGE.md` - Knowledge management
-- `methodology/MEMORY.md` - Memory and learning
+- [methodology/SOUL.md](../methodology/SOUL.md) - Agent identity
+- [methodology/ARCHITECTURE.md](../methodology/ARCHITECTURE.md) - Architecture practice
+- [methodology/KNOWLEDGE.md](../methodology/KNOWLEDGE.md) - Knowledge management
+- [methodology/MEMORY.md](../methodology/MEMORY.md) - Memory and learning
 
 ### Operations (Plugins Layer)
-- `plugins/TODO.md` - Work tracking
-- `plugins/VERIFY.md` - Validation subsystem
-- `plugins/MANIFEST.md` - Canonical vs derived vs state
+- [plugins/TODO.md](../plugins/TODO.md) - Work tracking
+- [plugins/VERIFY.md](../plugins/VERIFY.md) - Validation subsystem
+- [plugins/MANIFEST.md](../plugins/MANIFEST.md) - Canonical vs derived vs state
 
 ---
 

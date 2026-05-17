@@ -187,4 +187,10 @@ decapod data memory add --category git --key default_push_branch --value "ahr/wo
 
 ---
 
+## Links
+
+- [core/DECAPOD.md](../../core/DECAPOD.md) - **Router and navigation charter (START HERE)**
+- [core/PLUGINS.md](../../core/PLUGINS.md) - Subsystem registry
+- [methodology/SOUL.md](../methodology/SOUL.md) - Agent identity
+
 **See also:** `core/PLUGINS.md` for subsystem registry and truth labels.

@@ -44,8 +44,8 @@ decapod eval plan --task-set-id <id> --task-ref <task-id> --model-id <model> --p
 1. **MUST** refine intent with the user before inference-heavy work.
 2. **MUST** use `decapod infer orientation` before non-trivial implementation.
 3. **MUST** stop and ask the human when Decapod emits a **Decision Gate**.
-4. **MUST NOT** work on main/master. **MUST** use `.decapod/workspaces/*`.
-5. **MUST** read `.decapod/config.toml` as user-editable project context and may update it when user intent changes.
+4. **MUST NOT** work on main/master or modify the root repository's active branch. **MUST** use `decapod workspace ensure` and `cd .decapod/workspaces/<worktree>`.
+5. **MUST** read [.decapod/config.toml](.decapod/config.toml) as user-editable project context and may update it when user intent changes.
 6. **MUST NOT** claim done without `decapod validate` passing.
 7. **MUST NOT** invent capabilities that are not exposed by the binary.
 8. **MUST** stop if requirements conflict, intent is ambiguous, or policy boundaries are unclear.
@@ -69,10 +69,10 @@ These invariants are directly enforced by tests. Violations will cause CI failur
 - **INV-STORE-BOUNDARY**: Agents MUST NOT directly mutate `.decapod/*`; all access MUST use CLI. (enforced by validation gates)
 - **INV-SESSION-AUTH**: Mutations require active session with valid credentials. (enforced by session commands)
 - **INV-PROOF-GATED**: Workunit status `VERIFIED` MUST have passed proof-plan gates. (enforced by `tests/workunit_publish_gate.rs`)
-- **INV-WORKSPACE-ISOLATION**: Protected branches (main/master) MUST NOT be directly mutated. (enforced by workspace validation)
+- **INV-ROOT-ISOLATION**: Agents MUST NOT check out branches or mutate files in the main repository checkout. All work must happen in isolated `.decapod/workspaces/*` worktrees to avoid disrupting the human user's environment. (enforced by workspace validation)
 
 ## Safety Invariants
-- ✅ Router pointer: `core/DECAPOD.md`
+- ✅ Router pointer: [core/DECAPOD.md](core/DECAPOD.md)
 - ✅ Validation gate: `decapod validate`
 - ✅ Constitution ingestion gate: `decapod docs ingest`
 - ✅ Workspace status gate: `decapod workspace status`
@@ -103,10 +103,10 @@ Call Decapod before editing. Let Decapod validate after editing.
 
 ## Operating Notes
 
-- Read `.decapod/config.toml` before planning; it captures project name, summary, architecture, primary languages, and agent entrypoint preferences.
-- Treat `.decapod/config.toml` as human-editable project context. You may update it when user intent or project direction changes.
-- Read `.decapod/OVERRIDE.md` when present; it is the repo-local place for constitution overrides.
+- Read [.decapod/config.toml](.decapod/config.toml) before planning; it captures project name, summary, architecture, primary languages, and agent entrypoint preferences.
+- Treat [.decapod/config.toml](.decapod/config.toml) as human-editable project context. You may update it when user intent or project direction changes.
+- Read [.decapod/OVERRIDE.md](.decapod/OVERRIDE.md) when present; it is the repo-local place for constitution overrides.
 - Do not mutate Decapod-owned state under `.decapod/` directly; generated specs, data, workspaces, and sessions stay via decapod CLI.
-- Use `decapod docs show core/DECAPOD.md` for binding contracts; `decapod capabilities --format json` for available ops.
+- Use `decapod docs show` [core/DECAPOD.md](core/DECAPOD.md) for binding contracts; `decapod capabilities --format json` for available ops.
 - Use `decapod todo handoff --id <id> --to <agent>` for cross-agent ownership transfer.
 - Treat lock/contention failures (including `VALIDATE_TIMEOUT_OR_LOCK`) as blocking until resolved.

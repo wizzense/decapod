@@ -194,8 +194,10 @@ Output: all commands support `--format json` (default for agents) and `--format 
 
 ## Links
 
-- `core/PLUGINS.md` — Subsystem registry
-- `interfaces/CLAIMS.md` — Claims ledger
-- `interfaces/STORE_MODEL.md` — Store semantics
-- `plugins/KNOWLEDGE.md` — Knowledge subsystem (complementary, not competing)
-- `methodology/MEMORY.md` — Memory doctrine
+- [core/PLUGINS.md](../../core/PLUGINS.md) — Subsystem registry
+- [interfaces/CLAIMS.md](../../interfaces/CLAIMS.md) — Claims ledger
+- [interfaces/STORE_MODEL.md](../../interfaces/STORE_MODEL.md) — Store semantics
+- [plugins/KNOWLEDGE.md](./KNOWLEDGE.md) — Knowledge subsystem (complementary, not competing)
+- [methodology/MEMORY.md](../methodology/MEMORY.md) — Memory doctrine
+- [specs/SYSTEM.md](../specs/SYSTEM.md) — System definition and authority doctrine
+- [interfaces/KNOWLEDGE_STORE.md](../../interfaces/KNOWLEDGE_STORE.md) — Knowledge store semantics

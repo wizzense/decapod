@@ -486,57 +486,53 @@ Dedicated files created for previously spliced contract content:
 ## Links
 
 ### Core Router
-- `core/DECAPOD.md` - **Router and navigation charter (START HERE)**
-- `core/ENGINEERING_EXCELLENCE.md` - **Oracle for Engineering Standards (CTO->Principal)**
-- `core/GAPS.md` - Gap analysis methodology
+- [core/DECAPOD.md](core/DECAPOD.md) - **Router and navigation charter (START HERE)**
+- [core/ENGINEERING_EXCELLENCE.md](core/ENGINEERING_EXCELLENCE.md) - **Oracle for Engineering Standards (CTO->Principal)**
+- [core/GAPS.md](core/GAPS.md) - Gap analysis methodology
 
 ### Authority (Constitution Layer)
-- `specs/INTENT.md` - **Methodology contract (READ FIRST)**
-- `specs/SYSTEM.md` - System definition and authority doctrine
-- `specs/SECURITY.md` - Security contract
-- `specs/GIT.md` - Git etiquette contract
-- `specs/AMENDMENTS.md` - Change control
+- [specs/INTENT.md](specs/INTENT.md) - **Methodology contract (READ FIRST)**
+- [specs/SYSTEM.md](specs/SYSTEM.md) - System definition and authority doctrine
+- [specs/SECURITY.md](specs/SECURITY.md) - Security contract
+- [specs/GIT.md](specs/GIT.md) - Git etiquette contract
+- [specs/AMENDMENTS.md](specs/AMENDMENTS.md) - Change control
 
 ### Registry (Core Indices)
-- `core/PLUGINS.md` - Subsystem registry
-- `core/INTERFACES.md` - Interface contracts index
-- `core/DEPRECATION.md` - Deprecation contract
-- `core/DEMANDS.md` - User demand patterns
+- [core/PLUGINS.md](core/PLUGINS.md) - Subsystem registry
+- [core/INTERFACES.md](core/INTERFACES.md) - Interface contracts index
+- [core/DEPRECATION.md](core/DEPRECATION.md) - Deprecation contract
+- [core/DEMANDS.md](core/DEMANDS.md) - User demand patterns
 
 ### Contracts (Interfaces Layer)
-- `interfaces/CONTROL_PLANE.md` - Sequencing patterns
-- `interfaces/DOC_RULES.md` - Doc compilation rules
-- `interfaces/CLAIMS.md` - Promises ledger
-- `interfaces/GLOSSARY.md` - Term definitions
-- `interfaces/STORE_MODEL.md` - Store semantics
-- `interfaces/TESTING.md` - Testing contract
+- [interfaces/CONTROL_PLANE.md](interfaces/CONTROL_PLANE.md) - Sequencing patterns
+- [interfaces/DOC_RULES.md](interfaces/DOC_RULES.md) - Doc compilation rules
+- [interfaces/CLAIMS.md](interfaces/CLAIMS.md) - Promises ledger
+- [interfaces/GLOSSARY.md](interfaces/GLOSSARY.md) - Term definitions
+- [interfaces/STORE_MODEL.md](interfaces/STORE_MODEL.md) - Store semantics
+- [interfaces/TESTING.md](interfaces/TESTING.md) - Testing contract
 
 ### Practice (Methodology Layer - This Registry)
-- `methodology/SOUL.md` - Agent identity and behavioral style
-- `methodology/ARCHITECTURE.md` - Architecture practice
-- `methodology/KNOWLEDGE.md` - Knowledge curation
-- `methodology/MEMORY.md` - Memory and learning
-- `methodology/TESTING.md` - Testing practice and quality workflow
-- `methodology/CI_CD.md` - CI/CD and release workflow practice
-- `methodology/INCIDENT_RESPONSE.md` - Incident response practice
-- `methodology/RELEASE_MANAGEMENT.md` - Release management practice
-- `methodology/METRICS.md` - Metrics and observability practice
+- [methodology/SOUL.md](methodology/SOUL.md) - Agent identity and behavioral style
+- [methodology/ARCHITECTURE.md](methodology/ARCHITECTURE.md) - Architecture practice
+- [methodology/KNOWLEDGE.md](methodology/KNOWLEDGE.md) - Knowledge curation
+- [methodology/MEMORY.md](methodology/MEMORY.md) - Memory and learning
+- [methodology/TESTING.md](methodology/TESTING.md) - Testing practice and quality workflow
+- [methodology/CI_CD.md](methodology/CI_CD.md) - CI/CD and release workflow practice
 
 ### Architecture Patterns (Domain Layer)
-- `architecture/UI.md` - **UI architecture patterns and component design**
-- `architecture/FRONTEND.md` - Frontend architecture patterns
-- `architecture/WEB.md` - Web architecture patterns
-- `architecture/DATA.md` - Data architecture patterns
-- `architecture/SECURITY.md` - Security architecture patterns
-- `architecture/CLOUD.md` - Cloud deployment patterns
-- `architecture/CACHING.md` - Caching architecture patterns
-- `architecture/MEMORY.md` - Memory architecture patterns
-- `architecture/OBSERVABILITY.md` - Observability patterns
+- [architecture/FRONTEND.md](architecture/FRONTEND.md) - Frontend architecture patterns
+- [architecture/WEB.md](architecture/WEB.md) - Web architecture patterns
+- [architecture/DATA.md](architecture/DATA.md) - Data architecture patterns
+- [architecture/SECURITY.md](architecture/SECURITY.md) - Security architecture patterns
+- [architecture/CLOUD.md](architecture/CLOUD.md) - Cloud deployment patterns
+- [architecture/CACHING.md](architecture/CACHING.md) - Caching architecture patterns
+- [architecture/MEMORY.md](architecture/MEMORY.md) - Memory architecture patterns
+- [architecture/OBSERVABILITY.md](architecture/OBSERVABILITY.md) - Observability patterns
 
 ### Operations (Plugins Layer)
-- `plugins/TODO.md` - Work tracking
-- `plugins/VERIFY.md` - Validation subsystem
-- `plugins/MANIFEST.md` - Manifest patterns
-- `plugins/KNOWLEDGE.md` - Knowledge subsystem
-- `plugins/FEDERATION.md` - Federation subsystem
-- `plugins/EMERGENCY_PROTOCOL.md` - Emergency protocols
+- [plugins/TODO.md](plugins/TODO.md) - Work tracking
+- [plugins/VERIFY.md](plugins/VERIFY.md) - Validation subsystem
+- [plugins/MANIFEST.md](plugins/MANIFEST.md) - Manifest patterns
+- [plugins/KNOWLEDGE.md](plugins/KNOWLEDGE.md) - Knowledge subsystem
+- [plugins/FEDERATION.md](plugins/FEDERATION.md) - Federation subsystem
+- [plugins/EMERGENCY_PROTOCOL.md](plugins/EMERGENCY_PROTOCOL.md) - Emergency protocols

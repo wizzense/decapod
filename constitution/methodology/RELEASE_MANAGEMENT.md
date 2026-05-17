@@ -5,6 +5,12 @@
 **Binding:** No
 **Scope:** Release processes, versioning, and deployment
 
+## Links
+
+- [core/DECAPOD.md](../../core/DECAPOD.md) - **Router and navigation charter (START HERE)**
+- [methodology/CI_CD.md](./CI_CD.md) - CI/CD practice guide
+- [specs/GIT.md](../specs/GIT.md) - Git workflow contract
+
 ---
 
 ## 1. Versioning Strategy

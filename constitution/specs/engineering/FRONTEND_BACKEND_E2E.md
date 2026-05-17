@@ -4,6 +4,13 @@
 **Layer:** Specs
 **Binding:** Yes
 
+## Links
+
+- [core/DECAPOD.md](../../core/DECAPOD.md) - **Router and navigation charter (START HERE)**
+- [specs/INTENT.md](../INTENT.md) - Methodology contract
+- [specs/evaluations/VARIANCE_EVALS.md](../evaluations/VARIANCE_EVALS.md) - Variance evaluation contract
+- [specs/evaluations/JUDGE_CONTRACT.md](../evaluations/JUDGE_CONTRACT.md) - Judge validation contract
+
 ## Scope
 
 Govern agent-built frontend/backend flows where timing, DOM state, third-party services, and asynchronous behavior are variable.

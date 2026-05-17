@@ -322,35 +322,35 @@ decapod data federation ingest --source memory --domain context
 ## Links
 
 ### Core Router
-- `core/DECAPOD.md` - **Router and navigation charter (START HERE)**
-- `core/ENGINEERING_EXCELLENCE.md` - **Oracle for Engineering Standards**
+- [core/DECAPOD.md](../../core/DECAPOD.md) - **Router and navigation charter (START HERE)**
+- [core/ENGINEERING_EXCELLENCE.md](../../core/ENGINEERING_EXCELLENCE.md) - **Oracle for Engineering Standards**
 
 ### Authority (Constitution Layer)
-- `specs/INTENT.md` - **Methodology contract (READ FIRST)**
-- `specs/SYSTEM.md` - System definition and authority doctrine
+- [specs/INTENT.md](../specs/INTENT.md) - **Methodology contract (READ FIRST)**
+- [specs/SYSTEM.md](../specs/SYSTEM.md) - System definition and authority doctrine
 
 ### Registry (Core Indices)
-- `core/PLUGINS.md` - Subsystem registry
-- `core/METHODOLOGY.md` - Methodology guides index
-- `core/INTERFACES.md` - Interface contracts index
+- [core/PLUGINS.md](../../core/PLUGINS.md) - Subsystem registry
+- [core/METHODOLOGY.md](../../core/METHODOLOGY.md) - Methodology guides index
+- [core/INTERFACES.md](../../core/INTERFACES.md) - Interface contracts index
 
 ### Contracts (Interfaces Layer)
-- `interfaces/MEMORY_SCHEMA.md` - **Binding memory schema**
-- `interfaces/MEMORY_INDEX.md` - Memory index
-- `interfaces/CONTROL_PLANE.md` - Sequencing patterns
-- `interfaces/KNOWLEDGE_STORE.md` - Knowledge store semantics
+- [interfaces/MEMORY_SCHEMA.md](../../interfaces/MEMORY_SCHEMA.md) - **Binding memory schema**
+- [interfaces/MEMORY_INDEX.md](../../interfaces/MEMORY_INDEX.md) - Memory index
+- [interfaces/CONTROL_PLANE.md](../../interfaces/CONTROL_PLANE.md) - Sequencing patterns
+- [interfaces/KNOWLEDGE_STORE.md](../../interfaces/KNOWLEDGE_STORE.md) - Knowledge store semantics
 
 ### Practice (Methodology Layer - This Document)
-- `methodology/SOUL.md` - Agent identity
-- `methodology/ARCHITECTURE.md` - Architecture practice
-- `methodology/KNOWLEDGE.md` - **Knowledge curation**
-- `methodology/TESTING.md` - Testing practice
-- `methodology/CI_CD.md` - CI/CD practice
+- [methodology/SOUL.md](./SOUL.md) - Agent identity
+- [methodology/ARCHITECTURE.md](./ARCHITECTURE.md) - Architecture practice
+- [methodology/KNOWLEDGE.md](./KNOWLEDGE.md) - **Knowledge curation**
+- [methodology/TESTING.md](./TESTING.md) - Testing practice
+- [methodology/CI_CD.md](./CI_CD.md) - CI/CD practice
 
 ### Operations (Plugins Layer)
-- `plugins/TODO.md` - Work tracking
-- `plugins/FEDERATION.md` - **Federation (governed agent memory)**
-- `plugins/APTITUDE.md` - Skill management
+- [plugins/TODO.md](../plugins/TODO.md) - Work tracking
+- [plugins/FEDERATION.md](../plugins/FEDERATION.md) - **Federation (governed agent memory)**
+- [plugins/APTITUDE.md](../plugins/APTITUDE.md) - Skill management
 
 ---
 

@@ -1,5 +1,11 @@
 # SKILL_TRANSLATION_MAP.md
 
+## Links
+
+- [core/DECAPOD.md](../../core/DECAPOD.md) - **Router and navigation charter (START HERE)**
+- [specs/skills/SKILL_GOVERNANCE.md](../../specs/skills/SKILL_GOVERNANCE.md) - Skill governance contract
+- [plugins/APTITUDE.md](../../plugins/APTITUDE.md) - Aptitude subsystem
+
 ## Decapod Translation Map (Skills)
 
 - Skill package (`SKILL.md` + scripts) -> `SKILL_CARD` artifact at `<repo>/.decapod/governance/skills/*` with source digest + normalized workflow outline.

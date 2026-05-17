@@ -244,3 +244,90 @@ fn test_interlock_drift_detection_capability() {
         "preflight must predict failures"
     );
 }
+
+#[test]
+fn test_constitution_docs_are_accessible() {
+    let (_tmp, dir) = setup_repo();
+
+    let list_output = run_decapod(dir, &["docs", "list"]);
+    assert!(list_output.status.success(), "docs list should succeed");
+
+    let docs_list = String::from_utf8_lossy(&list_output.stdout);
+    let all_doc_paths: Vec<String> = docs_list
+        .lines()
+        .filter_map(|l| {
+            let parts: Vec<&str> = l.splitn(2, '-').collect();
+            let path = parts.last().copied().unwrap_or(l).trim();
+            if path.ends_with(".md") && !path.is_empty() {
+                Some(path.to_string())
+            } else {
+                None
+            }
+        })
+        .collect();
+
+    assert!(
+        !all_doc_paths.is_empty(),
+        "docs list should return at least one doc"
+    );
+
+    let required_docs = [
+        "core/DECAPOD.md",
+        "interfaces/CLAIMS.md",
+        "specs/INTENT.md",
+        "methodology/ARCHITECTURE.md",
+        "architecture/SECURITY.md",
+        "plugins/TODO.md",
+    ];
+
+    for required in &required_docs {
+        assert!(
+            all_doc_paths.iter().any(|p| p == required),
+            "docs list should include {}",
+            required
+        );
+
+        let show_output = run_decapod(dir, &["docs", "show", required]);
+        assert!(
+            show_output.status.success(),
+            "docs show {} should succeed",
+            required
+        );
+
+        let content = String::from_utf8_lossy(&show_output.stdout);
+        assert!(
+            !content.is_empty() && content.len() > 50,
+            "docs show {} should return content",
+            required
+        );
+    }
+}
+
+#[test]
+fn test_constitution_docs_ingest_shows_links() {
+    let (_tmp, dir) = setup_repo();
+
+    // Run docs ingest which dumps all docs
+    let ingest = run_decapod(dir, &["docs", "ingest"]);
+    assert!(ingest.status.success(), "docs ingest should succeed");
+
+    let output = String::from_utf8_lossy(&ingest.stdout);
+
+    // Verify each embedded doc appears in ingest output
+    let required_docs = [
+        "core/DECAPOD.md",
+        "interfaces/CLAIMS.md",
+        "specs/INTENT.md",
+        "methodology/ARCHITECTURE.md",
+        "architecture/SECURITY.md",
+        "plugins/TODO.md",
+    ];
+
+    for doc_path in &required_docs {
+        assert!(
+            output.contains(doc_path),
+            "docs ingest should include {}",
+            doc_path
+        );
+    }
+}

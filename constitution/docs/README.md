@@ -1,5 +1,11 @@
 # Decapod Docs
 
+## Links
+
+- [core/DECAPOD.md](../../core/DECAPOD.md) - **Router and navigation charter (START HERE)**
+- [core/INTERFACES.md](../../core/INTERFACES.md) - Interface contracts index
+- [specs/SYSTEM.md](../../specs/SYSTEM.md) - Binding doctrine and promotion semantics
+
 This is the operator and integrator landing page for embedded Decapod docs.
 
 ## Start Here

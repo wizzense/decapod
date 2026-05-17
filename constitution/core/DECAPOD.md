@@ -104,16 +104,10 @@ Decapod resolves standards from:
 1. **Constitutional Core** - Industry Engineering Excellence (see `ENGINEERING_EXCELLENCE.md`)
 2. **Security Standards** - Threat modeling, cryptography, supply chain, SECCOMP (see `architecture/SECURITY.md`)
 3. **Coding Standards** - Uncle Bob Martin, Fowler, Pragmatic, GoF, DRY, Unix (see `architecture/CODING_STANDARDS.md`)
-4. **Platform Engineering** - SRE, SLIs/SLOs, error budgets, on-call (see `methodology/SRE.md`)
-5. **Systems Design** - Distributed systems, CAP, PACELC, scalability (see `architecture/DISTRIBUTED_SYSTEMS.md`)
-6. **Product Development** - OKRs, prioritization, betas, feature flags (see `methodology/PRODUCT.md`)
-7. **Enterprise Architecture** - TOGAF, microservices, DDD (see `architecture/ENTERPRISE.md`)
-8. **Infrastructure** - Cloud patterns, networking, storage (see `architecture/CLOUD.md`)
-9. **Data Engineering** - Data modeling, pipelines, governance (see `architecture/DATA.md`)
-10. **Quality Assurance** - Testing strategies, TDD, BDD (see `methodology/TESTING.md`)
-11. **Operations** - Incident response, postmortems, chaos (see `methodology/INCIDENT_RESPONSE.md`)
-12. **Research** - Seminal papers, latest proofs (see `research/SEMINAL_PAPERS.md`)
-13. **Project Overrides** - `.decapod/OVERRIDE.md` (project-specific deviations)
+4. **Infrastructure** - Cloud patterns, networking, storage (see `architecture/CLOUD.md`)
+5. **Data Engineering** - Data modeling, pipelines, governance (see `architecture/DATA.md`)
+6. **Quality Assurance** - Testing strategies, TDD, BDD (see `methodology/TESTING.md`)
+7. **Project Overrides** - `.decapod/OVERRIDE.md` (project-specific deviations)
 
 Query with: `decapod rpc --op standards.resolve`
 
@@ -132,3 +126,32 @@ If Decapod is blocking legitimate work:
 2. Ensure you're not on main/master
 3. Run `decapod validate` to see specific failures
 4. Review blockers in RPC response envelope
+
+---
+
+## Links
+
+### Core Entry Points
+- [core/DECAPOD.md](core/DECAPOD.md) - **Router and navigation charter (START HERE)** ← You are here
+- [core/INTERFACES.md](core/INTERFACES.md) - Interface contracts index
+- [core/METHODOLOGY.md](core/METHODOLOGY.md) - Methodology guides index
+- [core/PLUGINS.md](core/PLUGINS.md) - Subsystem registry
+- [core/ENGINEERING_EXCELLENCE.md](core/ENGINEERING_EXCELLENCE.md) - Engineering standards oracle
+- [core/GAPS.md](core/GAPS.md) - Gap analysis methodology
+
+### Governance
+- [core/DEMANDS.md](core/DEMANDS.md) - Non-negotiable demands
+- [core/DEPRECATION.md](core/DEPRECATION.md) - Deprecation contract
+- [core/EMERGENCY_PROTOCOL.md](core/EMERGENCY_PROTOCOL.md) - Emergency procedures
+
+### Architecture (by Domain)
+- [architecture/SECURITY.md](architecture/SECURITY.md) - Threat modeling, cryptography, supply chain
+- [architecture/CLOUD.md](architecture/CLOUD.md) - Cloud patterns, networking, storage
+- [architecture/DATA.md](architecture/DATA.md) - Data modeling, pipelines, governance
+- [architecture/CACHING.md](architecture/CACHING.md) - Caching patterns and strategies
+- [architecture/OBSERVABILITY.md](architecture/OBSERVABILITY.md) - Observability and monitoring
+
+### Methodology
+- [methodology/TESTING.md](methodology/TESTING.md) - Testing strategies, TDD, BDD
+- [methodology/CI_CD.md](methodology/CI_CD.md) - CI/CD and release workflow
+- [methodology/SOUL.md](methodology/SOUL.md) - Agent identity and behavioral style

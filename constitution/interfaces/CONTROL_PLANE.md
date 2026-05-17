@@ -397,38 +397,41 @@ Turn 2: Agent calls decapod validate again
 ## Links
 
 ### Core Router
-- `core/DECAPOD.md` - **Router and navigation charter (START HERE)**
-- `core/ENGINEERING_EXCELLENCE.md` - **Oracle for Engineering Standards**
-- `core/GAPS.md` - Gap analysis methodology
+- [core/DECAPOD.md](core/DECAPOD.md) - **Router and navigation charter (START HERE)**
+- [core/ENGINEERING_EXCELLENCE.md](core/ENGINEERING_EXCELLENCE.md) - **Oracle for Engineering Standards**
+- [core/GAPS.md](core/GAPS.md) - Gap analysis methodology
 
 ### Authority (Constitution Layer)
-- `specs/INTENT.md` - **Methodology contract (READ FIRST)**
-- `specs/SYSTEM.md` - System definition and authority doctrine
-- `specs/SECURITY.md` - Security contract
-- `specs/GIT.md` - Git workflow contract
+- [specs/INTENT.md](specs/INTENT.md) - **Methodology contract (READ FIRST)**
+- [specs/SYSTEM.md](specs/SYSTEM.md) - System definition and authority doctrine
+- [specs/SECURITY.md](specs/SECURITY.md) - Security contract
+- [specs/GIT.md](specs/GIT.md) - Git workflow contract
 
 ### Registry (Core Indices)
-- `core/PLUGINS.md` - **Subsystem registry**
-- `core/INTERFACES.md` - Interface contracts index
-- `core/METHODOLOGY.md` - Methodology guides index
-- `core/DEPRECATION.md` - Deprecation contract
+- [core/PLUGINS.md](core/PLUGINS.md) - **Subsystem registry**
+- [core/INTERFACES.md](core/INTERFACES.md) - Interface contracts index
+- [core/METHODOLOGY.md](core/METHODOLOGY.md) - Methodology guides index
+- [core/DEPRECATION.md](core/DEPRECATION.md) - Deprecation contract
 
 ### Contracts (Interfaces Layer - This Document)
-- `interfaces/DOC_RULES.md` - Doc compilation rules
-- `interfaces/STORE_MODEL.md` - Store semantics
-- `interfaces/CLAIMS.md` - **Promises ledger**
-- `interfaces/GLOSSARY.md` - Term definitions
-- `interfaces/TESTING.md` - Testing contract
+- [interfaces/DOC_RULES.md](interfaces/DOC_RULES.md) - Doc compilation rules
+- [interfaces/STORE_MODEL.md](interfaces/STORE_MODEL.md) - Store semantics
+- [interfaces/CLAIMS.md](interfaces/CLAIMS.md) - **Promises ledger**
+- [interfaces/GLOSSARY.md](interfaces/GLOSSARY.md) - Term definitions
+- [interfaces/TESTING.md](interfaces/TESTING.md) - Testing contract
+- [interfaces/AGENT_CONTEXT_PACK.md](interfaces/AGENT_CONTEXT_PACK.md) - Agent context-pack contract
+- [interfaces/PLAN_GOVERNED_EXECUTION.md](interfaces/PLAN_GOVERNED_EXECUTION.md) - Plan-governed execution
+- [interfaces/KNOWLEDGE_STORE.md](interfaces/KNOWLEDGE_STORE.md) - Knowledge store semantics
 
 ### Practice (Methodology Layer)
-- `methodology/SOUL.md` - Agent identity
-- `methodology/ARCHITECTURE.md` - Architecture practice
-- `methodology/TESTING.md` - Testing practice
-- `methodology/KNOWLEDGE.md` - Knowledge curation
-- `methodology/MEMORY.md` - Memory and learning
+- [methodology/SOUL.md](methodology/SOUL.md) - Agent identity
+- [methodology/ARCHITECTURE.md](methodology/ARCHITECTURE.md) - Architecture practice
+- [methodology/TESTING.md](methodology/TESTING.md) - Testing practice
+- [methodology/KNOWLEDGE.md](methodology/KNOWLEDGE.md) - Knowledge curation
+- [methodology/MEMORY.md](methodology/MEMORY.md) - Memory and learning
 
 ### Operations (Plugins Layer)
-- `plugins/TODO.md` - Work tracking
-- `plugins/VERIFY.md` - **Validation subsystem (PROOF SURFACES)**
-- `plugins/MANIFEST.md` - Manifest patterns
-- `plugins/EMERGENCY_PROTOCOL.md` - Emergency protocols
+- [plugins/TODO.md](plugins/TODO.md) - Work tracking
+- [plugins/VERIFY.md](plugins/VERIFY.md) - **Validation subsystem (PROOF SURFACES)**
+- [plugins/MANIFEST.md](plugins/MANIFEST.md) - Manifest patterns
+- [plugins/EMERGENCY_PROTOCOL.md](plugins/EMERGENCY_PROTOCOL.md) - Emergency protocols
