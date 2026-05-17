@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  Agents call Decapod on demand to converge on human intent, shape context before inference,<br />
+  Agents call Decapod on demand to turn intent into context, then context into explicit specifications before inference,<br />
   enforce boundaries, and deliver proof-backed completion across concurrent multi-agent work.
 </p>
 
@@ -19,6 +19,8 @@
   <a href="https://crates.io/crates/decapod"><img alt="crates.io" src="https://img.shields.io/crates/v/decapod.svg"></a>
   <a href="https://github.com/DecapodLabs/decapod/blob/master/LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
 </p>
+
+Canonical Contract: [constitution/core/DECAPOD.md](constitution/core/DECAPOD.md)
 
 ---
 

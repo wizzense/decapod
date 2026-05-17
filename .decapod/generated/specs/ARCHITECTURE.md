@@ -1,7 +1,7 @@
 # Architecture
 
 ## Direction
-Decapod is an on-demand control-plane runtime. It enforces workflow invariants around workspace isolation, task state transitions, and proof-backed completion while preserving deterministic local-first state.
+Composable repository architecture with explicit boundaries and proof-backed delivery invariants.
 
 ## Current Facts
 - Runtime/languages: rust

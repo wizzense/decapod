@@ -22,8 +22,8 @@ flowchart LR
 | Area | In Scope | Proof Surface |
 |---|---|---|
 | Core workflow | Define a concrete user-visible workflow | Acceptance criteria + tests |
-| Data contracts | Document canonical inputs/outputs | `INTERFACES.md` and schema checks |
-| Delivery quality | Block promotion on broken proof surfaces | `VALIDATION.md` blocking gates |
+| Data contracts | Document canonical inputs/outputs | [INTERFACES.md](./INTERFACES.md) and schema checks |
+| Delivery quality | Block promotion on broken proof surfaces | [VALIDATION.md](./VALIDATION.md) blocking gates |
 
 ## Non-Goals (Falsifiable)
 | Non-goal | How to falsify |

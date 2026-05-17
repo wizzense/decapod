@@ -64,6 +64,8 @@ pub enum TodoCommand {
         due: Option<String>,
         #[clap(long, default_value = "")]
         r#ref: String,
+        #[clap(long, default_value = "")]
+        scope: String,
         #[clap(long)]
         dir: Option<String>,
         #[clap(long, default_value = "")]
@@ -2320,6 +2322,7 @@ pub fn add_task(root: &Path, args: &TodoCommand) -> Result<serde_json::Value, er
         owner,
         due,
         r#ref,
+        scope: arg_scope,
         dir,
         depends_on,
         blocks,
@@ -2340,7 +2343,11 @@ pub fn add_task(root: &Path, args: &TodoCommand) -> Result<serde_json::Value, er
         .map_err(error::DecapodError::IoError)?
         .to_string_lossy()
         .to_string();
-    let scope = scope_from_dir(&dir_abs);
+    let scope = if !arg_scope.is_empty() {
+        arg_scope.clone()
+    } else {
+        scope_from_dir(&dir_abs)
+    };
     let ts = now_iso();
     let intent_ref = format!("intent:todo.add:{}", crate::core::ulid::new_ulid());
     let owner_list = parse_owners_input(owner);

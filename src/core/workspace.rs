@@ -208,7 +208,8 @@ pub fn get_workspace_status(repo_root: &Path) -> Result<WorkspaceStatus, Decapod
             message: format!("Currently on protected branch '{}'. Decapod prohibits implementation work on protected refs.", git.current_branch),
             resolve_hint: "Run `decapod todo claim --id <task-id>` then `decapod workspace ensure` to create a todo-scoped isolated worktree.".to_string(),
         });
-        required_actions.push("Switch to working branch".to_string());
+        required_actions
+            .push("Run `decapod workspace ensure` and cd into the created worktree".to_string());
         if git.has_local_mods {
             blockers.push(Blocker {
                 kind: BlockerKind::WorkspaceRequired,
@@ -220,12 +221,17 @@ pub fn get_workspace_status(repo_root: &Path) -> Result<WorkspaceStatus, Decapod
     }
 
     // Mandate: Should use worktree for isolation
-    if !git.in_worktree && !git.is_protected {
-        // Technically allowed if not on master, but we prefer worktrees for agents
-        // to keep the main checkout clean and allow parallel agents.
+    if git.is_main_repo && !git.is_protected {
+        blockers.push(Blocker {
+            kind: BlockerKind::WorkspaceRequired,
+            message: "Currently in the main repository checkout. Agentic work MUST be done in an isolated worktree to prevent disrupting the human user's environment.".to_string(),
+            resolve_hint: "Run `decapod workspace ensure` and cd into the created worktree.".to_string(),
+        });
+        required_actions
+            .push("Run `decapod workspace ensure` and cd into the created worktree".to_string());
     }
 
-    let can_work = !git.is_protected;
+    let can_work = !git.is_main_repo && !git.is_protected;
 
     Ok(WorkspaceStatus {
         can_work,
@@ -237,13 +243,24 @@ pub fn get_workspace_status(repo_root: &Path) -> Result<WorkspaceStatus, Decapod
 }
 
 fn check_git_status(repo_root: &Path) -> Result<GitStatus, DecapodError> {
+    if !repo_root.join(".git").exists() {
+        return Ok(GitStatus {
+            current_branch: "none".to_string(),
+            is_protected: false,
+            in_worktree: false,
+            worktree_path: None,
+            is_main_repo: false,
+            has_local_mods: false,
+        });
+    }
+
     let current_branch = get_current_branch(repo_root)?;
     let is_protected = is_branch_protected(&current_branch);
     let in_worktree = is_worktree(repo_root)?;
     let has_local_mods = has_local_modifications(repo_root)?;
 
-    // Check if this is the main repository by seeing if .git is a directory
-    let is_main_repo = repo_root.join(".git").is_dir();
+    // Check if this is the main repository checkout (not an isolated workspace)
+    let is_main_repo = !repo_root.to_string_lossy().contains(".decapod/workspaces");
 
     Ok(GitStatus {
         current_branch,
