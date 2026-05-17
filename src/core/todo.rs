@@ -4341,6 +4341,21 @@ fn resolve_task_id_arg(
     }
 }
 
+fn summarize_claim_container_error(err: &str) -> String {
+    if err.contains("container_runtime_preflight_failed") {
+        return "Container runtime preflight failed. Check Docker/Podman availability and permissions."
+            .to_string();
+    }
+
+    err.lines()
+        .map(str::trim)
+        .find(|line| !line.is_empty())
+        .unwrap_or("container runtime unavailable")
+        .chars()
+        .take(240)
+        .collect()
+}
+
 pub fn run_todo_cli(store: &Store, cli: TodoCli) -> Result<(), error::DecapodError> {
     let root = &store.root;
     let out = match &cli.command {
@@ -4472,8 +4487,13 @@ pub fn run_todo_cli(store: &Store, cli: TodoCli) -> Result<(), error::DecapodErr
                             "result": result
                         }),
                         Err(err) => serde_json::json!({
-                            "status": "error",
-                            "error": err.to_string()
+                            "status": "warning",
+                            "code": "container_autorun_unavailable",
+                            "message": "Task claimed; optional container autorun was skipped.",
+                            "user_message": "The task was claimed successfully. The agent has instructions to continue from the claimed worktree and handle container proof if required.",
+                            "agent_action": "Continue from the claimed Decapod worktree. If container proof is required, inspect Docker/Podman availability and rerun `decapod auto container run` with the task branch.",
+                            "next": "Run `decapod auto container run ...` later if container proof is required.",
+                            "detail": summarize_claim_container_error(&err.to_string())
                         }),
                     };
                 if let Some(obj) = out.as_object_mut() {
@@ -4828,4 +4848,21 @@ fn mark_todo_claimed_pending_proof(
 
 pub fn is_heartbeat_command(cli: &TodoCli) -> bool {
     matches!(cli.command, TodoCommand::Heartbeat { .. })
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn claim_container_error_summary_hides_preflight_dump() {
+        let summary = super::summarize_claim_container_error(
+            "Validation error: AUTOREMEDIABLE_VALIDATION_ERROR code=container_runtime_preflight_failed\nstderr:\nvery long host-specific output",
+        );
+
+        assert_eq!(
+            summary,
+            "Container runtime preflight failed. Check Docker/Podman availability and permissions."
+        );
+        assert!(!summary.contains("AUTOREMEDIABLE"));
+        assert!(!summary.contains("stderr"));
+    }
 }
