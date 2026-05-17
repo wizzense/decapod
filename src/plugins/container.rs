@@ -1222,7 +1222,7 @@ fn build_docker_spec(
 fn inherited_env_vars() -> BTreeMap<String, String> {
     let mut vars = BTreeMap::new();
     for (k, v) in std::env::vars() {
-        if k.starts_with("BASH_FUNC_") {
+        if k == "PATH" || k.starts_with("BASH_FUNC_") {
             continue;
         }
         vars.insert(k, v);
@@ -1400,6 +1400,7 @@ mod tests {
         assert!(joined.contains("--rm"));
         assert!(joined.contains("--cap-drop ALL"));
         assert!(joined.contains("--security-opt no-new-privileges:true"));
+        assert!(!joined.contains("-e PATH="));
         assert!(
             joined.contains("-v /tmp/repo/.decapod/workspaces/w1:/tmp/repo/.decapod/workspaces/w1")
         );
