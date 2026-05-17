@@ -7278,12 +7278,16 @@ fn run_infer_orientation(
         if let Some(task) = todo::get_task(&store_root, id)? {
             packet.user_goal = task.title.clone();
             if !task.description.is_empty() {
-                packet.known_unknowns
+                packet
+                    .known_unknowns
                     .push(format!("Task detail: {}", task.description));
             }
             if !task.scope.is_empty() {
-                packet.allowed_scope =
-                    task.scope.split(',').map(|s| s.trim().to_string()).collect();
+                packet.allowed_scope = task
+                    .scope
+                    .split(',')
+                    .map(|s| s.trim().to_string())
+                    .collect();
             }
         }
     }
@@ -7292,8 +7296,12 @@ fn run_infer_orientation(
 
     // Heuristics for precision
     if intent_lower.contains("fix") || intent_lower.contains("bug") {
-        packet.proof_required.push("Reproduction test case".to_string());
-        packet.constraints.push("Do not introduce regressions".to_string());
+        packet
+            .proof_required
+            .push("Reproduction test case".to_string());
+        packet
+            .constraints
+            .push("Do not introduce regressions".to_string());
     }
 
     if intent_lower.contains("refactor")
@@ -7316,7 +7324,9 @@ fn run_infer_orientation(
             recommendation: "Prefer conservative adaptation unless the current interface is fundamentally broken.".to_string(),
             validation_proof: "Contract conformance tests and migration guide".to_string(),
         });
-        packet.next_action = "STOP: A decision gate is active. Present options to the human before proceeding.".to_string();
+        packet.next_action =
+            "STOP: A decision gate is active. Present options to the human before proceeding."
+                .to_string();
     }
 
     if intent_lower.contains("test") {

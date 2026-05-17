@@ -52,11 +52,25 @@ fn test_infer_orientation_simple_task() {
 
     // Create a dummy project structure
     fs::create_dir(root.join("src")).unwrap();
-    fs::write(root.join("src/lib.rs"), "pub fn add(a: i32, b: i32) -> i32 { a + b }").unwrap();
+    fs::write(
+        root.join("src/lib.rs"),
+        "pub fn add(a: i32, b: i32) -> i32 { a + b }",
+    )
+    .unwrap();
 
-    let output = run_cmd(root, &["infer", "orientation", "--intent", "add documentation to lib.rs", "--format", "json"]);
+    let output = run_cmd(
+        root,
+        &[
+            "infer",
+            "orientation",
+            "--intent",
+            "add documentation to lib.rs",
+            "--format",
+            "json",
+        ],
+    );
     assert!(output.status.success());
-    
+
     let json = extract_json(&output);
     assert_eq!(json["user_goal"], "add documentation to lib.rs");
     assert!(json["decision_gates"].as_array().unwrap().is_empty());
@@ -71,12 +85,25 @@ fn test_infer_orientation_ambiguous_architecture() {
     init_git_repo(root);
     run_cmd(root, &["init", "--force"]);
 
-    let output = run_cmd(root, &["infer", "orientation", "--intent", "refactor the core rpc interface", "--format", "json"]);
+    let output = run_cmd(
+        root,
+        &[
+            "infer",
+            "orientation",
+            "--intent",
+            "refactor the core rpc interface",
+            "--format",
+            "json",
+        ],
+    );
     assert!(output.status.success());
-    
+
     let json = extract_json(&output);
     assert!(!json["decision_gates"].as_array().unwrap().is_empty());
-    assert_eq!(json["decision_gates"][0]["decision"], "Architectural alignment");
+    assert_eq!(
+        json["decision_gates"][0]["decision"],
+        "Architectural alignment"
+    );
     assert!(json["next_action"].as_str().unwrap().contains("STOP"));
 }
 
@@ -90,23 +117,58 @@ fn test_infer_orientation_with_task_id() {
     // Setup decapod project
     run_cmd(root, &["init", "--force"]);
     run_cmd(root, &["session", "acquire"]);
-    
+
     // Create a task
-    let add_output = run_cmd(root, &["todo", "add", "fix the broken tests", "--scope", "tests/core"]);
+    let add_output = run_cmd(
+        root,
+        &[
+            "todo",
+            "add",
+            "fix the broken tests",
+            "--scope",
+            "tests/core",
+        ],
+    );
     assert!(add_output.status.success());
-    
+
     let list_output = run_cmd(root, &["todo", "list", "--format", "json"]);
     assert!(list_output.status.success());
     let list_json = extract_json(&list_output);
     println!("LIST JSON: {}", list_json);
-    let task_id = list_json["items"].as_array().expect("items should be an array")[0]["id"].as_str().expect("Task should have an ID");
+    let task_id = list_json["items"]
+        .as_array()
+        .expect("items should be an array")[0]["id"]
+        .as_str()
+        .expect("Task should have an ID");
 
-    let output = run_cmd(root, &["infer", "orientation", "--task-id", task_id, "--format", "json"]);
+    let output = run_cmd(
+        root,
+        &[
+            "infer",
+            "orientation",
+            "--task-id",
+            task_id,
+            "--format",
+            "json",
+        ],
+    );
     assert!(output.status.success());
-    
+
     let json = extract_json(&output);
     assert_eq!(json["user_goal"], "fix the broken tests");
     assert_eq!(json["task_id"].as_str().unwrap(), task_id);
-    assert!(json["allowed_scope"].as_array().unwrap().iter().any(|s| s == "tests/core"));
-    assert!(json["proof_required"].as_array().unwrap().iter().any(|s| s.as_str().unwrap().contains("Reproduction")));
+    assert!(
+        json["allowed_scope"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|s| s == "tests/core")
+    );
+    assert!(
+        json["proof_required"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|s| s.as_str().unwrap().contains("Reproduction"))
+    );
 }
