@@ -1,5 +1,10 @@
 # Security Threat Model
 
+## Links
+
+- [core/DECAPOD.md](../../core/DECAPOD.md) - **Router and navigation charter (START HERE)**
+- [specs/SECURITY.md](../../specs/SECURITY.md) - Security contract
+
 ## Threats We Explicitly Model
 
 - Drift and unverifiable completion.

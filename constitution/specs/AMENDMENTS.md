@@ -253,25 +253,25 @@ Each entry MUST include:
 ## Links
 
 ### Core Router
-- `core/DECAPOD.md` - **Router and navigation charter (START HERE)**
+- [core/DECAPOD.md](../../core/DECAPOD.md) - **Router and navigation charter (START HERE)**
 
 ### Authority (Constitution Layer)
-- `specs/INTENT.md` - **Methodology contract (READ FIRST)**
-- `specs/SYSTEM.md` - System definition and authority doctrine
-- `specs/SECURITY.md` - Security contract
-- `specs/GIT.md` - Git etiquette contract
+- [specs/INTENT.md](./INTENT.md) - **Methodology contract (READ FIRST)**
+- [specs/SYSTEM.md](./SYSTEM.md) - System definition and authority doctrine
+- [specs/SECURITY.md](./SECURITY.md) - Security contract
+- [specs/GIT.md](./GIT.md) - Git etiquette contract
 
 ### Registry (Core Indices)
-- `core/PLUGINS.md` - Subsystem registry
-- `core/INTERFACES.md` - Interface contracts index
-- `core/DEPRECATION.md` - Deprecation contract
+- [core/PLUGINS.md](../../core/PLUGINS.md) - Subsystem registry
+- [core/INTERFACES.md](../../core/INTERFACES.md) - Interface contracts index
+- [core/DEPRECATION.md](../../core/DEPRECATION.md) - Deprecation contract
 
 ### Contracts (Interfaces Layer)
-- `interfaces/DOC_RULES.md` - Doc compilation rules
-- `interfaces/CLAIMS.md` - Promises ledger
-- `interfaces/STORE_MODEL.md` - Store semantics
-- `interfaces/GLOSSARY.md` - Term definitions
+- [interfaces/DOC_RULES.md](../../interfaces/DOC_RULES.md) - Doc compilation rules
+- [interfaces/CLAIMS.md](../../interfaces/CLAIMS.md) - Promises ledger
+- [interfaces/STORE_MODEL.md](../../interfaces/STORE_MODEL.md) - Store semantics
+- [interfaces/GLOSSARY.md](../../interfaces/GLOSSARY.md) - Term definitions
 
 ### Operations (Plugins Layer)
-- `plugins/EMERGENCY_PROTOCOL.md` - Emergency protocols
-- `plugins/TODO.md` - Work tracking
+- [plugins/EMERGENCY_PROTOCOL.md](../plugins/EMERGENCY_PROTOCOL.md) - Emergency protocols
+- [plugins/TODO.md](../plugins/TODO.md) - Work tracking

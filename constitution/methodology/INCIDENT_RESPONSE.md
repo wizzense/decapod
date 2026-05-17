@@ -92,3 +92,9 @@ In `.decapod/OVERRIDE.md`:
   severity_matrix: "custom-severity.yaml"
   on_call: "custom-oncall.yaml"
 ```
+
+## Links
+
+- [core/DECAPOD.md](../../core/DECAPOD.md) - **Router and navigation charter (START HERE)**
+- [plugins/EMERGENCY_PROTOCOL.md](../plugins/EMERGENCY_PROTOCOL.md) - Emergency protocols
+- [specs/SECURITY.md](../specs/SECURITY.md) - Security contract

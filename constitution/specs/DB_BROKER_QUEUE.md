@@ -91,3 +91,9 @@ impl DbBroker {
 - Keep existing `with_conn` for reads that need fresh data
 - New `queue_write` is opt-in
 - Cache can be disabled via env var
+
+## Links
+
+- [core/DECAPOD.md](../../core/DECAPOD.md) - **Router and navigation charter (START HERE)**
+- [plugins/DB_BROKER.md](../plugins/DB_BROKER.md) - SQLite broker front door
+- [specs/INTENT.md](./INTENT.md) - Methodology contract

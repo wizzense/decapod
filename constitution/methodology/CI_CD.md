@@ -590,32 +590,32 @@ eval $(decapod emergency access --service <name> --role developer)
 ## Links
 
 ### Core Router
-- `core/DECAPOD.md` - **Router and navigation charter (START HERE)**
-- `core/ENGINEERING_EXCELLENCE.md` - **Oracle for Engineering Standards**
+- [core/DECAPOD.md](../../core/DECAPOD.md) - **Router and navigation charter (START HERE)**
+- [core/ENGINEERING_EXCELLENCE.md](../../core/ENGINEERING_EXCELLENCE.md) - **Oracle for Engineering Standards**
 
 ### Authority (Constitution Layer)
-- `specs/INTENT.md` - **Methodology contract (READ FIRST)**
-- `specs/SYSTEM.md` - System definition and authority doctrine
-- `specs/GIT.md` - Git workflow contract
+- [specs/INTENT.md](../specs/INTENT.md) - **Methodology contract (READ FIRST)**
+- [specs/SYSTEM.md](../specs/SYSTEM.md) - System definition and authority doctrine
+- [specs/GIT.md](../specs/GIT.md) - Git workflow contract
 
 ### Registry (Core Indices)
-- `core/PLUGINS.md` - Subsystem registry
-- `core/METHODOLOGY.md` - Methodology guides index
+- [core/PLUGINS.md](../../core/PLUGINS.md) - Subsystem registry
+- [core/METHODOLOGY.md](../../core/METHODOLOGY.md) - Methodology guides index
 
 ### Contracts (Interfaces Layer)
-- `interfaces/TESTING.md` - Testing contract
-- `interfaces/CONTROL_PLANE.md` - Sequencing patterns
-- `interfaces/CLAIMS.md` - Promises ledger
-- `interfaces/DOC_RULES.md` - Doc compilation rules
+- [interfaces/TESTING.md](../../interfaces/TESTING.md) - Testing contract
+- [interfaces/CONTROL_PLANE.md](../../interfaces/CONTROL_PLANE.md) - Sequencing patterns
+- [interfaces/CLAIMS.md](../../interfaces/CLAIMS.md) - Promises ledger
+- [interfaces/DOC_RULES.md](../../interfaces/DOC_RULES.md) - Doc compilation rules
 
 ### Practice (Methodology Layer - This Document)
-- `methodology/SOUL.md` - Agent identity
-- `methodology/ARCHITECTURE.md` - Architecture practice
-- `methodology/TESTING.md` - Testing practice
-- `methodology/KNOWLEDGE.md` - Knowledge curation
-- `methodology/MEMORY.md` - Memory and learning
+- [methodology/SOUL.md](./SOUL.md) - Agent identity
+- [methodology/ARCHITECTURE.md](./ARCHITECTURE.md) - Architecture practice
+- [methodology/TESTING.md](./TESTING.md) - Testing practice
+- [methodology/KNOWLEDGE.md](./KNOWLEDGE.md) - Knowledge curation
+- [methodology/MEMORY.md](./MEMORY.md) - Memory and learning
 
 ### Operations (Plugins Layer)
-- `plugins/TODO.md` - Work tracking
-- `plugins/VERIFY.md` - Validation subsystem
-- `plugins/EMERGENCY_PROTOCOL.md` - Emergency protocols
+- [plugins/TODO.md](../plugins/TODO.md) - Work tracking
+- [plugins/VERIFY.md](../plugins/VERIFY.md) - Validation subsystem
+- [plugins/EMERGENCY_PROTOCOL.md](../plugins/EMERGENCY_PROTOCOL.md) - Emergency protocols

@@ -1,5 +1,11 @@
 # Maintainers
 
+## Links
+
+- [core/DECAPOD.md](../../core/DECAPOD.md) - **Router and navigation charter (START HERE)**
+- [specs/INTENT.md](../../specs/INTENT.md) - Methodology contract
+- [specs/AMENDMENTS.md](../../specs/AMENDMENTS.md) - Change control
+
 ## Maintainer Contract
 
 Maintainers MUST enforce:

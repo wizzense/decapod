@@ -1,5 +1,11 @@
 # Governance Audit (Decapod Kernel Lens)
 
+## Links
+
+- [core/DECAPOD.md](../../core/DECAPOD.md) - **Router and navigation charter (START HERE)**
+- [specs/INTENT.md](../../specs/INTENT.md) - Methodology contract
+- [specs/SYSTEM.md](../../specs/SYSTEM.md) - System definition and authority doctrine
+
 Source note: the referenced post body was not included in the prompt payload; this audit uses the provided capability buckets as the authoritative source material.
 
 ## 1) Agent-Infra Capability Buckets

@@ -4,6 +4,12 @@
 **Layer:** Specs
 **Binding:** Yes
 
+## Links
+
+- [core/DECAPOD.md](../../core/DECAPOD.md) - **Router and navigation charter (START HERE)**
+- [specs/INTENT.md](../INTENT.md) - Methodology contract
+- [specs/evaluations/VARIANCE_EVALS.md](./VARIANCE_EVALS.md) - Variance evaluation contract
+
 ## Purpose
 
 Define strict, bounded, machine-checkable judge semantics for non-deterministic tasks.

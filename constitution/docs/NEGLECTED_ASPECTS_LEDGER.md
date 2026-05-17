@@ -1,5 +1,10 @@
 # Neglected Aspects Ledger
 
+## Links
+
+- [core/DECAPOD.md](../../core/DECAPOD.md) - **Router and navigation charter (START HERE)**
+- [core/GAPS.md](../../core/GAPS.md) - Gap analysis methodology
+
 ## Phase 0: Interface Surface Scan
 
 Key surfaces:

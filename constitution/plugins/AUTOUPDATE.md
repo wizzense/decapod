@@ -122,9 +122,9 @@ decapod todo list
 
 ## See Also
 
-- `core/DECAPOD.md` — Router (mandates this protocol in §1.1)
-- `AGENTS.md` — Universal agent contract (includes mandatory start sequence)
-- `CLAUDE.md`, `GEMINI.md`, `CODEX.md` — Agent entrypoints (all mandate this)
+- [core/DECAPOD.md](../../core/DECAPOD.md) — Router (mandates this protocol in §1.1)
+- [AGENTS.md](../../AGENTS.md) — Universal agent contract (includes mandatory start sequence)
+- [CLAUDE.md](../../CLAUDE.md), [GEMINI.md](../../GEMINI.md), [CODEX.md](../../CODEX.md) — Agent entrypoints (all mandate this)
 
 ---
 

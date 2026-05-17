@@ -1,5 +1,11 @@
 # Decapod CLI Gatling Audit
 
+## Links
+
+- [core/DECAPOD.md](../../core/DECAPOD.md) - **Router and navigation charter (START HERE)**
+- [plugins/VERIFY.md](./VERIFY.md) - Verification subsystem
+- [plugins/TODO.md](./TODO.md) - TODO subsystem
+
 **Date:** 2026-02-13
 **Version:** 0.3.2
 **Test Harness:** `dev/gatling_test.sh` (v2)

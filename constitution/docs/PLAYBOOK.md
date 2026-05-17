@@ -1,5 +1,10 @@
 # PLAYBOOK.md — Decision Frameworks and Failure Modes
 
+## Links
+
+- [core/DECAPOD.md](../../core/DECAPOD.md) - **Router and navigation charter (START HERE)**
+- [core/EMERGENCY_PROTOCOL.md](../../core/EMERGENCY_PROTOCOL.md) - Emergency protocols
+
 ## When Stuck: Triage Flow
 
 ```

@@ -1,5 +1,11 @@
 # EVAL_TRANSLATION_MAP.md - Browser-Agent Evaluation to Decapod Kernel
 
+## Links
+
+- [core/DECAPOD.md](../../core/DECAPOD.md) - **Router and navigation charter (START HERE)**
+- [specs/evaluations/VARIANCE_EVALS.md](../../specs/evaluations/VARIANCE_EVALS.md) - Variance evaluation contract
+- [specs/evaluations/JUDGE_CONTRACT.md](../../specs/evaluations/JUDGE_CONTRACT.md) - Judge validation contract
+
 - Variance-heavy web tasks -> `EVAL_PLAN` + repeated `EVAL_RUN` artifacts with CI-based `EVAL_AGGREGATE`.
 - Reproducible settings -> plan-level captured model/agent/judge/tool/env/seed fields with deterministic `plan_hash`.
 - Judge-as-validation -> `decapod eval judge` strict JSON contract persisted as `EVAL_VERDICT`.

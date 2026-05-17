@@ -198,7 +198,7 @@ beginning implementation work.
 
 ## Links
 
-- `core/PLUGINS.md` — Subsystem registry
-- `plugins/FEDERATION.md` — Memory graph (cross-linked)
-- `plugins/APTITUDE.md` — Preference system (complementary)
-- `interfaces/STORE_MODEL.md` — Store semantics
+- [core/PLUGINS.md](../../core/PLUGINS.md) — Subsystem registry
+- [plugins/FEDERATION.md](./FEDERATION.md) — Memory graph (cross-linked)
+- [plugins/APTITUDE.md](./APTITUDE.md) — Preference system (complementary)
+- [interfaces/STORE_MODEL.md](../../interfaces/STORE_MODEL.md) — Store semantics

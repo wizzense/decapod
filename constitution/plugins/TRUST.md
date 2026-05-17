@@ -1,5 +1,10 @@
 # TRUST.md
 
+## Links
+
+- [plugins/HEALTH.md](./HEALTH.md) - Complete health subsystem documentation
+- [plugins/HEARTBEAT.md](./HEARTBEAT.md) - Deprecated, use `decapod govern health summary**
+
 ## ⚠️ DEPRECATED - Use Health Autonomy Instead
 
 **This subsystem has been consolidated into HEALTH.md.**

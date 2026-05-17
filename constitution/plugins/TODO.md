@@ -164,27 +164,27 @@ All other transitions are invalid and must produce an error.
 ## Links
 
 ### Core Router
-- `core/DECAPOD.md` - **Router and navigation charter (START HERE)**
+- [core/DECAPOD.md](../../core/DECAPOD.md) - **Router and navigation charter (START HERE)**
 
 ### Authority (Constitution Layer)
-- `specs/INTENT.md` - **Methodology contract (READ FIRST)**
-- `specs/SYSTEM.md` - System definition and authority doctrine
-- `specs/SECURITY.md` - Security contract
+- [specs/INTENT.md](../specs/INTENT.md) - **Methodology contract (READ FIRST)**
+- [specs/SYSTEM.md](../specs/SYSTEM.md) - System definition and authority doctrine
+- [specs/SECURITY.md](../specs/SECURITY.md) - Security contract
 
 ### Registry (Core Indices)
-- `core/PLUGINS.md` - Subsystem registry
-- `core/INTERFACES.md` - Interface contracts index
-- `core/METHODOLOGY.md` - Methodology guides index
+- [core/PLUGINS.md](../../core/PLUGINS.md) - Subsystem registry
+- [core/INTERFACES.md](../../core/INTERFACES.md) - Interface contracts index
+- [core/METHODOLOGY.md](../../core/METHODOLOGY.md) - Methodology guides index
 
 ### Contracts (Interfaces Layer)
-- `interfaces/CONTROL_PLANE.md` - Sequencing patterns
-- `interfaces/TODO_SCHEMA.md` - TODO schema definition
-- `interfaces/STORE_MODEL.md` - Store semantics
+- [interfaces/CONTROL_PLANE.md](../../interfaces/CONTROL_PLANE.md) - Sequencing patterns
+- [interfaces/TODO_SCHEMA.md](../../interfaces/TODO_SCHEMA.md) - TODO schema definition
+- [interfaces/STORE_MODEL.md](../../interfaces/STORE_MODEL.md) - Store semantics
 
 ### Practice (Methodology Layer)
-- `methodology/SOUL.md` - Agent identity
+- [methodology/SOUL.md](../methodology/SOUL.md) - Agent identity
 
 ### Operations (Plugins Layer - This Subsystem)
-- `plugins/VERIFY.md` - Validation subsystem
-- `plugins/MANIFEST.md` - Canonical vs derived vs state
-- `plugins/EMERGENCY_PROTOCOL.md` - Emergency protocols
+- [plugins/VERIFY.md](./VERIFY.md) - Validation subsystem
+- [plugins/MANIFEST.md](./MANIFEST.md) - Canonical vs derived vs state
+- [plugins/EMERGENCY_PROTOCOL.md](./EMERGENCY_PROTOCOL.md) - Emergency protocols
