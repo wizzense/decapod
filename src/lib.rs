@@ -638,8 +638,8 @@ fn enter_raw_terminal_mode() -> Option<TerminalModeGuard> {
     Some(TerminalModeGuard { saved_mode })
 }
 
-fn terminal_selector_available(default: &[String]) -> bool {
-    io::stdin().is_terminal() && !default.is_empty()
+fn terminal_selector_available(_default: &[String]) -> bool {
+    io::stdin().is_terminal()
 }
 
 fn find_selector_match(options: &[&str], typed: &str) -> Option<usize> {
