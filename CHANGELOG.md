@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.48.3](https://github.com/DecapodLabs/decapod/compare/v0.48.2...v0.48.3) - 2026-05-18
+
+### Fixed
+
+- *(init)* enable arrow key selector even when no default exists
+
+### Other
+
+- Merge pull request #556 from DecapodLabs/agent/codex/bugs_01krypq0j289xabc-fix-init-selector
+
 ## [0.48.2](https://github.com/DecapodLabs/decapod/compare/v0.48.1...v0.48.2) - 2026-05-18
 
 ### Added
