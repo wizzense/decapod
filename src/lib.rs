@@ -671,6 +671,28 @@ fn selector_shown(options: &[&str], selected: usize, typed: &str) -> String {
         .unwrap_or_else(|| typed.to_string())
 }
 
+fn selector_active_line(
+    options: &[&str],
+    default: &[String],
+    selected: usize,
+    typed: &str,
+) -> String {
+    let shown = selector_shown(options, selected, typed);
+    let typed_match = find_selector_match(options, typed);
+    let matched = typed_match.unwrap_or(selected);
+    let marker = if default.iter().any(|d| d.eq_ignore_ascii_case(&shown)) {
+        "✓"
+    } else {
+        " "
+    };
+
+    if typed.trim().is_empty() || typed_match.is_some() {
+        format!("    active: > {} {:>2}. {}", marker, matched + 1, shown)
+    } else {
+        format!("    active: >   {}", shown)
+    }
+}
+
 fn update_selector_from_byte(options: &[&str], selected: &mut usize, typed: &mut String, byte: u8) {
     match byte {
         8 | 127 => {
@@ -749,11 +771,21 @@ fn prompt_terminal_selector(
     };
     let mut typed = String::new();
     let mut stdin = io::stdin();
+    let mut rendered = false;
     loop {
         let shown = selector_shown(options, selected, &typed);
-        print!("\r{}", format!("{prompt}{shown}").bright_cyan().bold());
+        let active = selector_active_line(options, default, selected, &typed);
+        if rendered {
+            print!("\x1b[1A");
+        }
+        print!(
+            "\r{}\x1b[K\n\r{}\x1b[K",
+            active.bright_white().bold(),
+            format!("{prompt}{shown}").bright_cyan().bold()
+        );
         print!("\x1b[K");
         io::stdout().flush().map_err(error::DecapodError::IoError)?;
+        rendered = true;
 
         let mut byte = [0_u8; 1];
         stdin
@@ -767,7 +799,7 @@ fn prompt_terminal_selector(
                 ));
             }
             8 | 127 => {
-                typed.pop();
+                update_selector_from_byte(options, &mut selected, &mut typed, byte[0]);
             }
             27 => {
                 let mut seq = [0_u8; 2];
@@ -7731,6 +7763,24 @@ mod init_prompt_tests {
         assert_eq!(selected, "TypeScript");
         assert!(!selected.contains("\x1b"));
         assert!(!selected.contains("[B"));
+    }
+
+    #[test]
+    fn active_selector_line_tracks_current_selection() {
+        let default = vec!["Python".to_string()];
+
+        assert_eq!(
+            selector_active_line(LANGUAGES, &default, 3, ""),
+            "    active: > ✓  4. Python"
+        );
+        assert_eq!(
+            selector_active_line(LANGUAGES, &default, 0, "go"),
+            "    active: >    5. Go"
+        );
+        assert_eq!(
+            selector_active_line(LANGUAGES, &default, 0, "not-a-language"),
+            "    active: >   not-a-language"
+        );
     }
 
     #[test]
