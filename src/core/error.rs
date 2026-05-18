@@ -36,11 +36,29 @@ impl fmt::Display for DecapodError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::RusqliteError(e) => write!(f, "SQLite error: {e}"),
-            Self::IoError(e) => write!(f, "I/O error: {e}"),
+            Self::IoError(e) => {
+                if e.kind() == std::io::ErrorKind::InvalidInput && e.to_string().contains("SUN_LEN")
+                {
+                    write!(
+                        f,
+                        "broker path workspace unavailable in this environment (socket path limitation)"
+                    )
+                } else {
+                    write!(f, "I/O error: {e}")
+                }
+            }
             Self::DatabaseInitializationError(s) => write!(f, "Failed to initialize database: {s}"),
             Self::PathError(s) => write!(f, "Path error: {s}"),
             Self::EnvVarError(e) => write!(f, "Environment variable error: {e}"),
-            Self::ValidationError(s) => write!(f, "Validation error: {s}"),
+            Self::ValidationError(s) => {
+                if let Some(msg) = s.strip_prefix("NEEDS_HUMAN_INPUT: ") {
+                    write!(f, "context: {msg}")
+                } else if s.starts_with("NEEDS_HUMAN_INPUT") {
+                    write!(f, "context: execution needs human input")
+                } else {
+                    write!(f, "Validation error: {s}")
+                }
+            }
             Self::NotFound(s) => write!(f, "Not found: {s}"),
             Self::NotImplemented(s) => write!(f, "Not implemented: {s}"),
             Self::ContextPackError(s) => write!(f, "Context pack error: {s}"),

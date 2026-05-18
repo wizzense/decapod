@@ -249,6 +249,43 @@ fn init_with_architecture_can_recommend_zig() {
 }
 
 #[test]
+fn init_with_mixed_scripts_repo_uses_file_inference_noninteractively() {
+    let tmp = tempdir().expect("tempdir");
+    fs::write(tmp.path().join("task.py"), "print('ok')\n").expect("python fixture");
+    fs::write(tmp.path().join("deploy.sh"), "#!/usr/bin/env bash\n").expect("shell fixture");
+    fs::write(tmp.path().join("env.zsh"), "printenv\n").expect("zsh fixture");
+    fs::write(tmp.path().join("tool.ts"), "export const ok = true;\n").expect("ts fixture");
+    fs::write(tmp.path().join("probe.go"), "package main\n").expect("go fixture");
+
+    let out = run_decapod(tmp.path(), &["init", "with", "--force"]);
+    assert!(
+        out.status.success(),
+        "decapod init with mixed scripts repo failed: {}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+
+    let config =
+        fs::read_to_string(tmp.path().join(".decapod/config.toml")).expect("read config.toml");
+    assert!(config.contains("\"go\""), "expected Go inference: {config}");
+    assert!(
+        config.contains("\"python\""),
+        "expected Python inference: {config}"
+    );
+    assert!(
+        config.contains("\"shell\""),
+        "expected shell inference: {config}"
+    );
+    assert!(
+        config.contains("\"typescript\""),
+        "expected TypeScript inference: {config}"
+    );
+    assert!(
+        !config.contains("primary_languages = [\"Rust\"]"),
+        "mixed scripts repo should not collapse to Rust: {config}"
+    );
+}
+
+#[test]
 fn init_with_accepts_noninteractive_spec_seed_env() {
     let tmp = tempdir().expect("tempdir");
     let out = Command::new(env!("CARGO_BIN_EXE_decapod"))

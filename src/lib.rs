@@ -175,6 +175,7 @@ fn infer_repo_context(target_dir: &Path) -> RepoContext {
         ctx.primary_languages.push("go".to_string());
         ctx.detected_surfaces.push("go".to_string());
     }
+    infer_languages_from_source_files(target_dir, &mut ctx);
 
     if target_dir.join("frontend").exists() || target_dir.join("web").exists() {
         ctx.detected_surfaces.push("frontend".to_string());
@@ -254,6 +255,67 @@ fn infer_repo_context(target_dir: &Path) -> RepoContext {
     ctx.detected_surfaces.sort();
     ctx.detected_surfaces.dedup();
     ctx
+}
+
+fn infer_languages_from_source_files(target_dir: &Path, ctx: &mut RepoContext) {
+    fn visit(dir: &Path, remaining: &mut usize, ctx: &mut RepoContext) {
+        if *remaining == 0 {
+            return;
+        }
+        let Ok(entries) = fs::read_dir(dir) else {
+            return;
+        };
+        for entry in entries.flatten() {
+            if *remaining == 0 {
+                return;
+            }
+            let path = entry.path();
+            let name = path.file_name().and_then(|s| s.to_str()).unwrap_or("");
+            if path.is_dir() {
+                if matches!(
+                    name,
+                    ".git" | ".decapod" | "target" | "node_modules" | "dist" | "build"
+                ) {
+                    continue;
+                }
+                visit(&path, remaining, ctx);
+                continue;
+            }
+
+            *remaining -= 1;
+            let ext = path.extension().and_then(|s| s.to_str()).unwrap_or("");
+            match ext {
+                "py" => {
+                    ctx.primary_languages.push("python".to_string());
+                    ctx.detected_surfaces.push("python".to_string());
+                }
+                "ts" | "tsx" => {
+                    ctx.primary_languages.push("typescript".to_string());
+                    ctx.detected_surfaces.push("typescript".to_string());
+                }
+                "js" | "jsx" | "mjs" | "cjs" => {
+                    ctx.primary_languages.push("javascript".to_string());
+                    ctx.detected_surfaces.push("javascript".to_string());
+                }
+                "go" => {
+                    ctx.primary_languages.push("go".to_string());
+                    ctx.detected_surfaces.push("go".to_string());
+                }
+                "rs" => {
+                    ctx.primary_languages.push("rust".to_string());
+                    ctx.detected_surfaces.push("rust".to_string());
+                }
+                "sh" | "bash" | "zsh" => {
+                    ctx.primary_languages.push("shell".to_string());
+                    ctx.detected_surfaces.push("shell".to_string());
+                }
+                _ => {}
+            }
+        }
+    }
+
+    let mut remaining = 512;
+    visit(target_dir, &mut remaining, ctx);
 }
 
 fn read_seed_list_env(var: &str) -> Vec<String> {
@@ -424,7 +486,27 @@ fn prompt_line(prompt: &str) -> Result<String, error::DecapodError> {
     io::stdin()
         .read_line(&mut buf)
         .map_err(error::DecapodError::IoError)?;
-    Ok(buf.trim().to_string())
+    Ok(strip_ansi_escape_sequences(buf.trim()).trim().to_string())
+}
+
+fn strip_ansi_escape_sequences(input: &str) -> String {
+    let mut out = String::with_capacity(input.len());
+    let mut chars = input.chars().peekable();
+    while let Some(ch) = chars.next() {
+        if ch != '\x1b' {
+            out.push(ch);
+            continue;
+        }
+        if chars.peek() == Some(&'[') {
+            chars.next();
+            for next in chars.by_ref() {
+                if ('@'..='~').contains(&next) {
+                    break;
+                }
+            }
+        }
+    }
+    out
 }
 
 const LANGUAGES: &[&str] = &[
@@ -509,13 +591,13 @@ fn normalize_language(input: &str) -> String {
 }
 
 fn language_choice_seed(current: &[String], recommendation: &[String]) -> Vec<String> {
-    if !recommendation.is_empty() {
-        return recommendation
-            .iter()
-            .map(|s| normalize_language(s))
-            .collect();
+    if !current.is_empty() {
+        return current.iter().map(|s| normalize_language(s)).collect();
     }
-    current.iter().map(|s| normalize_language(s)).collect()
+    recommendation
+        .iter()
+        .map(|s| normalize_language(s))
+        .collect()
 }
 
 fn apply_architecture_language_recommendation(ctx: &mut RepoContext) {
@@ -556,20 +638,110 @@ fn enter_raw_terminal_mode() -> Option<TerminalModeGuard> {
     Some(TerminalModeGuard { saved_mode })
 }
 
-fn prompt_language_terminal_choice(
+fn terminal_selector_available(default: &[String]) -> bool {
+    io::stdin().is_terminal() && !default.is_empty()
+}
+
+fn find_selector_match(options: &[&str], typed: &str) -> Option<usize> {
+    let typed = typed.trim();
+    if typed.is_empty() {
+        return None;
+    }
+    if let Ok(index) = typed.parse::<usize>() {
+        return options.get(index.saturating_sub(1)).map(|_| index - 1);
+    }
+    let typed = typed.to_lowercase();
+    options
+        .iter()
+        .position(|option| option.eq_ignore_ascii_case(&typed))
+        .or_else(|| {
+            options
+                .iter()
+                .position(|option| option.to_lowercase().starts_with(&typed))
+        })
+}
+
+fn selector_shown(options: &[&str], selected: usize, typed: &str) -> String {
+    if typed.is_empty() {
+        return options[selected].to_string();
+    }
+    find_selector_match(options, typed)
+        .and_then(|index| options.get(index))
+        .map(|option| (*option).to_string())
+        .unwrap_or_else(|| typed.to_string())
+}
+
+fn update_selector_from_byte(options: &[&str], selected: &mut usize, typed: &mut String, byte: u8) {
+    match byte {
+        8 | 127 => {
+            typed.pop();
+            if let Some(index) = find_selector_match(options, typed) {
+                *selected = index;
+            }
+        }
+        byte if byte.is_ascii_graphic() || byte == b' ' => {
+            typed.push(byte as char);
+            if let Some(index) = find_selector_match(options, typed) {
+                *selected = index;
+            }
+        }
+        _ => {}
+    }
+}
+
+#[cfg(test)]
+fn selector_result_for_input(options: &[&str], default: &[String], input: &[u8]) -> String {
+    let mut selected = default
+        .first()
+        .and_then(|d| {
+            options
+                .iter()
+                .position(|option| d.eq_ignore_ascii_case(option))
+        })
+        .unwrap_or(0);
+    let mut typed = String::new();
+    let mut index = 0;
+    while index < input.len() {
+        match input[index] {
+            b'\r' | b'\n' => return selector_shown(options, selected, &typed),
+            27 if input.get(index + 1) == Some(&b'[') => {
+                match input.get(index + 2).copied() {
+                    Some(b'A') => {
+                        typed.clear();
+                        selected = selected.checked_sub(1).unwrap_or_else(|| options.len() - 1);
+                    }
+                    Some(b'B') => {
+                        typed.clear();
+                        selected = (selected + 1) % options.len();
+                    }
+                    _ => {}
+                }
+                index += 3;
+                continue;
+            }
+            byte => update_selector_from_byte(options, &mut selected, &mut typed, byte),
+        }
+        index += 1;
+    }
+    selector_shown(options, selected, &typed)
+}
+
+fn prompt_terminal_selector(
+    options: &[&str],
     default: &[String],
+    prompt: &str,
 ) -> Result<Option<String>, error::DecapodError> {
     use crate::core::ansi::AnsiExt;
 
-    if !io::stdin().is_terminal() || default.is_empty() {
+    if !terminal_selector_available(default) || options.is_empty() {
         return Ok(None);
     }
     let mut selected = default
         .first()
         .and_then(|d| {
-            LANGUAGES
+            options
                 .iter()
-                .position(|lang| d.eq_ignore_ascii_case(lang))
+                .position(|option| d.eq_ignore_ascii_case(option))
         })
         .unwrap_or(0);
     let Some(_guard) = enter_raw_terminal_mode() else {
@@ -578,12 +750,8 @@ fn prompt_language_terminal_choice(
     let mut typed = String::new();
     let mut stdin = io::stdin();
     loop {
-        let shown = if typed.is_empty() {
-            LANGUAGES[selected].to_string()
-        } else {
-            typed.clone()
-        };
-        print!("\r{}", format!("    choice: {shown}").bright_cyan().bold());
+        let shown = selector_shown(options, selected, &typed);
+        print!("\r{}", format!("{prompt}{shown}").bright_cyan().bold());
         print!("\x1b[K");
         io::stdout().flush().map_err(error::DecapodError::IoError)?;
 
@@ -607,22 +775,17 @@ fn prompt_language_terminal_choice(
                     match seq[1] {
                         b'A' => {
                             typed.clear();
-                            selected = selected
-                                .checked_sub(1)
-                                .unwrap_or_else(|| LANGUAGES.len() - 1);
+                            selected = selected.checked_sub(1).unwrap_or_else(|| options.len() - 1);
                         }
                         b'B' => {
                             typed.clear();
-                            selected = (selected + 1) % LANGUAGES.len();
+                            selected = (selected + 1) % options.len();
                         }
                         _ => {}
                     }
                 }
             }
-            byte if byte.is_ascii_graphic() || byte == b' ' => {
-                typed.push(byte as char);
-            }
-            _ => {}
+            byte => update_selector_from_byte(options, &mut selected, &mut typed, byte),
         }
     }
 }
@@ -643,12 +806,27 @@ fn prompt_language_choice(
     } else {
         default.join(", ")
     };
+    let recommendation_label = if recommendation.is_empty() {
+        "None".to_string()
+    } else {
+        recommendation
+            .iter()
+            .map(|s| normalize_language(s))
+            .collect::<Vec<_>>()
+            .join(", ")
+    };
+    let supports_arrows = terminal_selector_available(&default);
 
     println!();
     println!("{}", "  Primary language(s)".bright_white().bold());
-    println!("    inferred: {} (from project files)", inferred);
-    println!("    ideal for architecture: {}", default_label);
-    println!("    options: up/down, type name or number, comma-separated for multiple");
+    println!("    inferred from files: {}", inferred);
+    println!("    recommended for architecture: {}", recommendation_label);
+    println!("    current selection/default: {}", default_label);
+    if supports_arrows {
+        println!("    options: up/down, type name or number, comma-separated for multiple");
+    } else {
+        println!("    options: type name or number, comma-separated for multiple");
+    }
     println!();
 
     for (i, lang) in LANGUAGES.iter().enumerate() {
@@ -660,9 +838,9 @@ fn prompt_language_choice(
         println!("    {} {:>2}. {}", marker, i + 1, lang);
     }
     println!();
-    println!("    press Enter to use the ideal/default language(s)");
+    println!("    press Enter to use the current selection/default");
 
-    let choice = match prompt_language_terminal_choice(&default)? {
+    let choice = match prompt_terminal_selector(LANGUAGES, &default, "    choice: ")? {
         Some(choice) => choice,
         None => prompt_line("    choice: ")?,
     };
@@ -671,7 +849,11 @@ fn prompt_language_choice(
         return Ok(default);
     }
 
-    let selected: Vec<String> = choice
+    Ok(parse_language_choice(&choice))
+}
+
+fn parse_language_choice(choice: &str) -> Vec<String> {
+    choice
         .split(',')
         .map(|s| {
             let trimmed = s.trim();
@@ -683,9 +865,7 @@ fn prompt_language_choice(
                 .unwrap_or_else(|| normalize_language(trimmed))
         })
         .filter(|s| !s.is_empty())
-        .collect();
-
-    Ok(selected)
+        .collect()
 }
 
 fn infer_language_from_architecture(arch: &str) -> Vec<String> {
@@ -721,10 +901,22 @@ fn prompt_architecture_choice(
 ) -> Result<Option<String>, error::DecapodError> {
     use crate::core::ansi::AnsiExt;
     let inferred = current.unwrap_or("None");
+    let current_matches_common = current.is_some_and(|c| {
+        ARCH_DIRECTIONS
+            .iter()
+            .any(|(arch, _)| c.eq_ignore_ascii_case(arch))
+    });
+    let default = if current_matches_common {
+        current.map(|s| vec![s.to_string()]).unwrap_or_default()
+    } else {
+        Vec::new()
+    };
+    let supports_arrows = terminal_selector_available(&default);
 
     println!();
     println!("{}", "  Architecture".bright_white().bold());
     println!("    inferred: {}", inferred);
+    println!("    current selection/default: {}", inferred);
     println!("    common approaches:");
     println!();
 
@@ -743,9 +935,20 @@ fn prompt_architecture_choice(
         );
     }
     println!();
-    println!("    or type your architecture");
+    if supports_arrows {
+        println!("    options: up/down, type name or number, or type your architecture");
+    } else {
+        println!("    options: type name or number, or type your architecture");
+    }
 
-    let choice = prompt_line("    choice: ")?;
+    let arch_options = ARCH_DIRECTIONS
+        .iter()
+        .map(|(arch, _)| *arch)
+        .collect::<Vec<_>>();
+    let choice = match prompt_terminal_selector(&arch_options, &default, "    choice: ")? {
+        Some(choice) => choice,
+        None => prompt_line("    choice: ")?,
+    };
 
     if choice.is_empty() {
         return Ok(current.map(|s| s.to_string()));
@@ -7512,5 +7715,93 @@ fn run_demo_command(cli: DemoCli, project_root: &Path) -> Result<(), error::Deca
             println!("  interlock  - Shows preflight + impact prediction");
             Ok(())
         }
+    }
+}
+
+#[cfg(test)]
+mod init_prompt_tests {
+    use super::*;
+    use tempfile::tempdir;
+
+    #[test]
+    fn arrow_keys_move_selection_without_entering_input_text() {
+        let default = vec!["Rust".to_string()];
+        let selected = selector_result_for_input(LANGUAGES, &default, b"\x1b[B\x1b[B\x1b[A\n");
+
+        assert_eq!(selected, "TypeScript");
+        assert!(!selected.contains("\x1b"));
+        assert!(!selected.contains("[B"));
+    }
+
+    #[test]
+    fn enter_accepts_inferred_default_language() {
+        let default = vec!["Python".to_string()];
+        let selected = selector_result_for_input(LANGUAGES, &default, b"\n");
+
+        assert_eq!(selected, "Python");
+    }
+
+    #[test]
+    fn numeric_language_selection_targets_numbered_option() {
+        let default = vec!["Rust".to_string()];
+        let selected = selector_result_for_input(LANGUAGES, &default, b"4\n");
+
+        assert_eq!(selected, "Python");
+        assert_eq!(parse_language_choice(&selected), vec!["Python".to_string()]);
+    }
+
+    #[test]
+    fn typed_language_selection_targets_matching_language() {
+        let default = vec!["Rust".to_string()];
+        let selected = selector_result_for_input(LANGUAGES, &default, b"python\n");
+
+        assert_eq!(selected, "Python");
+        assert_eq!(parse_language_choice("python"), vec!["Python".to_string()]);
+    }
+
+    #[test]
+    fn comma_separated_language_selection_is_preserved() {
+        assert_eq!(
+            parse_language_choice("4, shell, typescript"),
+            vec![
+                "Python".to_string(),
+                "Shell".to_string(),
+                "TypeScript".to_string()
+            ]
+        );
+    }
+
+    #[test]
+    fn line_prompt_escape_backstop_strips_raw_ansi_sequences() {
+        assert_eq!(
+            strip_ansi_escape_sequences("^[[B\x1b[Bpython\x1b[A"),
+            "^[[Bpython"
+        );
+    }
+
+    #[test]
+    fn inferred_language_wins_over_architecture_recommendation_for_default() {
+        assert_eq!(
+            language_choice_seed(&["Python".to_string()], &["Rust".to_string()]),
+            vec!["Python".to_string()]
+        );
+    }
+
+    #[test]
+    fn mixed_scripts_repo_infers_multiple_languages_without_compiled_bias() {
+        let tmp = tempdir().expect("tempdir");
+        fs::write(tmp.path().join("task.py"), "print('ok')\n").expect("python fixture");
+        fs::write(tmp.path().join("deploy.sh"), "#!/usr/bin/env bash\n").expect("shell fixture");
+        fs::write(tmp.path().join("env.zsh"), "printenv\n").expect("zsh fixture");
+        fs::write(tmp.path().join("tool.ts"), "export const ok = true;\n").expect("ts fixture");
+        fs::write(tmp.path().join("probe.go"), "package main\n").expect("go fixture");
+
+        let ctx = infer_repo_context(tmp.path());
+
+        assert!(ctx.primary_languages.contains(&"go".to_string()));
+        assert!(ctx.primary_languages.contains(&"python".to_string()));
+        assert!(ctx.primary_languages.contains(&"shell".to_string()));
+        assert!(ctx.primary_languages.contains(&"typescript".to_string()));
+        assert_ne!(ctx.primary_languages, vec!["rust".to_string()]);
     }
 }

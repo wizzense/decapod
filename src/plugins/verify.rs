@@ -751,8 +751,9 @@ pub fn capture_baseline_for_todo(
         let disk_path = resolve_artifact_path(repo_root, &path);
         if !disk_path.exists() {
             return Err(error::DecapodError::NotFound(format!(
-                "Verification artifact file not found: {}",
-                disk_path.display()
+                "Verification artifact file not found: {}. `--artifact` expects a file path relative to the repo root, for example `--artifact README.md`. To attach notes, use `decapod todo comment --id {}`.",
+                disk_path.display(),
+                todo_id
             )));
         }
         let (hash, size, mtime) = hash_file(&disk_path)?;

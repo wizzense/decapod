@@ -70,9 +70,11 @@ pub fn maybe_route_mutation(
     {
         match run_unix_broker(broker_root, argv) {
             Ok(()) => Ok(true),
-            // Some constrained sandboxes disallow AF_UNIX sockets. Fall back to direct path.
+            // Some constrained sandboxes disallow AF_UNIX sockets, and deeply nested
+            // Decapod worktrees can exceed platform socket path limits. Fall back to
+            // direct execution instead of surfacing a scary broker implementation error.
             Err(error::DecapodError::IoError(io_err))
-                if io_err.kind() == std::io::ErrorKind::PermissionDenied =>
+                if broker_io_error_allows_direct_fallback(io_err.kind()) =>
             {
                 Ok(false)
             }
@@ -86,6 +88,14 @@ pub fn maybe_route_mutation(
         let _ = argv;
         Ok(false)
     }
+}
+
+#[cfg(unix)]
+fn broker_io_error_allows_direct_fallback(kind: std::io::ErrorKind) -> bool {
+    matches!(
+        kind,
+        std::io::ErrorKind::PermissionDenied | std::io::ErrorKind::InvalidInput
+    )
 }
 
 #[cfg(unix)]
@@ -661,5 +671,21 @@ struct BrokerLease {
 impl Drop for BrokerLease {
     fn drop(&mut self) {
         let _ = fs::remove_file(&self.path);
+    }
+}
+
+#[cfg(all(test, unix))]
+mod tests {
+    #[test]
+    fn broker_falls_back_for_socket_unavailable_errors() {
+        assert!(super::broker_io_error_allows_direct_fallback(
+            std::io::ErrorKind::PermissionDenied
+        ));
+        assert!(super::broker_io_error_allows_direct_fallback(
+            std::io::ErrorKind::InvalidInput
+        ));
+        assert!(!super::broker_io_error_allows_direct_fallback(
+            std::io::ErrorKind::Other
+        ));
     }
 }
