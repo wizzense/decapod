@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.48.1](https://github.com/DecapodLabs/decapod/compare/v0.48.0...v0.48.1) - 2026-05-18
+
+### Fixed
+
+- ci lint and fmt failures
+- soften agent-facing decapod workflow errors
+
+### Other
+
+- style mermaid loop with gen z colors and add agent ping paths
+- normalize architecture doc links
+- show validation failure loop in README
+- consolidate architecture constitution docs
+
 ## [0.48.0](https://github.com/DecapodLabs/decapod/compare/v0.47.37...v0.48.0) - 2026-05-17
 
 ### Added
