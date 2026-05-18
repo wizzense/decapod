@@ -37,10 +37,12 @@ impl fmt::Display for DecapodError {
         match self {
             Self::RusqliteError(e) => write!(f, "SQLite error: {e}"),
             Self::IoError(e) => {
-                if e.kind() == std::io::ErrorKind::InvalidInput
-                    && e.to_string().contains("SUN_LEN")
+                if e.kind() == std::io::ErrorKind::InvalidInput && e.to_string().contains("SUN_LEN")
                 {
-                    write!(f, "broker path workspace unavailable in this environment (socket path limitation)")
+                    write!(
+                        f,
+                        "broker path workspace unavailable in this environment (socket path limitation)"
+                    )
                 } else {
                     write!(f, "I/O error: {e}")
                 }

@@ -4480,22 +4480,26 @@ pub fn run_todo_cli(store: &Store, cli: TodoCli) -> Result<(), error::DecapodErr
                 let task_title = get_task(root, id)?
                     .map(|t| t.title)
                     .unwrap_or_else(|| id.to_string());
-                let launch =
-                    match container::run_container_for_claim(store, agent_id, id, &task_title) {
-                        Ok(result) => serde_json::json!({
-                            "status": "ok",
-                            "result": result
-                        }),
-                        Err(err) => serde_json::json!({
-                            "status": "warning",
-                            "code": "container_autorun_unavailable",
-                            "message": "Task claimed; optional container autorun was skipped.",
-                            "user_message": "The task was claimed successfully. The agent has instructions to continue from the claimed worktree and handle container proof if required.",
-                            "agent_action": "Continue from the claimed Decapod worktree. If container proof is required, inspect Docker/Podman availability and rerun `decapod auto container run` with the task branch.",
-                            "next": "Run `decapod auto container run ...` later if container proof is required.",
-                            "detail": summarize_claim_container_error(&err.to_string())
-                        }),
-                    };
+                let launch = match container::run_container_for_claim(
+                    store,
+                    agent_id,
+                    id,
+                    &task_title,
+                ) {
+                    Ok(result) => serde_json::json!({
+                        "status": "ok",
+                        "result": result
+                    }),
+                    Err(err) => serde_json::json!({
+                        "status": "warning",
+                        "code": "container_autorun_unavailable",
+                        "message": "Task claimed; optional container autorun was skipped.",
+                        "user_message": "The task was claimed successfully. The agent has instructions to continue from the claimed worktree and handle container proof if required.",
+                        "agent_action": "Continue from the claimed Decapod worktree. If container proof is required, inspect Docker/Podman availability and rerun `decapod auto container run` with the task branch.",
+                        "next": "Run `decapod auto container run ...` later if container proof is required.",
+                        "detail": summarize_claim_container_error(&err.to_string())
+                    }),
+                };
                 if let Some(obj) = out.as_object_mut() {
                     obj.insert("container".to_string(), launch);
                 }
