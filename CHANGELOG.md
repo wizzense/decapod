@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.48.4](https://github.com/DecapodLabs/decapod/compare/v0.48.3...v0.48.4) - 2026-05-19
+
+### Fixed
+
+- *(init)* satisfy selector lint gates
+- *(init)* ensure interactive selector always works with fallback
+
+### Other
+
+- Merge pull request #558 from DecapodLabs/agent/codex/code_01kryy3egw85p7kr-init-selector-interactive
+
 ## [0.48.3](https://github.com/DecapodLabs/decapod/compare/v0.48.2...v0.48.3) - 2026-05-18
 
 ### Fixed
