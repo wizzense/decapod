@@ -108,7 +108,7 @@ pub(crate) struct InitGroupCli {
     /// Generate project specs docs scaffolding under `.decapod/generated/specs/` (enabled by default).
     #[clap(long = "no-specs", action = clap::ArgAction::SetFalse, default_value_t = true)]
     pub specs: bool,
-    /// Diagram style for generated `.decapod/generated/specs/ARCHITECTURE.md`.
+    /// Preferred diagram notation for generated `.decapod/generated/specs/ARCHITECTURE.md`.
     #[clap(long, value_enum, default_value_t = InitDiagramStyle::Ascii)]
     pub diagram_style: InitDiagramStyle,
     /// Force creation of all 3 entrypoint files (GEMINI.md, AGENTS.md, CLAUDE.md).
@@ -188,7 +188,7 @@ pub(crate) struct InitWithCli {
     /// Generate project specs docs scaffolding under `.decapod/generated/specs/` (enabled by default).
     #[clap(long = "no-specs", action = clap::ArgAction::SetFalse, default_value_t = true)]
     pub specs: bool,
-    /// Diagram style for generated `.decapod/generated/specs/ARCHITECTURE.md`.
+    /// Preferred diagram notation for generated `.decapod/generated/specs/ARCHITECTURE.md`.
     #[clap(long, value_enum, default_value_t = InitDiagramStyle::Ascii)]
     pub diagram_style: InitDiagramStyle,
     /// Seed product name for generated specs (non-interactive safe).
