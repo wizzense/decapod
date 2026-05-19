@@ -556,6 +556,12 @@ const ARCH_DIRECTIONS: &[(&str, &str)] = &[
     ("data", "Data pipeline (Python, SQL)"),
 ];
 
+const DIAGRAM_NOTATION_OPTIONS: &[&str] = &["ascii", "mermaid"];
+const DIAGRAM_NOTATION_DESCRIPTIONS: &[&str] = &[
+    "ASCII/text blocks readable in terminals and plain Markdown",
+    "Mermaid diagrams rendered by GitHub Markdown from readable text source",
+];
+
 fn normalize_language(input: &str) -> String {
     match input.trim().to_lowercase().as_str() {
         "ts" | "typescript" => "TypeScript".to_string(),
@@ -1199,27 +1205,61 @@ fn prompt_init_target_dir(current_dir: &Path) -> Result<PathBuf, error::DecapodE
     resolve_or_create_project_dir(current_dir, Path::new(project_name), false)
 }
 
+fn diagram_style_choice(style: InitDiagramStyle) -> &'static str {
+    match style {
+        InitDiagramStyle::Ascii => "ascii",
+        InitDiagramStyle::Mermaid => "mermaid",
+    }
+}
+
+fn diagram_style_label(style: InitDiagramStyle) -> &'static str {
+    match style {
+        InitDiagramStyle::Ascii => "ascii/text",
+        InitDiagramStyle::Mermaid => "mermaid",
+    }
+}
+
+fn parse_diagram_style_choice(
+    raw: &str,
+    default_style: InitDiagramStyle,
+) -> Result<InitDiagramStyle, error::DecapodError> {
+    let choice = raw.trim();
+    if choice.is_empty() {
+        return Ok(default_style);
+    }
+
+    match choice.to_ascii_lowercase().as_str() {
+        "1" | "ascii" | "ascii/text" | "ascii-text" | "text" | "plain" | "plain-text"
+        | "plaintext" => Ok(InitDiagramStyle::Ascii),
+        "2" | "mermaid" | "mmd" => Ok(InitDiagramStyle::Mermaid),
+        _ => Err(error::DecapodError::ValidationError(
+            "Invalid diagram notation; expected ascii/text or mermaid".to_string(),
+        )),
+    }
+}
+
 fn prompt_diagram_style(
     default_style: InitDiagramStyle,
 ) -> Result<InitDiagramStyle, error::DecapodError> {
-    let default_label = match default_style {
-        InitDiagramStyle::Ascii => "ascii",
-        InitDiagramStyle::Mermaid => "mermaid",
-    };
-    let line = prompt_line(&format!(
-        "Architecture diagram style [ascii/mermaid] (default: {}): ",
-        default_label
-    ))?;
-    if line.is_empty() {
-        return Ok(default_style);
-    }
-    match line.to_ascii_lowercase().as_str() {
-        "ascii" => Ok(InitDiagramStyle::Ascii),
-        "mermaid" => Ok(InitDiagramStyle::Mermaid),
-        _ => Err(error::DecapodError::ValidationError(
-            "Invalid diagram style; expected ascii or mermaid".to_string(),
-        )),
-    }
+    print_init_block(
+        "Diagram Notation",
+        "Choose the README-visible diagram notation Decapod should generate.",
+    );
+    println!(
+        "    current selection/default: {}",
+        diagram_style_label(default_style).bright_white()
+    );
+    println!("    options: up/down, type name or number");
+    let default = vec![diagram_style_choice(default_style).to_string()];
+    let choice = prompt_terminal_selector(
+        DIAGRAM_NOTATION_OPTIONS,
+        Some(DIAGRAM_NOTATION_DESCRIPTIONS),
+        &default,
+        "    choice: ",
+    )?
+    .unwrap_or_else(|| String::from(diagram_style_choice(default_style)));
+
+    parse_diagram_style_choice(&choice, default_style)
 }
 
 fn init_with_from_config(
@@ -1304,11 +1344,7 @@ fn interactive_init_with(
     if config.init.specs {
         next.specs = true;
     }
-    if next.diagram_style != InitDiagramStyle::Ascii
-        && next.diagram_style != InitDiagramStyle::Mermaid
-    {
-        next.diagram_style = prompt_diagram_style(InitDiagramStyle::Ascii)?;
-    }
+    next.diagram_style = prompt_diagram_style(next.diagram_style)?;
     Ok(next)
 }
 
@@ -1509,11 +1545,8 @@ fn run_init_apply(
     );
     println!("  Backups: {}", backup_count.to_string().bright_magenta());
     println!(
-        "  Diagram Style: {}",
-        match init_with.diagram_style {
-            InitDiagramStyle::Ascii => "ascii".bright_white(),
-            InitDiagramStyle::Mermaid => "mermaid".bright_white(),
-        }
+        "  Diagram Notation: {}",
+        diagram_style_label(init_with.diagram_style).bright_white()
     );
     println!(
         "{} {}",
@@ -1620,6 +1653,11 @@ pub fn run() -> Result<(), error::DecapodError> {
                         }
                         with
                     } else {
+                        let diagram_style = if io::stdin().is_terminal() {
+                            prompt_diagram_style(init_group.diagram_style)?
+                        } else {
+                            init_group.diagram_style
+                        };
                         InitWithCli {
                             dir: Some(target),
                             project_dir: None,
@@ -1630,7 +1668,7 @@ pub fn run() -> Result<(), error::DecapodError> {
                             gemini: init_group.gemini,
                             agents: init_group.agents,
                             specs: true,
-                            diagram_style: InitDiagramStyle::Ascii,
+                            diagram_style,
                             product_name: init_group.product_name.clone(),
                             product_summary: init_group.product_summary.clone(),
                             architecture_direction: init_group.architecture_direction.clone(),
@@ -7938,6 +7976,53 @@ mod init_prompt_tests {
             1
         );
         assert!(lines.iter().any(|line| line.starts_with("    >")));
+    }
+
+    #[test]
+    fn diagram_notation_selector_uses_terminal_readable_options() {
+        let default = vec![String::from("ascii")];
+
+        let lines = selector_render_for_input(
+            DIAGRAM_NOTATION_OPTIONS,
+            Some(DIAGRAM_NOTATION_DESCRIPTIONS),
+            &default,
+            b"\x1b[B\n",
+        );
+
+        assert_eq!(lines[0], "    choice: mermaid");
+        assert_eq!(
+            lines
+                .iter()
+                .filter(|line| line.contains("ascii -> ASCII/text blocks"))
+                .count(),
+            1
+        );
+        assert!(
+            lines
+                .iter()
+                .any(|line| line.contains("mermaid -> Mermaid diagrams"))
+        );
+    }
+
+    #[test]
+    fn diagram_notation_choice_accepts_text_aliases() {
+        assert_eq!(
+            parse_diagram_style_choice("", InitDiagramStyle::Mermaid).unwrap(),
+            InitDiagramStyle::Mermaid
+        );
+        assert_eq!(
+            parse_diagram_style_choice("text", InitDiagramStyle::Mermaid).unwrap(),
+            InitDiagramStyle::Ascii
+        );
+        assert_eq!(
+            parse_diagram_style_choice("ascii/text", InitDiagramStyle::Mermaid).unwrap(),
+            InitDiagramStyle::Ascii
+        );
+        assert_eq!(
+            parse_diagram_style_choice("2", InitDiagramStyle::Ascii).unwrap(),
+            InitDiagramStyle::Mermaid
+        );
+        assert!(parse_diagram_style_choice("plantuml", InitDiagramStyle::Ascii).is_err());
     }
 
     #[test]
