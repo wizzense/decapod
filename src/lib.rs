@@ -36,6 +36,7 @@ use std::io::IsTerminal;
 use std::io::Read;
 use std::io::Write;
 use std::path::{Path, PathBuf};
+use std::process::Stdio;
 use std::sync::OnceLock;
 use std::sync::mpsc;
 use std::thread;
@@ -611,31 +612,47 @@ fn apply_architecture_language_recommendation(ctx: &mut RepoContext) {
 
 struct TerminalModeGuard {
     saved_mode: String,
+    tty: fs::File,
 }
 
 impl Drop for TerminalModeGuard {
     fn drop(&mut self) {
-        let _ = std::process::Command::new("stty")
-            .arg(&self.saved_mode)
-            .status();
+        if let Ok(tty) = self.tty.try_clone() {
+            let _ = std::process::Command::new("stty")
+                .arg(&self.saved_mode)
+                .stdin(Stdio::from(tty))
+                .status();
+        }
+        print!("\x1b[?25h");
         println!();
     }
 }
 
-fn enter_raw_terminal_mode() -> Option<TerminalModeGuard> {
-    let output = std::process::Command::new("stty").arg("-g").output().ok()?;
+fn enter_raw_terminal_mode() -> Option<(TerminalModeGuard, fs::File)> {
+    let tty = fs::OpenOptions::new()
+        .read(true)
+        .write(true)
+        .open("/dev/tty")
+        .ok()?;
+    let output = std::process::Command::new("stty")
+        .arg("-g")
+        .stdin(Stdio::from(tty.try_clone().ok()?))
+        .output()
+        .ok()?;
     if !output.status.success() {
         return None;
     }
     let saved_mode = String::from_utf8(output.stdout).ok()?.trim().to_string();
     let status = std::process::Command::new("stty")
         .args(["raw", "-echo"])
+        .stdin(Stdio::from(tty.try_clone().ok()?))
         .status()
         .ok()?;
     if !status.success() {
         return None;
     }
-    Some(TerminalModeGuard { saved_mode })
+    let input = tty.try_clone().ok()?;
+    Some((TerminalModeGuard { saved_mode, tty }, input))
 }
 
 fn terminal_selector_available(_default: &[String]) -> bool {
@@ -671,26 +688,40 @@ fn selector_shown(options: &[&str], selected: usize, typed: &str) -> String {
         .unwrap_or_else(|| typed.to_string())
 }
 
-fn selector_active_line(
-    options: &[&str],
-    default: &[String],
-    selected: usize,
-    typed: &str,
-) -> String {
-    let shown = selector_shown(options, selected, typed);
-    let typed_match = find_selector_match(options, typed);
-    let matched = typed_match.unwrap_or(selected);
-    let marker = if default.iter().any(|d| d.eq_ignore_ascii_case(&shown)) {
-        "✓"
-    } else {
-        " "
-    };
+fn selector_default_index(options: &[&str], default: &[String]) -> Option<usize> {
+    default
+        .first()
+        .and_then(|d| options.iter().position(|o| d.eq_ignore_ascii_case(o)))
+}
 
-    if typed.trim().is_empty() || typed_match.is_some() {
-        format!("    active: > {} {:>2}. {}", marker, matched + 1, shown)
+fn selector_render_lines(
+    options: &[&str],
+    descriptions: Option<&[&str]>,
+    selected: usize,
+    default_idx: Option<usize>,
+    typed: &str,
+    prompt: &str,
+) -> Vec<String> {
+    let shown = selector_shown(options, selected, typed);
+    let input = if typed.is_empty() {
+        shown.clone()
     } else {
-        format!("    active: >   {}", shown)
+        typed.to_string()
+    };
+    let mut lines = vec![format!("{prompt}{input}")];
+    for (i, option) in options.iter().enumerate() {
+        let cursor = if i == selected { ">" } else { " " };
+        let marker = if default_idx == Some(i) { "✓" } else { " " };
+        let suffix = descriptions
+            .and_then(|items| items.get(i))
+            .map(|description| format!(" -> {description}"))
+            .unwrap_or_default();
+        lines.push(format!(
+            "    {cursor} {marker} {:>2}. {option}{suffix}",
+            i + 1
+        ));
     }
+    lines
 }
 
 fn update_selector_from_byte(options: &[&str], selected: &mut usize, typed: &mut String, byte: u8) {
@@ -748,6 +779,48 @@ fn selector_result_for_input(options: &[&str], default: &[String], input: &[u8])
     selector_shown(options, selected, &typed)
 }
 
+#[cfg(test)]
+fn selector_render_for_input(
+    options: &[&str],
+    descriptions: Option<&[&str]>,
+    default: &[String],
+    input: &[u8],
+) -> Vec<String> {
+    let mut selected = selector_default_index(options, default).unwrap_or(0);
+    let mut typed = String::new();
+    let mut index = 0;
+    while index < input.len() {
+        match input[index] {
+            b'\r' | b'\n' => break,
+            27 if input.get(index + 1) == Some(&b'[') => {
+                match input.get(index + 2).copied() {
+                    Some(b'A') => {
+                        typed.clear();
+                        selected = selected.checked_sub(1).unwrap_or_else(|| options.len() - 1);
+                    }
+                    Some(b'B') => {
+                        typed.clear();
+                        selected = (selected + 1) % options.len();
+                    }
+                    _ => {}
+                }
+                index += 3;
+                continue;
+            }
+            byte => update_selector_from_byte(options, &mut selected, &mut typed, byte),
+        }
+        index += 1;
+    }
+    selector_render_lines(
+        options,
+        descriptions,
+        selected,
+        selector_default_index(options, default),
+        &typed,
+        "    choice: ",
+    )
+}
+
 fn prompt_select_fallback(
     options: &[&str],
     default: &[String],
@@ -793,52 +866,55 @@ fn prompt_select_fallback(
 
 fn prompt_terminal_selector(
     options: &[&str],
+    descriptions: Option<&[&str]>,
     default: &[String],
     prompt: &str,
 ) -> Result<Option<String>, error::DecapodError> {
-    use crate::core::ansi::AnsiExt;
-
     if options.is_empty() {
         return Ok(None);
     }
     if !io::stdin().is_terminal() {
         return prompt_select_fallback(options, default, prompt);
     }
-    let mut selected = default
-        .first()
-        .and_then(|d| {
-            options
-                .iter()
-                .position(|option| d.eq_ignore_ascii_case(option))
-        })
-        .unwrap_or(0);
-    let Some(_guard) = enter_raw_terminal_mode() else {
+    let mut selected = selector_default_index(options, default).unwrap_or(0);
+    let default_idx = selector_default_index(options, default);
+    let Some((_guard, mut input)) = enter_raw_terminal_mode() else {
         return prompt_select_fallback(options, default, prompt);
     };
     let mut typed = String::new();
-    let mut stdin = io::stdin();
-    let mut rendered = false;
+    let mut rendered_lines = 0;
+    print!("\x1b[?25l");
     loop {
-        let shown = selector_shown(options, selected, &typed);
-        let active = selector_active_line(options, default, selected, &typed);
-        if rendered {
-            print!("\x1b[1A");
+        if rendered_lines > 0 {
+            print!("\x1b[{rendered_lines}F");
         }
-        print!(
-            "\r{}\x1b[K\n\r{}\x1b[K",
-            active.bright_white().bold(),
-            format!("{prompt}{shown}").bright_cyan().bold()
-        );
-        print!("\x1b[K");
+        let lines =
+            selector_render_lines(options, descriptions, selected, default_idx, &typed, prompt);
+        for line in &lines {
+            print!("\r\x1b[K{line}\n");
+        }
+        rendered_lines = lines.len();
         io::stdout().flush().map_err(error::DecapodError::IoError)?;
-        rendered = true;
 
         let mut byte = [0_u8; 1];
-        stdin
+        input
             .read_exact(&mut byte)
             .map_err(error::DecapodError::IoError)?;
         match byte[0] {
-            b'\r' | b'\n' => return Ok(Some(shown)),
+            b'\r' | b'\n' => {
+                let shown = selector_shown(options, selected, &typed);
+                print!("\x1b[{rendered_lines}F");
+                print!("\r\x1b[K{prompt}{shown}\n");
+                for _ in 1..rendered_lines {
+                    print!("\r\x1b[K\n");
+                }
+                print!(
+                    "\x1b[{lines_up}F",
+                    lines_up = rendered_lines.saturating_sub(1)
+                );
+                io::stdout().flush().map_err(error::DecapodError::IoError)?;
+                return Ok(Some(shown));
+            }
             3 => {
                 return Err(error::DecapodError::ValidationError(
                     "init prompt interrupted".to_string(),
@@ -849,7 +925,7 @@ fn prompt_terminal_selector(
             }
             27 => {
                 let mut seq = [0_u8; 2];
-                if stdin.read_exact(&mut seq).is_ok() && seq[0] == b'[' {
+                if input.read_exact(&mut seq).is_ok() && seq[0] == b'[' {
                     match seq[1] {
                         b'A' => {
                             typed.clear();
@@ -905,20 +981,9 @@ fn prompt_language_choice(
     } else {
         println!("    options: type name or number, comma-separated for multiple");
     }
-    println!();
-
-    for (i, lang) in LANGUAGES.iter().enumerate() {
-        let marker = if default.iter().any(|c| c.eq_ignore_ascii_case(lang)) {
-            "✓"
-        } else {
-            " "
-        };
-        println!("    {} {:>2}. {}", marker, i + 1, lang);
-    }
-    println!();
     println!("    press Enter to use the current selection/default");
 
-    let choice = match prompt_terminal_selector(LANGUAGES, &default, "    choice: ")? {
+    let choice = match prompt_terminal_selector(LANGUAGES, None, &default, "    choice: ")? {
         Some(choice) => choice,
         None => prompt_line("    choice: ")?,
     };
@@ -996,23 +1061,6 @@ fn prompt_architecture_choice(
     println!("    inferred: {}", inferred);
     println!("    current selection/default: {}", inferred);
     println!("    common approaches:");
-    println!();
-
-    for (i, (arch, desc)) in ARCH_DIRECTIONS.iter().enumerate() {
-        let marker = if current.is_some_and(|c| c.eq_ignore_ascii_case(arch)) {
-            "✓"
-        } else {
-            " "
-        };
-        println!(
-            "    {}{} {} -> {}",
-            marker,
-            if i == 0 { " >" } else { "  " },
-            arch,
-            desc
-        );
-    }
-    println!();
     if supports_arrows {
         println!("    options: up/down, type name or number, or type your architecture");
     } else {
@@ -1023,7 +1071,16 @@ fn prompt_architecture_choice(
         .iter()
         .map(|(arch, _)| *arch)
         .collect::<Vec<_>>();
-    let choice = match prompt_terminal_selector(&arch_options, &default, "    choice: ")? {
+    let arch_descriptions = ARCH_DIRECTIONS
+        .iter()
+        .map(|(_, description)| *description)
+        .collect::<Vec<_>>();
+    let choice = match prompt_terminal_selector(
+        &arch_options,
+        Some(&arch_descriptions),
+        &default,
+        "    choice: ",
+    )? {
         Some(choice) => choice,
         None => prompt_line("    choice: ")?,
     };
@@ -7812,21 +7869,24 @@ mod init_prompt_tests {
     }
 
     #[test]
-    fn active_selector_line_tracks_current_selection() {
+    fn selector_render_tracks_current_selection() {
         let default = vec!["Python".to_string()];
 
-        assert_eq!(
-            selector_active_line(LANGUAGES, &default, 3, ""),
-            "    active: > ✓  4. Python"
+        let default_lines = selector_render_for_input(LANGUAGES, None, &default, b"\n");
+        assert_eq!(default_lines[0], "    choice: Python");
+        assert!(
+            default_lines
+                .iter()
+                .any(|line| line == "    > ✓  4. Python")
         );
-        assert_eq!(
-            selector_active_line(LANGUAGES, &default, 0, "go"),
-            "    active: >    5. Go"
-        );
-        assert_eq!(
-            selector_active_line(LANGUAGES, &default, 0, "not-a-language"),
-            "    active: >   not-a-language"
-        );
+
+        let typed_lines = selector_render_for_input(LANGUAGES, None, &default, b"go\n");
+        assert_eq!(typed_lines[0], "    choice: go");
+        assert!(typed_lines.iter().any(|line| line == "    >    5. Go"));
+
+        let custom_lines =
+            selector_render_for_input(LANGUAGES, None, &default, b"not-a-language\n");
+        assert_eq!(custom_lines[0], "    choice: not-a-language");
     }
 
     #[test]
@@ -7853,6 +7913,31 @@ mod init_prompt_tests {
 
         assert_eq!(selected, "Python");
         assert_eq!(parse_language_choice("python"), vec!["Python".to_string()]);
+    }
+
+    #[test]
+    fn selector_render_shows_one_navigable_option_list() {
+        let default = vec!["cli".to_string()];
+        let options = ARCH_DIRECTIONS
+            .iter()
+            .map(|(arch, _)| *arch)
+            .collect::<Vec<_>>();
+        let descriptions = ARCH_DIRECTIONS
+            .iter()
+            .map(|(_, description)| *description)
+            .collect::<Vec<_>>();
+
+        let lines = selector_render_for_input(&options, Some(&descriptions), &default, b"\x1b[B\n");
+
+        assert_eq!(lines[0], "    choice: lambda");
+        assert_eq!(
+            lines
+                .iter()
+                .filter(|line| line.contains("webapp -> Web application"))
+                .count(),
+            1
+        );
+        assert!(lines.iter().any(|line| line.starts_with("    >")));
     }
 
     #[test]
