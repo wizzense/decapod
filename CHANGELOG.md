@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.48.6](https://github.com/DecapodLabs/decapod/compare/v0.48.5...v0.48.6) - 2026-05-19
+
+### Other
+
+- Add init diagram notation selector
+
 ## [0.48.5](https://github.com/DecapodLabs/decapod/compare/v0.48.4...v0.48.5) - 2026-05-19
 
 ### Fixed
