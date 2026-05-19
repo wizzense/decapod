@@ -638,8 +638,8 @@ fn enter_raw_terminal_mode() -> Option<TerminalModeGuard> {
     Some(TerminalModeGuard { saved_mode })
 }
 
-fn terminal_selector_available(default: &[String]) -> bool {
-    io::stdin().is_terminal() && !default.is_empty()
+fn terminal_selector_available(_default: &[String]) -> bool {
+    io::stdin().is_terminal()
 }
 
 fn find_selector_match(options: &[&str], typed: &str) -> Option<usize> {
@@ -726,6 +726,43 @@ fn selector_result_for_input(options: &[&str], default: &[String], input: &[u8])
     selector_shown(options, selected, &typed)
 }
 
+fn prompt_select_fallback(
+    options: &[&str],
+    default: &[String],
+    prompt: &str,
+) -> Result<Option<String>, error::DecapodError> {
+    if options.is_empty() {
+        return Ok(None);
+    }
+    let default_idx = default
+        .first()
+        .and_then(|d| options.iter().position(|o| d.eq_ignore_ascii_case(o)));
+    for (i, opt) in options.iter().enumerate() {
+        let marker = if default_idx == Some(i) { "✓" } else { " " };
+        println!("    {} {:>2}. {}", marker, i + 1, opt);
+    }
+    let default_val = default_idx.map(|i| i + 1).unwrap_or(1);
+    loop {
+        println!();
+        let line = prompt_line(&format!("{prompt}[1-{}, default={default_val}]: ", options.len()))?;
+        let trimmed = line.trim();
+        if trimmed.is_empty() {
+            return default_idx
+                .map(|i| Ok(Some(options[i].to_string())))
+                .unwrap_or(Ok(None));
+        }
+        if let Ok(n) = trimmed.parse::<usize>() {
+            if n >= 1 && n <= options.len() {
+                return Ok(Some(options[n - 1].to_string()));
+            }
+        }
+        if let Some(pos) = options.iter().position(|o| o.eq_ignore_ascii_case(trimmed)) {
+            return Ok(Some(options[pos].to_string()));
+        }
+        println!("    Invalid choice. Enter a number (1-{}) or name.", options.len());
+    }
+}
+
 fn prompt_terminal_selector(
     options: &[&str],
     default: &[String],
@@ -733,8 +770,11 @@ fn prompt_terminal_selector(
 ) -> Result<Option<String>, error::DecapodError> {
     use crate::core::ansi::AnsiExt;
 
-    if !terminal_selector_available(default) || options.is_empty() {
+    if options.is_empty() {
         return Ok(None);
+    }
+    if !io::stdin().is_terminal() {
+        return prompt_select_fallback(options, default, prompt);
     }
     let mut selected = default
         .first()
@@ -745,7 +785,7 @@ fn prompt_terminal_selector(
         })
         .unwrap_or(0);
     let Some(_guard) = enter_raw_terminal_mode() else {
-        return Ok(None);
+        return prompt_select_fallback(options, default, prompt);
     };
     let mut typed = String::new();
     let mut stdin = io::stdin();
