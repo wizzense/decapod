@@ -744,22 +744,28 @@ fn prompt_select_fallback(
     let default_val = default_idx.map(|i| i + 1).unwrap_or(1);
     loop {
         println!();
-        let line = prompt_line(&format!("{prompt}[1-{}, default={default_val}]: ", options.len()))?;
+        let line = prompt_line(&format!(
+            "{prompt}[1-{}, default={default_val}]: ",
+            options.len()
+        ))?;
         let trimmed = line.trim();
         if trimmed.is_empty() {
             return default_idx
                 .map(|i| Ok(Some(options[i].to_string())))
                 .unwrap_or(Ok(None));
         }
-        if let Ok(n) = trimmed.parse::<usize>() {
-            if n >= 1 && n <= options.len() {
-                return Ok(Some(options[n - 1].to_string()));
-            }
+        if let Ok(n) = trimmed.parse::<usize>()
+            && (1..=options.len()).contains(&n)
+        {
+            return Ok(Some(options[n - 1].to_string()));
         }
         if let Some(pos) = options.iter().position(|o| o.eq_ignore_ascii_case(trimmed)) {
             return Ok(Some(options[pos].to_string()));
         }
-        println!("    Invalid choice. Enter a number (1-{}) or name.", options.len());
+        println!(
+            "    Invalid choice. Enter a number (1-{}) or name.",
+            options.len()
+        );
     }
 }
 
