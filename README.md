@@ -59,7 +59,6 @@ flowchart TD
     AgentPost -->|"verified result"| UserOut
 
     AgentPre -.->|"ping for context"| UserIn
-    AgentPost -.->|"ping for context"| UserOut
 
     AgentPre -. "optional governance path" .-> DecapodPre
     DecapodPre -. "intent · context · gates" .-> AgentPre
