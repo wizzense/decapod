@@ -2,12 +2,12 @@
 
 ## What Decapod Is
 
-Decapod is the daemonless, local-first, repo-native governance kernel behind AI coding agents. It makes an agent:
+Decapod is the daemonless, local-first, repo-native governance kernel behind AI coding agents. It helps agents:
 1. Build what the human intends
 2. Follow the rules the human intends  
 3. Produce the quality the human intends
 
-The human primarily interfaces with the agent as the UX. The agent calls Decapod.
+The human primarily interfaces with the agent as the UX. The agent acts; Decapod orients.
 
 Decapod is called on demand inside agent loops to turn intent into context, then context into explicit specifications before inference. Each invocation rehydrates repo state, emits artifacts or proof when needed, and exits.
 
@@ -16,7 +16,20 @@ Decapod is called on demand inside agent loops to turn intent into context, then
 - Not an agent framework.
 - Not a prompt-pack.
 - Not a user-facing workflow app.
+- Not the executor; agents remain responsible for implementation.
 - Not a daemonized control plane with hidden always-on state.
+
+## Router Charter
+
+`core/DECAPOD.md` is a router, not a competing instruction surface.
+
+- Agent operating rules: use `AGENTS.md`.
+- Current task state: use `decapod todo`, generated specs, and workspace/status surfaces.
+- Generated specs: use `.decapod/generated/specs/*` through Decapod CLI surfaces.
+- Proof and completion: use `decapod validate`, proof-plan/status surfaces, and TODO completion state.
+- Provider-specific shims (`CLAUDE.md`, `GEMINI.md`, `CODEX.md`): point back to `AGENTS.md`.
+
+Call Decapod at pressure points: intent, boundaries, context, coordination, proof, and completion. Do not turn this router into generic documentation noise or a wrapper around every file read, local edit, or mechanical command.
 
 ## Foundation Demands (Non-Negotiable)
 
