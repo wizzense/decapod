@@ -491,6 +491,32 @@ fn test_agent_specific_files_defer_to_agents() {
 }
 
 #[test]
+fn test_agents_entrypoint_scopes_decapod_invocation() {
+    let temp_dir = TempDir::new().expect("Failed to create temp dir");
+    let temp_path = temp_dir.path().to_path_buf();
+
+    let (success, _) = run_decapod(&temp_path, &["init", "--force"]);
+    assert!(success, "decapod init should succeed");
+
+    let agents_content =
+        fs::read_to_string(temp_path.join("AGENTS.md")).expect("Failed to read AGENTS.md");
+
+    for marker in [
+        "Agents act. Decapod orients.",
+        "Decapod is not your executor",
+        "Do not call Decapod for every trivial file read",
+        "Completion pressure",
+        "readiness to claim completion",
+    ] {
+        assert!(
+            agents_content.contains(marker),
+            "AGENTS.md should teach scoped Decapod invocation: {}",
+            marker
+        );
+    }
+}
+
+#[test]
 fn test_root_entrypoints_match_scaffold_generators() {
     let repo_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     for file in ["AGENTS.md", "CLAUDE.md", "GEMINI.md", "CODEX.md"] {
@@ -629,4 +655,24 @@ fn test_intent_context_spec_contract_alignment() {
         lib_rs.contains(contract_phrase) || cli_rs.contains(contract_phrase),
         "src/lib.rs or src/cli.rs CLI about text must state the intent->context->specifications flow"
     );
+}
+
+#[test]
+fn test_core_decapod_routes_without_competing_with_agents() {
+    let repo_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    let core_decapod = fs::read_to_string(repo_root.join("constitution/core/DECAPOD.md"))
+        .expect("read constitution/core/DECAPOD.md");
+
+    for marker in [
+        "`core/DECAPOD.md` is a router",
+        "Agent operating rules: use `AGENTS.md`",
+        "Provider-specific shims (`CLAUDE.md`, `GEMINI.md`, `CODEX.md`): point back to `AGENTS.md`",
+        "Do not turn this router into generic documentation noise",
+    ] {
+        assert!(
+            core_decapod.contains(marker),
+            "core/DECAPOD.md should route scoped purposes: {}",
+            marker
+        );
+    }
 }
