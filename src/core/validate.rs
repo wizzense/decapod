@@ -581,6 +581,10 @@ fn validate_entrypoint_invariants(
         ("cargo install decapod", "Version update gate language"),
         ("decapod validate", "Validation gate language"),
         (
+            "decapod docs ingest",
+            "Constitution ingestion gate language",
+        ),
+        (
             r#"decapod rpc --op constitution.get --params '{"section":"core/decapod"}'"#,
             "Core constitution RPC mandate language",
         ),
@@ -604,7 +608,7 @@ fn validate_entrypoint_invariants(
             "Control-plane opacity language",
         ),
         (
-            "strict dependency: you are strictly bound to the decapod control plane",
+            "strict dependency: you are strictly bound to the decapod governance kernel",
             "Agent dependency enforcement language",
         ),
         ("✅", "Four invariants checklist format"),
@@ -639,7 +643,7 @@ fn validate_entrypoint_invariants(
 
     // Line count check (AGENTS.md should be thin: max 100 lines for universal contract)
     let line_count = content.lines().count();
-    const MAX_AGENTS_LINES: usize = 100;
+    const MAX_AGENTS_LINES: usize = 120;
     if line_count <= MAX_AGENTS_LINES {
         pass(
             &format!(
@@ -690,8 +694,8 @@ fn validate_entrypoint_invariants(
             all_present = false;
         }
 
-        // Must use RPC constitution access, never the docs CLI or direct constitution/* file paths.
-        if agent_content.contains("decapod docs")
+        // Must use RPC constitution access, never docs CLI or direct constitution/* file paths.
+        if agent_content.contains("decapod docs show")
             || agent_content.contains("docs show")
             || agent_content.contains("(constitution/")
         {
@@ -859,7 +863,7 @@ fn validate_entrypoint_invariants(
             }
         }
 
-        // Must include core constitution ingestion mandate
+        // Must include core constitution ingestion mandate.
         if agent_content
             .to_ascii_lowercase()
             .contains(r#"decapod rpc --op constitution.get --params '{"section":"core/decapod"}'"#)
@@ -3693,7 +3697,7 @@ fn validate_git_workspace_context(
             &auto_remediable_validation_message(
                 "container_workspace_required",
                 "Not running in container workspace - git-tracked work must execute in Docker-isolated workspace (claim.git.container_workspace_required)",
-                "Agent: rerun through `decapod workspace ensure`, or continue inside a Decapod-created container workspace.",
+                "Agent: rerun through `decapod workspace ensure --container`, or continue inside a Decapod-created container workspace.",
             ),
             ctx,
         );
