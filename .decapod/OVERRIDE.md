@@ -13,139 +13,139 @@
 
 ## Core Overrides (Routers and Indices)
 
-### core/ENGINEERING_EXCELLENCE.md
+### core/ENGINEERING_EXCELLENCE
 
-### core/DECAPOD.md
+### core/DECAPOD
 
-### core/INTERFACES.md
+### core/INTERFACES
 
-### core/METHODOLOGY.md
+### core/METHODOLOGY
 
-### core/PLUGINS.md
+### core/PLUGINS
 
-### core/GAPS.md
+### core/GAPS
 
-### core/DEMANDS.md
+### core/DEMANDS
 
-### core/DEPRECATION.md
+### core/DEPRECATION
 
 ---
 
 ## Specs Overrides (System Contracts)
 
-### specs/INTENT.md
+### specs/INTENT
 
-### specs/SYSTEM.md
+### specs/SYSTEM
 
-### specs/AMENDMENTS.md
+### specs/AMENDMENTS
 
-### specs/SECURITY.md
+### specs/SECURITY
 
-### specs/GIT.md
+### specs/GIT
 
 ---
 
 ## Interfaces Overrides (Binding Contracts)
 
-### interfaces/CLAIMS.md
+### interfaces/CLAIMS
 
-### interfaces/CONTROL_PLANE.md
+### interfaces/CONTROL_PLANE
 
-### interfaces/DOC_RULES.md
+### interfaces/DOC_RULES
 
-### interfaces/GLOSSARY.md
+### interfaces/GLOSSARY
 
-### interfaces/STORE_MODEL.md
+### interfaces/STORE_MODEL
 
 ---
 
 ## Methodology Overrides (Practice Guides)
 
-### methodology/ARCHITECTURE.md
+### methodology/ARCHITECTURE
 
-### methodology/SOUL.md
+### methodology/SOUL
 
-### methodology/KNOWLEDGE.md
+### methodology/KNOWLEDGE
 
-### methodology/MEMORY.md
+### methodology/MEMORY
 
-### methodology/METRICS.md
+### methodology/METRICS
 
-### methodology/INCIDENT_RESPONSE.md
+### methodology/INCIDENT_RESPONSE
 
-### methodology/RELEASE_MANAGEMENT.md
+### methodology/RELEASE_MANAGEMENT
 
 ---
 
 ## Architecture Overrides (Domain Patterns)
 
-### architecture/DATA.md
+### architecture/DATA
 
-### architecture/CACHING.md
+### architecture/CACHING
 
-### architecture/MEMORY.md
+### architecture/MEMORY
 
-### architecture/WEB.md
+### architecture/WEB
 
-### architecture/CLOUD.md
+### architecture/CLOUD
 
-### architecture/FRONTEND.md
+### architecture/FRONTEND
 
-### architecture/ALGORITHMS.md
+### architecture/ALGORITHMS
 
-### architecture/SECURITY.md
+### architecture/SECURITY
 
-### architecture/OBSERVABILITY.md
+### architecture/OBSERVABILITY
 
-### architecture/CONCURRENCY.md
+### architecture/CONCURRENCY
 
-### architecture/API_DESIGN.md
+### architecture/API_DESIGN
 
-### architecture/COST_OPTIMIZATION.md
+### architecture/COST_OPTIMIZATION
 
 ---
 
 ## Plugins Overrides (Operational Subsystems)
 
-### plugins/TODO.md
+### plugins/TODO
 
-### plugins/MANIFEST.md
+### plugins/MANIFEST
 
-### plugins/EMERGENCY_PROTOCOL.md
+### plugins/EMERGENCY_PROTOCOL
 
-### plugins/DB_BROKER.md
+### plugins/DB_BROKER
 
-### plugins/CRON.md
+### plugins/CRON
 
-### plugins/REFLEX.md
+### plugins/REFLEX
 
-### plugins/HEALTH.md
+### plugins/HEALTH
 
-### plugins/POLICY.md
+### plugins/POLICY
 
-### plugins/WATCHER.md
+### plugins/WATCHER
 
-### plugins/KNOWLEDGE.md
+### plugins/KNOWLEDGE
 
-### plugins/ARCHIVE.md
+### plugins/ARCHIVE
 
-### plugins/FEDERATION.md
+### plugins/FEDERATION
 
-### plugins/FEEDBACK.md
+### plugins/FEEDBACK
 
-### plugins/TRUST.md
+### plugins/TRUST
 
-### plugins/CONTEXT.md
+### plugins/CONTEXT
 
-### plugins/HEARTBEAT.md
+### plugins/HEARTBEAT
 
-### plugins/APTITUDE.md
+### plugins/APTITUDE
 
-### plugins/VERIFY.md
+### plugins/VERIFY
 
-### plugins/DECIDE.md
+### plugins/DECIDE
 
-### plugins/AUTOUPDATE.md
+### plugins/AUTOUPDATE
 
 
 ### Blended from Legacy AGENTS Entrypoint
@@ -162,7 +162,7 @@ This contract applies equally to Claude, Codex, OpenCode, Kilo, Pi, Cursor, Wind
 cargo install decapod
 
 decapod validate
-decapod docs ingest
+decapod rpc --op constitution.get --params '{"section":"core/DECAPOD"}'
 decapod session acquire
 decapod rpc --op agent.init
 decapod workspace status
@@ -181,7 +181,7 @@ decapod capabilities --format json
 decapod data schema --deterministic
 
 # Resolve scoped governance context before implementation
-decapod docs search --query "<problem>" --op <op> --path <path> --tag <tag>
+decapod rpc --op context.scope --params '{"query":"<problem>","op":"<op>"}' --path <path> --tag <tag>
 decapod rpc --op context.scope --params '{"query":"<problem>","limit":8}'
 
 # Convergence/proof surfaces (call when relevant)
@@ -212,9 +212,9 @@ These invariants are directly enforced by tests. Violations will cause CI failur
 - **INV-WORKSPACE-ISOLATION**: Protected branches (main/master) MUST NOT be directly mutated. (enforced by workspace validation)
 
 ## Safety Invariants
-- ✅ Router pointer: `core/DECAPOD.md`
+- ✅ Router pointer: `core/DECAPOD`
 - ✅ Validation gate: `decapod validate`
-- ✅ Constitution ingestion gate: `decapod docs ingest`
+- ✅ Constitution RPC gate: `decapod rpc --op constitution.get --params '{"section":"core/DECAPOD"}'`
 - ✅ Workspace status gate: `decapod workspace status`
 - ✅ Claim-before-work gate: `decapod todo claim --id <task-id>`
 - ✅ Session auth gate: `DECAPOD_SESSION_PASSWORD`
@@ -247,7 +247,7 @@ Call Decapod before editing. Let Decapod validate after editing.
 - Treat `.decapod/config.toml` as human-editable project context. You may update it when user intent or project direction changes.
 - Read `.decapod/OVERRIDE.md` when present; it is the repo-local place for constitution overrides.
 - Do not mutate Decapod-owned state under `.decapod/` directly; generated specs, data, workspaces, and sessions stay via decapod CLI.
-- Use `decapod docs show core/DECAPOD.md` for binding contracts; `decapod capabilities --format json` for available ops.
+- Use `decapod rpc --op constitution.get --params '{"section":"core/DECAPOD"}'` for binding contracts; `decapod capabilities --format json` for available ops.
 - Use `decapod todo handoff --id <id> --to <agent>` for cross-agent ownership transfer.
 - Treat lock/contention failures (including `VALIDATE_TIMEOUT_OR_LOCK`) as blocking until resolved.
 
@@ -264,7 +264,7 @@ This contract applies equally to Claude, Codex, Gemini, Cursor, Kilo, and any ot
 
 ```bash
 cargo install decapod
-decapod validate && decapod docs ingest && decapod session acquire
+decapod validate && decapod session acquire
 decapod rpc --op agent.init
 decapod workspace status
 decapod todo add "<task>" && decapod todo claim --id <task-id>
@@ -319,8 +319,8 @@ These invariants are directly enforced by tests. Violations will cause CI failur
 - **INV-ROOT-ISOLATION**: Agents MUST NOT check out branches or mutate files in the main repository checkout. All work must happen in isolated `.decapod/workspaces/*` worktrees to avoid disrupting the human user's environment. (enforced by workspace validation)
 
 ## Safety Invariants
-- ✅ Router pointer: `core/DECAPOD.md` | ✅ Validation gate: `decapod validate`
-- ✅ Constitution ingestion gate: `decapod docs ingest`
+- ✅ Router pointer: `core/DECAPOD` | ✅ Validation gate: `decapod validate`
+- ✅ Constitution RPC gate: `decapod rpc --op constitution.get --params '{"section":"core/DECAPOD"}'`
 - ✅ Workspace status gate: `decapod workspace status`
 - ✅ Claim-before-work gate: `decapod todo claim --id <task-id>`
 - ✅ Session auth gate: `DECAPOD_SESSION_PASSWORD`
@@ -343,7 +343,7 @@ Call Decapod before editing. Let Decapod validate after editing.
 - Read `.decapod/config.toml` (human-editable) for project context and architecture direction.
 - Read `.decapod/OVERRIDE.md` for repo-local constitution overrides.
 - DO NOT mutate `.decapod/` state directly; use CLI for specs, data, workspaces, and sessions.
-- Use `decapod docs show core/DECAPOD.md` for binding contracts.
+- Use `decapod rpc --op constitution.get --params '{"section":"core/DECAPOD"}'` for binding contracts.
 - Use `decapod capabilities --format json` to discover available operations.
 - Stop if requirements conflict, intent is ambiguous, or policy boundaries are unclear.
 - Respect the Interface abstraction boundary.
@@ -375,7 +375,7 @@ See [AGENTS.md](AGENTS.md) for the universal contract.
 cargo install decapod
 
 decapod validate
-decapod docs ingest
+decapod rpc --op constitution.get --params '{"section":"core/DECAPOD"}'
 decapod session acquire
 decapod rpc --op agent.init
 decapod workspace status
@@ -403,11 +403,11 @@ decapod data schema --deterministic
 - Read and update `.decapod/config.toml` as project context; use Decapod CLI for other `.decapod/` state.
 - Read [.decapod/OVERRIDE.md](.decapod/OVERRIDE.md) for repo-local constitution overrides when present.
 - `DECAPOD_SESSION_PASSWORD` is required for session-scoped operations.
-- Read canonical router: `decapod docs show` [core/DECAPOD.md](core/DECAPOD.md).
+- Read canonical router: `decapod rpc --op constitution.get --params '{"section":"core/DECAPOD"}'.
 - Use shared aptitude memory for human-taught preferences across sessions/providers: `decapod data memory add|get` (aliases: `decapod data aptitude`).
-- Operator reference: `decapod docs show docs/PLAYBOOK.md`.
+- Operator reference: `decapod rpc --op constitution.get --params '{"section":"docs/PLAYBOOK"}'`.
 - Capability authority: `decapod capabilities --format json`.
-- Scoped context feature: `decapod docs search --query "<problem>" --op <op>` or `decapod rpc --op context.scope`.
+- Scoped context feature: `decapod rpc --op context.scope --params '{"query":"<problem>","op":"<op>"}'` or `decapod rpc --op context.scope`.
 
 Stop if requirements are ambiguous or conflicting.
 
@@ -432,7 +432,7 @@ See [AGENTS.md](AGENTS.md) for the universal contract.
 cargo install decapod
 
 decapod validate
-decapod docs ingest
+decapod rpc --op constitution.get --params '{"section":"core/DECAPOD"}'
 decapod session acquire
 decapod rpc --op agent.init
 decapod workspace status
@@ -460,11 +460,11 @@ decapod data schema --deterministic
 - Read and update `.decapod/config.toml` as project context; use Decapod CLI for other `.decapod/` state.
 - Read [.decapod/OVERRIDE.md](.decapod/OVERRIDE.md) for repo-local constitution overrides when present.
 - `DECAPOD_SESSION_PASSWORD` is required for session-scoped operations.
-- Read canonical router: `decapod docs show` [core/DECAPOD.md](core/DECAPOD.md).
+- Read canonical router: `decapod rpc --op constitution.get --params '{"section":"core/DECAPOD"}'.
 - Use shared aptitude memory for human-taught preferences across sessions/providers: `decapod data memory add|get` (aliases: `decapod data aptitude`).
-- Operator reference: `decapod docs show docs/PLAYBOOK.md`.
+- Operator reference: `decapod rpc --op constitution.get --params '{"section":"docs/PLAYBOOK"}'`.
 - Capability authority: `decapod capabilities --format json`.
-- Scoped context feature: `decapod docs search --query "<problem>" --op <op>` or `decapod rpc --op context.scope`.
+- Scoped context feature: `decapod rpc --op context.scope --params '{"query":"<problem>","op":"<op>"}'` or `decapod rpc --op context.scope`.
 
 Stop if requirements are ambiguous or conflicting.
 
@@ -489,7 +489,7 @@ See [AGENTS.md](AGENTS.md) for the universal contract.
 cargo install decapod
 
 decapod validate
-decapod docs ingest
+decapod rpc --op constitution.get --params '{"section":"core/DECAPOD"}'
 decapod session acquire
 decapod rpc --op agent.init
 decapod workspace status
@@ -517,11 +517,11 @@ decapod data schema --deterministic
 - Read and update `.decapod/config.toml` as project context; use Decapod CLI for other `.decapod/` state.
 - Read [.decapod/OVERRIDE.md](.decapod/OVERRIDE.md) for repo-local constitution overrides when present.
 - `DECAPOD_SESSION_PASSWORD` is required for session-scoped operations.
-- Read canonical router: `decapod docs show` [core/DECAPOD.md](core/DECAPOD.md).
+- Read canonical router: `decapod rpc --op constitution.get --params '{"section":"core/DECAPOD"}'.
 - Use shared aptitude memory for human-taught preferences across sessions/providers: `decapod data memory add|get` (aliases: `decapod data aptitude`).
-- Operator reference: `decapod docs show docs/PLAYBOOK.md`.
+- Operator reference: `decapod rpc --op constitution.get --params '{"section":"docs/PLAYBOOK"}'`.
 - Capability authority: `decapod capabilities --format json`.
-- Scoped context feature: `decapod docs search --query "<problem>" --op <op>` or `decapod rpc --op context.scope`.
+- Scoped context feature: `decapod rpc --op context.scope --params '{"query":"<problem>","op":"<op>"}'` or `decapod rpc --op context.scope`.
 
 Stop if requirements are ambiguous or conflicting.
 
@@ -538,7 +538,7 @@ This contract applies equally to Claude, Codex, Gemini, Cursor, Kilo, and any ot
 
 ```bash
 cargo install decapod
-decapod validate && decapod docs ingest && decapod session acquire
+decapod validate && decapod session acquire
 decapod rpc --op agent.init
 decapod workspace status
 decapod todo add "<task>" && decapod todo claim --id <task-id>
@@ -593,8 +593,8 @@ These invariants are directly enforced by tests. Violations will cause CI failur
 - **INV-ROOT-ISOLATION**: Agents MUST NOT check out branches or mutate files in the main repository checkout. All work must happen in isolated `.decapod/workspaces/*` worktrees to avoid disrupting the human user's environment. (enforced by workspace validation)
 
 ## Safety Invariants
-- ✅ Router pointer: `core/DECAPOD.md` | ✅ Validation gate: `decapod validate`
-- ✅ Constitution ingestion gate: `decapod docs ingest`
+- ✅ Router pointer: `core/DECAPOD` | ✅ Validation gate: `decapod validate`
+- ✅ Constitution RPC gate: `decapod rpc --op constitution.get --params '{"section":"core/DECAPOD"}'`
 - ✅ Workspace status gate: `decapod workspace status`
 - ✅ Claim-before-work gate: `decapod todo claim --id <task-id>`
 - ✅ Session auth gate: `DECAPOD_SESSION_PASSWORD`
@@ -617,7 +617,7 @@ Call Decapod before editing. Let Decapod validate after editing.
 - Read `.decapod/config.toml` (human-editable) for project context and architecture direction.
 - Read `.decapod/OVERRIDE.md` for repo-local constitution overrides.
 - DO NOT mutate `.decapod/` state directly; use Decapod CLI for specs, data, workspaces, and sessions. Access to `.decapod/` is strictly via decapod CLI.
-- Use `decapod docs show core/DECAPOD.md` for binding contracts.
+- Use `decapod rpc --op constitution.get --params '{"section":"core/DECAPOD"}'` for binding contracts.
 - Use `decapod capabilities --format json` to discover available operations.
 - Stop if requirements conflict, intent is ambiguous, or policy boundaries are unclear.
 - Respect the Interface abstraction boundary.

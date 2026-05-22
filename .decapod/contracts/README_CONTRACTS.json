@@ -97,7 +97,7 @@
       "enforcement_status": "enforced",
       "enforcement_links": [
         "src/plugins/internalize.rs",
-        "constitution/interfaces/INTERNALIZATION_SCHEMA.md"
+        "assets/constitution.json#interfaces/INTERNALIZATION_SCHEMA"
       ],
       "constitution_ref": "claim.lcm.append_only_ledger",
       "rationale": "Internalize plugin creates mountable context adapters with deterministic hashes"
@@ -110,7 +110,7 @@
       "enforcement_status": "enforced",
       "enforcement_links": [
         "src/core/store.rs",
-        "constitution/core/DECAPOD.md:25"
+        "assets/constitution.json#core/DECAPOD:25"
       ],
       "constitution_ref": "claim.foundation.daemonless_repo_native_canonicality",
       "rationale": "State is file-based in repo; no remote sync by default"
@@ -229,17 +229,17 @@
     {
       "claim_id": "claim.store.decapod_cli_only",
       "description": "Agents must not read/write .decapod/* files directly; access must go through decapod CLI surfaces",
-      "source": "constitution/interfaces/STORE_MODEL.md"
+      "source": "assets/constitution.json#interfaces/STORE_MODEL"
     },
     {
       "claim_id": "claim.session.agent_password_required",
       "description": "Session access requires agent identity plus ephemeral per-session password",
-      "source": "constitution/specs/SECURITY.md"
+      "source": "assets/constitution.json#core/SECURITY"
     },
     {
       "claim_id": "claim.federation.store_scoped",
       "description": "Federation data exists only under the selected store root",
-      "source": "constitution/plugins/FEDERATION.md"
+      "source": "assets/constitution.json#plugins/FEDERATION"
     }
   ]
 }

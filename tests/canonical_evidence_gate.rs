@@ -1,6 +1,7 @@
 use serde::Deserialize;
 use std::fs;
 use std::path::{Path, PathBuf};
+use std::process::Command;
 
 fn repo_root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
@@ -43,8 +44,22 @@ struct KcrTrendRow {
 #[test]
 fn enforced_claims_must_have_gate_mapping_and_kcr_trend_must_match() {
     let root = repo_root();
-    let claims_path = root.join("constitution/interfaces/CLAIMS.md");
-    let claims = fs::read_to_string(&claims_path).expect("read CLAIMS.md");
+    let output = Command::new(env!("CARGO_BIN_EXE_decapod"))
+        .args([
+            "rpc",
+            "--op",
+            "constitution.get",
+            "--params",
+            r#"{"section":"interfaces/CLAIMS","subsection":"2. Claims (Binding Registry)"}"#,
+        ])
+        .output()
+        .expect("run decapod constitution.get");
+    assert!(output.status.success(), "constitution.get failed");
+    let response: serde_json::Value =
+        serde_json::from_slice(&output.stdout).expect("parse constitution.get response");
+    let claims = response["result"]["content"]["value"]
+        .as_str()
+        .expect("constitution.get claims table");
 
     let mut in_table = false;
     let mut enforced_total = 0u64;
@@ -81,15 +96,17 @@ fn enforced_claims_must_have_gate_mapping_and_kcr_trend_must_match() {
                 && !proof_lc.contains("planned ");
             assert!(
                 has_mapping,
-                "ENFORCED claim lacks gate/test mapping in {}: {}",
-                claims_path.display(),
+                "ENFORCED claim lacks gate/test mapping in interfaces/CLAIMS: {}",
                 line
             );
             enforced_with_gate += 1;
         }
     }
 
-    assert!(enforced_total > 0, "No enforced claims found in CLAIMS.md");
+    assert!(
+        enforced_total > 0,
+        "No enforced claims found in interfaces/CLAIMS"
+    );
     let kcr = enforced_with_gate as f64 / enforced_total as f64;
 
     let trend = read_kcr_trend(&root);

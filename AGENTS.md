@@ -8,13 +8,14 @@ This contract applies equally to Claude, Codex, Gemini, Cursor, Kilo, and any ot
 
 ```bash
 cargo install decapod
-decapod validate && decapod docs ingest && decapod session acquire
+decapod validate && decapod session acquire
 decapod rpc --op agent.init
 decapod workspace status
 decapod todo add "<task>" && decapod todo claim --id <task-id>
 decapod infer orientation --task-id <task-id>
 decapod workspace ensure
 cd .decapod/workspaces/<your-worktree>
+decapod rpc --op constitution.get --params '{"section":"core/DECAPOD"}'
 decapod rpc --op context.resolve
 ```
 
@@ -75,8 +76,8 @@ These invariants are directly enforced by tests. Violations will cause CI failur
 - **INV-ROOT-ISOLATION**: Agents MUST NOT check out branches or mutate files in the main repository checkout. All work must happen in isolated `.decapod/workspaces/*` worktrees to avoid disrupting the human user's environment. (enforced by workspace validation)
 
 ## Safety Invariants
-- ✅ Router pointer: `core/DECAPOD.md` | ✅ Validation gate: `decapod validate`
-- ✅ Constitution ingestion gate: `decapod docs ingest`
+- ✅ Router pointer: `core/DECAPOD` | ✅ Validation gate: `decapod validate`
+- ✅ Constitution RPC gate: `decapod rpc --op constitution.get --params '{"section":"core/DECAPOD"}'`
 - ✅ Workspace status gate: `decapod workspace status`
 - ✅ Claim-before-work gate: `decapod todo claim --id <task-id>`
 - ✅ Session auth gate: `DECAPOD_SESSION_PASSWORD`
@@ -88,7 +89,7 @@ These invariants are directly enforced by tests. Violations will cause CI failur
 - Read `.decapod/config.toml` (human-editable) for project context and architecture direction.
 - Read `.decapod/OVERRIDE.md` for repo-local constitution overrides.
 - DO NOT mutate `.decapod/` state directly; use Decapod CLI for specs, data, workspaces, and sessions. Access to `.decapod/` is strictly via decapod CLI.
-- Use `decapod docs show core/DECAPOD.md` for binding contracts.
+- Use `decapod rpc --op constitution.get --params '{"section":"core/DECAPOD"}'` for binding contracts.
 - Use `decapod capabilities --format json` to discover available operations.
 - Stop if requirements conflict, intent is ambiguous, or policy boundaries are unclear.
 - Respect the Interface abstraction boundary.

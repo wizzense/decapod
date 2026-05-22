@@ -369,15 +369,15 @@ fn test_entrypoints_contain_canonical_router() {
     let (success, _) = run_decapod(&temp_path, &["init", "--force"]);
     assert!(success, "decapod init should succeed");
 
-    // Check that all entrypoints reference core/DECAPOD.md
+    // Check that all entrypoints reference core/DECAPOD
     let files = ["AGENTS.md", "CLAUDE.md", "GEMINI.md", "CODEX.md"];
 
     for file in files {
         let content = fs::read_to_string(temp_path.join(file))
             .unwrap_or_else(|_| panic!("Failed to read {}", file));
         assert!(
-            content.contains("core/DECAPOD.md"),
-            "{} should reference canonical router (core/DECAPOD.md)",
+            content.contains("core/DECAPOD"),
+            "{} should reference canonical router (core/DECAPOD)",
             file
         );
     }
@@ -396,7 +396,7 @@ fn test_entrypoints_contain_four_invariants() {
     let agents_content =
         fs::read_to_string(temp_path.join("AGENTS.md")).expect("Failed to read AGENTS.md");
 
-    let invariant_markers = ["core/DECAPOD.md", "decapod validate", "stop if", "✅"];
+    let invariant_markers = ["core/DECAPOD", "decapod validate", "stop if", "✅"];
 
     for marker in invariant_markers {
         assert!(
@@ -420,7 +420,7 @@ fn test_validate_fails_on_missing_invariant() {
     // Tamper with AGENTS.md - remove canonical router reference
     let agents_path = temp_path.join("AGENTS.md");
     let content = fs::read_to_string(&agents_path).expect("Failed to read AGENTS.md");
-    let tampered = content.replace("core/DECAPOD.md", "core/LEGACY.md");
+    let tampered = content.replace("core/DECAPOD", "MISSING/ROUTER");
     fs::write(&agents_path, tampered).expect("Failed to write tampered AGENTS.md");
 
     // Run decapod validate (should fail)
@@ -433,7 +433,7 @@ fn test_validate_fails_on_missing_invariant() {
 
     // Check that it detected the missing invariant
     assert!(
-        output.contains("Invariant missing: Router pointer to core/DECAPOD.md"),
+        output.contains("Invariant missing: Router pointer to core/DECAPOD"),
         "Validation should detect missing router invariant"
     );
 }
@@ -583,12 +583,14 @@ fn test_entrypoints_use_embedded_docs_paths_only() {
         let content =
             fs::read_to_string(repo_root.join(file)).unwrap_or_else(|_| panic!("read {}", file));
         assert!(
-            !content.contains("decapod docs show constitution/"),
+            !content.contains("(constitution/"),
             "{} must not reference direct constitution/* filesystem paths",
             file
         );
         assert!(
-            content.contains("decapod docs show docs/PLAYBOOK.md"),
+            content.contains(
+                r#"decapod rpc --op constitution.get --params '{"section":"docs/PLAYBOOK"}'"#,
+            ),
             "{} must reference embedded docs path for operator playbook",
             file
         );
@@ -617,8 +619,8 @@ fn test_top_level_docs_avoid_direct_constitution_file_links() {
     let security = fs::read_to_string(repo_root.join("SECURITY.md")).expect("read SECURITY.md");
 
     assert!(
-        readme.contains("(constitution/core/DECAPOD.md)"),
-        "README.md should link to constitution/core/DECAPOD.md"
+        readme.contains("assets/constitution.json") && readme.contains("core/DECAPOD"),
+        "README.md should point to the embedded constitution asset section"
     );
 
     assert!(
@@ -626,8 +628,8 @@ fn test_top_level_docs_avoid_direct_constitution_file_links() {
         "SECURITY.md should not instruct direct constitution file access"
     );
     assert!(
-        security.contains("decapod docs show specs/SECURITY.md"),
-        "SECURITY.md should route constitutional access through decapod docs show"
+        security.contains("constitution.json#core/SECURITY"),
+        "SECURITY.md should point to the embedded security constitution section"
     );
 }
 
@@ -635,8 +637,18 @@ fn test_top_level_docs_avoid_direct_constitution_file_links() {
 fn test_intent_context_spec_contract_alignment() {
     let repo_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     let readme = fs::read_to_string(repo_root.join("README.md")).expect("read README.md");
-    let core_decapod = fs::read_to_string(repo_root.join("constitution/core/DECAPOD.md"))
-        .expect("read constitution/core/DECAPOD.md");
+    let output = Command::new(env!("CARGO_BIN_EXE_decapod"))
+        .args([
+            "rpc",
+            "--op",
+            "constitution.get",
+            "--params",
+            r#"{"section":"core/DECAPOD"}"#,
+        ])
+        .output()
+        .expect("run decapod constitution.get");
+    assert!(output.status.success(), "constitution.get failed");
+    let core_decapod = String::from_utf8_lossy(&output.stdout);
     let lib_rs = fs::read_to_string(repo_root.join("src/lib.rs")).expect("read src/lib.rs");
     let cli_rs = fs::read_to_string(repo_root.join("src/cli.rs")).expect("read src/cli.rs");
 
@@ -649,7 +661,7 @@ fn test_intent_context_spec_contract_alignment() {
     );
     assert!(
         core_decapod.contains(contract_phrase),
-        "constitution/core/DECAPOD.md must state the intent->context->specifications flow"
+        "core/DECAPOD must state the intent->context->specifications flow"
     );
     assert!(
         lib_rs.contains(contract_phrase) || cli_rs.contains(contract_phrase),
@@ -660,18 +672,20 @@ fn test_intent_context_spec_contract_alignment() {
 #[test]
 fn test_core_decapod_routes_without_competing_with_agents() {
     let repo_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    let core_decapod = fs::read_to_string(repo_root.join("constitution/core/DECAPOD.md"))
-        .expect("read constitution/core/DECAPOD.md");
+    let asset = fs::read_to_string(repo_root.join("assets/constitution.json"))
+        .expect("read assets/constitution.json");
+    let graph: serde_json::Value = serde_json::from_str(&asset).expect("parse constitution asset");
+    let core_decapod = graph["nodes"]["core/DECAPOD"]["content"].to_string();
 
     for marker in [
-        "`core/DECAPOD.md` is a router",
-        "Agent operating rules: use `AGENTS.md`",
-        "Provider-specific shims (`CLAUDE.md`, `GEMINI.md`, `CODEX.md`): point back to `AGENTS.md`",
+        "core/DECAPOD is a router",
+        "Agent operating rules: use AGENTS.md",
+        "Provider-specific shims",
         "Do not turn this router into generic documentation noise",
     ] {
         assert!(
             core_decapod.contains(marker),
-            "core/DECAPOD.md should route scoped purposes: {}",
+            "core/DECAPOD should route scoped purposes: {}",
             marker
         );
     }

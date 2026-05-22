@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Internal
+- *(constitution)* templatize constitution into Rust source via JSON graph
+- *(constitution)* normalize document IDs to remove extensions (.md, .json)
+- *(build)* embed and compress constitution assets for hermetic distribution
+- *(interfaces)* schema-backed constitution access via `assets::get_embedded_doc`
 ## [0.48.8](https://github.com/DecapodLabs/decapod/compare/v0.48.7...v0.48.8) - 2026-05-20
 
 ### Other
@@ -539,7 +544,7 @@ https://github.com/DecapodLabs/decapod/pull/480/conflict?name=Cargo.toml&ancesto
 
 ### Added
 
-- schema/interface: add `interfaces/INTERNALIZATION_SCHEMA.md` — internalized context artifact schema and lifecycle contract
+- schema/interface: add `interfaces/INTERNALIZATION_SCHEMA` — internalized context artifact schema and lifecycle contract
 - feat: add `decapod internalize` subsystem (create, attach, inspect) for governed context internalization artifacts
 
 ## [0.46.0](https://github.com/DecapodLabs/decapod/compare/v0.45.0...v0.46.0) - 2026-02-26
@@ -801,7 +806,7 @@ https://github.com/DecapodLabs/decapod/pull/480/conflict?name=Cargo.toml&ancesto
 
 - init: add `decapod init with` (alias `wtih`) and `.decapod/config.toml` schema-backed repo context
 - init: infer repo purpose/architecture signals from prominent files (`README.md`, manifests, repo surfaces)
-- init: scaffold canonical local project specs set (`specs/README.md`, `intent.md`, `architecture.md`, `interfaces.md`, `validation.md`)
+- init: scaffold canonical local project specs set (`specs/README`, `intent.md`, `architecture.md`, `interfaces.md`, `validation.md`)
 - init: support diagram style selection (`ascii` or `mermaid`) for architecture topology generation
 - init: seed local specs content from inferred/config context and enforce intent-purpose vs architecture-direction separation
 - validate: add project config + canonical local specs gates, including placeholder rejection for intent/architecture content
@@ -809,7 +814,7 @@ https://github.com/DecapodLabs/decapod/pull/480/conflict?name=Cargo.toml&ancesto
 
 ### Other
 
-- schema/interface: add `interfaces/PROJECT_SPECS.md` and register claim `claim.project_specs.canonical_set_enforced`
+- schema/interface: add `interfaces/PROJECT_SPECS` and register claim `claim.project_specs.canonical_set_enforced`
 - schema/interface: bind hardcoded local specs registry in binary to constitution dependencies and control-plane sequencing docs
 
 ## [0.39.0](https://github.com/DecapodLabs/decapod/compare/v0.38.13...v0.39.0) - 2026-02-23
@@ -1034,7 +1039,7 @@ https://github.com/DecapodLabs/decapod/pull/480/conflict?name=Cargo.toml&ancesto
 ### Other
 
 - Rename LEVIE_GOVERNANCE_AUDIT.md to GOVERNANCE_AUDIT.md
-- Update and rename docs/LEVIE_GOVERNANCE_AUDIT.md to constitution/docs/GOVERNANCE_AUDIT.md
+- Update and rename docs/LEVIE_GOVERNANCE_AUDIT to constitution/docs/GOVERNANCE_AUDIT.json
 
 ## [0.37.1](https://github.com/DecapodLabs/decapod/compare/v0.37.0...v0.37.1) - 2026-02-22
 
@@ -1143,7 +1148,7 @@ https://github.com/DecapodLabs/decapod/pull/480/conflict?name=Cargo.toml&ancesto
 
 ### Other
 
-- Rename PLAYBOOK.md to docs/PLAYBOOK.md
+- Rename PLAYBOOK.md to docs/PLAYBOOK
 
 ## [0.35.5](https://github.com/DecapodLabs/decapod/compare/v0.35.4...v0.35.5) - 2026-02-21
 
@@ -2051,7 +2056,7 @@ https://github.com/DecapodLabs/decapod/pull/480/conflict?name=Cargo.toml&ancesto
 
 ### Fixed
 
-- update validation to check for methodology/ARCHITECTURE.md instead of specs/ARCHITECTURE.md
+- update validation to check for methodology/ARCHITECTURE instead of specs/ARCHITECTURE
 
 ## [0.4.0](https://github.com/DecapodLabs/decapod/compare/v0.3.3...v0.4.0) - 2026-02-14
 
