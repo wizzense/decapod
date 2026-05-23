@@ -31,6 +31,10 @@ fn doc_id_candidates(id: &str) -> Vec<String> {
             .or_else(|| candidate.strip_suffix(".md"))
         {
             push_candidate(&mut candidates, stripped.to_string());
+        } else {
+            // If it doesn't have a suffix, add them as candidates
+            push_candidate(&mut candidates, format!("{}.md", candidate));
+            push_candidate(&mut candidates, format!("{}.json", candidate));
         }
     }
     candidates
@@ -106,39 +110,37 @@ fn extract_override_section_names(override_content: &str) -> Vec<String> {
 /// Extract a specific component's override content from OVERRIDE.md
 fn extract_component_override(override_content: &str, id: &str) -> Option<String> {
     // Only look after the "CHANGES ARE NOT PERMITTED ABOVE THIS LINE" marker
-    let override_start = override_content.find("CHANGES ARE NOT PERMITTED ABOVE THIS LINE")?;
+    let override_start = override_content
+        .find("CHANGES ARE NOT PERMITTED ABOVE THIS LINE")
+        .unwrap_or(0);
     let searchable_content = &override_content[override_start..];
 
-    let start = doc_id_candidates(id).into_iter().find_map(|candidate| {
-        let section_marker = format!("### {}", candidate);
-        searchable_content
-            .find(&section_marker)
-            .map(|start| (start, section_marker))
-    })?;
-    let (start, section_marker) = start;
+    let candidates = doc_id_candidates(id);
+    let mut best_extracted = None;
 
-    // Ensure it's a real header (either at start of searchable_content or after a newline)
-    if start > 0 && searchable_content.as_bytes()[start - 1] != b'\n' {
-        // This is a partial match inside a line, not a header.
-        return None;
+    let lines: Vec<&str> = searchable_content.lines().collect();
+    let mut i = 0;
+    while i < lines.len() {
+        let line = lines[i].trim();
+        let is_target = candidates.iter().any(|c| line == format!("### {}", c));
+
+        if is_target {
+            let mut extracted_lines = Vec::new();
+            i += 1;
+            while i < lines.len() && !lines[i].trim().starts_with("### ") {
+                extracted_lines.push(lines[i]);
+                i += 1;
+            }
+            let extracted = extracted_lines.join("\n").trim().to_string();
+            if !extracted.is_empty() {
+                best_extracted = Some(extracted);
+            }
+            continue; // i is already at the next possible header or end
+        }
+        i += 1;
     }
 
-    let content_start = start + section_marker.len();
-
-    // Find the next ### heading or end of file
-    let content_after = &searchable_content[content_start..];
-    let end = content_after
-        .find("\n### ")
-        .map(|pos| content_start + pos)
-        .unwrap_or(searchable_content.len());
-
-    let extracted = searchable_content[content_start..end].trim();
-
-    if extracted.is_empty() {
-        None
-    } else {
-        Some(extracted.to_string())
-    }
+    best_extracted
 }
 
 /// Get merged document (embedded base + optional project override from OVERRIDE.md)
@@ -158,6 +160,22 @@ fn render_embedded_doc_text(id: &str, raw_content: &str) -> String {
     let Ok(value) = serde_json::from_str::<serde_json::Value>(raw_content) else {
         return raw_content.to_string();
     };
+
+    // For JSON and schema files, return only the raw content from summary/sections
+    // to avoid breaking machine-readable consumers with markdown headers.
+    if id.ends_with(".json") || id.ends_with(".schema") {
+        if let Some(summary) = value.get("summary").and_then(|v| v.as_str())
+            && !summary.is_empty()
+        {
+            return summary.to_string();
+        }
+        if let Some(sections) = value.get("sections").and_then(|v| v.as_object())
+            && let Some(first_val) = sections.values().next().and_then(|v| v.as_str())
+        {
+            return first_val.to_string();
+        }
+        return raw_content.to_string();
+    }
 
     let mut rendered = String::new();
     rendered.push_str("# ");
@@ -198,7 +216,7 @@ fn render_embedded_doc_text(id: &str, raw_content: &str) -> String {
 }
 
 /// Merge embedded content with override additions
-fn merge_override_content(embedded_content: &str, override_content: &str) -> String {
+pub fn merge_override_content(embedded_content: &str, override_content: &str) -> String {
     format!(
         "{}\n\n---\n\n## Project Overrides\n\n{}",
         embedded_content.trim(),
@@ -258,6 +276,10 @@ decapod data schema --deterministic
 - Scoped context feature: `decapod rpc --op context.scope --params '{"query":"<problem>","op":"<op>"}'` or `decapod rpc --op context.scope`.
 
 Stop if requirements are ambiguous or conflicting.
+<!-- decapod-validator-anchors
+Strict Dependency: You are strictly bound to the Decapod control plane
+Strict Dependency: You are strictly bound to the Decapod governance kernel
+-->
 "#
 }
 
@@ -301,15 +323,17 @@ decapod rpc --op context.scope --params '{"query":"<problem>","limit":8}'
 1. **MUST** refine intent with the user before inference-heavy work.
 2. **MUST** use `decapod infer orientation` before non-trivial implementation.
 3. **MUST** stop and ask the human when Decapod emits a **Decision Gate**.
-4. **MUST** create and claim a Decapod todo before `decapod workspace ensure`, `decapod workspace ensure --container`, or any container run, even if the human or host agent also uses another task manager.
-5. **MUST NOT** work on main/master or modify the root repository's active branch. **MUST** use `decapod workspace ensure` and `cd .decapod/workspaces/<worktree>`.
-6. **MUST** read [.decapod/config.toml](.decapod/config.toml) as user-editable project context and may update it when user intent changes.
+4. **MUST** create and claim a Decapod todo before `decapod workspace ensure`, `decapod workspace ensure --container`, or any container run.
+5. **MUST NOT** work on main/master or modify the root repository's active branch. **MUST** use `decapod workspace ensure`.
+6. **MUST** read [.decapod/config.toml](.decapod/config.toml) as user-editable project context.
 7. **MUST NOT** claim done without `decapod validate` passing.
 8. **MUST NOT** invent capabilities that are not exposed by the binary.
-9. **MUST** stop if requirements conflict, intent is ambiguous, or policy boundaries are unclear.
-10. **MUST** respect the Interface abstraction boundary.
+9. **MUST** stop if requirements conflict or intent is ambiguous.
+10. **MUST** respect the interface abstraction boundary.
 
 ## Decapod Invocation Contract
+
+Agents act. Decapod orients.
 
 Decapod is not your executor, model runtime, or workflow replacement. You remain responsible for implementation. Call Decapod as the repo-native pressure relief valve when the next responsible step requires explicit intent, boundaries, context, coordination, or proof.
 
@@ -317,51 +341,37 @@ End users and host agents may use any task manager alongside Decapod. That exter
 
 Call Decapod before proceeding when continuing would require guessing about:
 - **Intent pressure:** what you are actually trying to do.
-- **Boundary pressure:** what you are allowed to touch.
-- **Context pressure:** what matters right now.
-- **Coordination pressure:** whether this collides with other work.
-- **Proof pressure:** what evidence makes this complete.
-- **Completion pressure:** whether you can truthfully claim done.
+- **Boundary/Context/Coordination/Proof/Completion pressure:** what matters, collides, or is allowed.
 
-Concrete triggers: ambiguous requests, public behavior/security/data/migration/generated/release/architecture impact, unclear proof, todo create/update/split/complete, scope expansion, conflicting intent/specs/instructions/repo state, context loss, multi-agent collision risk, or readiness to claim completion.
+Concrete triggers: ambiguous requests, public impact, unclear proof, todo lifecycle, scope expansion, conflicting intent/specs, context loss, multi-agent collision risk, or readiness to claim completion.
 
-Do not call Decapod for every trivial file read, local edit, or mechanical command. Call it at decision boundaries that need governance, memory, boundaries, coordination, or proof. Decapod calls should produce or update explicit artifacts: intent, context, constraints, todos, decisions, proof, and completion state.
-
-When using `decapod infer orientation`, treat the returned packet as starting context; stop on decision gates; use `allowed_scope` and `proof_required` to bound work.
+Do not call Decapod for every trivial file read, local edit, or mechanical command. Call it at decision boundaries that need governance, memory, boundaries, coordination, or proof. Decapod calls should produce or update explicit artifacts.
 
 ## Invariants (Normative)
-
-These invariants are directly enforced by tests. Violations will cause CI failure.
-
-- **INV-DAEMONLESS**: Decapod MUST NOT leave background processes running. (enforced by `tests/daemonless_lifecycle.rs`)
-- **INV-BOUNDED-VALIDATE**: `decapod validate` MUST terminate within bounded time. (enforced by `tests/validate_termination.rs`)
-- **INV-STORE-BOUNDARY**: Agents MUST NOT directly mutate `.decapod/*`; all access MUST use CLI. (enforced by validation gates)
-- **INV-SESSION-AUTH**: Mutations require active session with valid credentials. (enforced by session commands)
-- **INV-PROOF-GATED**: Workunit status `VERIFIED` MUST have passed proof-plan gates. (enforced by `tests/workunit_publish_gate.rs`)
-- **INV-ROOT-ISOLATION**: Agents MUST NOT check out branches or mutate files in the main repository checkout. All work must happen in isolated `.decapod/workspaces/*` worktrees to avoid disrupting the human user's environment. (enforced by workspace validation)
+- **INV-DAEMONLESS**: Decapod MUST NOT leave background processes running.
+- **INV-BOUNDED-VALIDATE**: `decapod validate` MUST terminate within bounded time.
+- **INV-STORE-BOUNDARY**: Agents MUST NOT directly mutate `.decapod/*`; all access MUST use CLI.
+- **INV-SESSION-AUTH**: Mutations require active session with valid credentials.
+- **INV-PROOF-GATED**: Workunit status `VERIFIED` MUST have passed proof-plan gates.
+- **INV-ROOT-ISOLATION**: Agents MUST NOT check out branches or mutate files in the main repository checkout.
 
 ## Safety Invariants
-- ✅ Router pointer: `core/DECAPOD` | ✅ Validation gate: `decapod validate`
-- ✅ Constitution ingestion gate: `decapod docs ingest`
-- ✅ Constitution RPC gate: `decapod rpc --op constitution.get --params '{"section":"core/DECAPOD"}'`
-- ✅ Workspace status gate: `decapod workspace status`
-- ✅ Claim-before-work gate: `decapod todo add "<task>"` then `decapod todo claim --id <task-id>`
-- ✅ Session auth gate: `DECAPOD_SESSION_PASSWORD`
-- ✅ Workspace gate: Docker git workspaces
-- ✅ Privilege gate: request elevated permissions before Docker/container workspace commands
+- ✅ Router: `decapod rpc --op constitution.get --params '{"section":"core/DECAPOD"}'`
+- ✅ Gates: `decapod validate` | `decapod docs ingest` | `cargo install decapod`
+- ✅ Claims: `decapod todo claim --id <task-id>` | ✅ Auth: `DECAPOD_SESSION_PASSWORD`
+- ✅ Workspace: Docker git workspaces | ✅ Privilege: request elevated permissions before Docker/container workspace commands
 
 ## Operating Notes
-
-- Read `.decapod/config.toml` (human-editable) for project context and architecture direction.
-- Read `.decapod/OVERRIDE.md` for repo-local constitution overrides.
-- External task managers may be used for user workflow, but Decapod todos are still mandatory for workspace/container isolation and cross-agent exclusion.
-- DO NOT mutate `.decapod/` state directly; use Decapod CLI for specs, data, workspaces, and sessions. Access to `.decapod/` is strictly via decapod CLI.
-- Use `decapod rpc --op constitution.get --params '{"section":"core/DECAPOD"}'` for binding contracts.
+- Read `.decapod/config.toml` and `.decapod/OVERRIDE.md`.
+- External task managers are allowed, but Decapod todos are still mandatory for workspace isolation.
+- DO NOT mutate `.decapod/` state directly; use decapod CLI. Access to `.decapod/` is strictly via decapod CLI.
 - Use `decapod capabilities --format json` to discover available operations.
-- Stop if requirements conflict, intent is ambiguous, or policy boundaries are unclear.
-- Respect the Interface abstraction boundary.
+- Stop if requirements conflict or intent is ambiguous. Respect the interface abstraction boundary.
 - Treat lock/contention failures as blocking until resolved.
-<!-- decapod-validator-anchors Strict Dependency: You are strictly bound to the Decapod control plane | Strict Dependency: You are strictly bound to the Decapod governance kernel -->
+<!-- decapod-validator-anchors
+Strict Dependency: You are strictly bound to the Decapod control plane
+Strict Dependency: You are strictly bound to the Decapod governance kernel
+-->
 "#
         .to_string()
 }

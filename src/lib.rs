@@ -1466,10 +1466,6 @@ fn run_init_apply(
         }
     }
 
-    if !init_with.dry_run {
-        scaffold::blend_legacy_entrypoints(&target_dir)?;
-    }
-
     let mut agent_files_to_generate = if init_with.claude || init_with.gemini || init_with.agents {
         let mut files = vec![];
         if init_with.claude {
@@ -4053,7 +4049,7 @@ fn heal_agents_contract(
     for marker in [
         "Stop if",
         "via decapod CLI",
-        "Interface abstraction boundary",
+        "interface abstraction boundary",
         "Strict Dependency: You are strictly bound to the Decapod governance kernel",
     ] {
         if !content.contains(marker) {
