@@ -374,8 +374,12 @@ fn init_blends_existing_agent_entrypoints_into_override_md() {
         "OVERRIDE.md should contain custom AGENTS.md content"
     );
     assert!(
-        override_content.contains("## Adopted from AGENTS.md"),
-        "OVERRIDE.md should have a header for adopted content"
+        override_content.contains("## PENDING CONSOLIDATION (ADOPTED INTENT)"),
+        "OVERRIDE.md should have a header for pending consolidation"
+    );
+    assert!(
+        override_content.contains("### adoption/AGENTS.md"),
+        "OVERRIDE.md should have a sub-header for adopted content"
     );
 }
 
@@ -394,11 +398,12 @@ fn init_blends_all_agent_entrypoints_when_forced() {
     let override_content =
         fs::read_to_string(repo_dir.join(".decapod/OVERRIDE.md")).expect("read OVERRIDE.md");
 
-    assert!(override_content.contains("## Adopted from CLAUDE.md"));
+    assert!(override_content.contains("## PENDING CONSOLIDATION (ADOPTED INTENT)"));
+    assert!(override_content.contains("### adoption/CLAUDE.md"));
     assert!(override_content.contains("# Custom Claude"));
-    assert!(override_content.contains("## Adopted from GEMINI.md"));
+    assert!(override_content.contains("### adoption/GEMINI.md"));
     assert!(override_content.contains("# Custom Gemini"));
-    assert!(override_content.contains("## Adopted from CODEX.md"));
+    assert!(override_content.contains("### adoption/CODEX.md"));
     assert!(override_content.contains("# Custom Codex"));
 }
 
@@ -428,6 +433,7 @@ fn init_with_claude_only_adopts_it_and_generates_all_four_entrypoints() {
     // 5. Verify adoption in OVERRIDE.md
     let override_content =
         fs::read_to_string(repo_dir.join(".decapod/OVERRIDE.md")).expect("read OVERRIDE.md");
-    assert!(override_content.contains("## Adopted from CLAUDE.md"));
+    assert!(override_content.contains("## PENDING CONSOLIDATION (ADOPTED INTENT)"));
+    assert!(override_content.contains("### adoption/CLAUDE.md"));
     assert!(override_content.contains("# Original Claude Intent"));
 }
