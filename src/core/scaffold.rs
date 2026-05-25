@@ -1173,6 +1173,62 @@ fn write_file(
     Ok(FileAction::Created)
 }
 
+/// LegacyEntrypointContent holds the contents of backed-up agent entrypoint files.
+///
+/// These contents should be returned to the agent so it can manually consolidate
+/// them into the appropriate sections of OVERRIDE.md (skill stuff into skill sections,
+/// memory stuff into memory sections, plugin stuff into plugin sections, etc.).
+/// This is NOT auto-blended - the agent handles the consolidation.
+#[derive(Debug, Default, serde::Serialize)]
+pub struct LegacyEntrypointContent {
+    pub agents_md: Option<String>,
+    pub claude_md: Option<String>,
+    pub gemini_md: Option<String>,
+    pub entrypoint_md: Option<String>,
+}
+
+/// Read legacy agent entrypoint files (backed up to *.bak during init) and return their contents.
+///
+/// During `decapod init`, existing agent entrypoint files are backed up to *.bak.
+/// This function reads those backups and returns their contents for the agent to process.
+/// The agent should then manually blend the content into appropriate OVERRIDE.md sections.
+pub fn get_legacy_entrypoint_contents(
+    target_dir: &Path,
+) -> Result<LegacyEntrypointContent, error::DecapodError> {
+    let mut contents = LegacyEntrypointContent::default();
+
+    for file in ["AGENTS.md", "CLAUDE.md", "GEMINI.md", "CODEX.md"] {
+        let bak_path = target_dir.join(format!("{}.bak", file));
+        if bak_path.exists()
+            && let Ok(bak_content) = fs::read_to_string(&bak_path)
+        {
+            let trimmed = bak_content.trim();
+            if !trimmed.is_empty() {
+                match file {
+                    "AGENTS.md" => contents.agents_md = Some(trimmed.to_string()),
+                    "CLAUDE.md" => contents.claude_md = Some(trimmed.to_string()),
+                    "GEMINI.md" => contents.gemini_md = Some(trimmed.to_string()),
+                    "CODEX.md" => contents.entrypoint_md = Some(trimmed.to_string()),
+                    _ => {}
+                }
+            }
+        }
+    }
+
+    Ok(contents)
+}
+
+/// Delete legacy agent entrypoint backup files after agent has processed them.
+pub fn cleanup_legacy_entrypoint_backups(target_dir: &Path) -> Result<(), error::DecapodError> {
+    for file in ["AGENTS.md", "CLAUDE.md", "GEMINI.md", "CODEX.md"] {
+        let bak_path = target_dir.join(format!("{}.bak", file));
+        if bak_path.exists() {
+            let _ = fs::remove_file(&bak_path);
+        }
+    }
+    Ok(())
+}
+
 pub fn scaffold_project_entrypoints(
     opts: &ScaffoldOptions,
 ) -> Result<ScaffoldSummary, error::DecapodError> {
@@ -1201,21 +1257,7 @@ pub fn scaffold_project_entrypoints(
 
     // Root entrypoints from embedded templates
     let readme_md = assets::get_template("README.md").expect("Missing template: README.md");
-    let mut override_md =
-        assets::get_template("OVERRIDE.md").expect("Missing template: OVERRIDE.md");
-
-    // Blend preserved agent content into OVERRIDE.md if present
-    if !opts.preserved_agent_content.is_empty() {
-        if !override_md.ends_with('\n') {
-            override_md.push('\n');
-        }
-        override_md.push_str("\n## PENDING CONSOLIDATION (ADOPTED INTENT)\n\n");
-        override_md.push_str("> **AGENT INSTRUCTION:** Analyze the content below and consolidate relevant rules into the appropriate `### section/ID` headers within this file. The `### adoption/*` headers below represent your previous project-specific intent which MUST be preserved in the substrate above.\n");
-        for (file, content) in &opts.preserved_agent_content {
-            override_md.push_str(&format!("\n### adoption/{}\n\n{}\n", file, content.trim()));
-        }
-        override_md.push_str("\n---\n");
-    }
+    let override_md = assets::get_template("OVERRIDE.md").expect("Missing template: OVERRIDE.md");
 
     // AGENT ENTRYPOINTS - Neural Interfaces (only generate specified files)
     let mut ep_created = 0usize;
@@ -1244,23 +1286,6 @@ pub fn scaffold_project_entrypoints(
     // Blend into existing OVERRIDE.md or create new one
     let override_path = opts.target_dir.join(".decapod/OVERRIDE.md");
     if override_path.exists() {
-        if !opts.preserved_agent_content.is_empty() && !opts.dry_run {
-            let mut existing_override = fs::read_to_string(&override_path).unwrap_or_default();
-            if !existing_override.ends_with('\n') {
-                existing_override.push('\n');
-            }
-            existing_override.push_str("\n## PENDING CONSOLIDATION (ADOPTED INTENT)\n\n");
-            existing_override.push_str("> **AGENT INSTRUCTION:** Analyze the content below and consolidate relevant rules into the appropriate `### section/ID` headers within this file. The `### adoption/*` headers below represent your previous project-specific intent which MUST be preserved in the substrate above.\n");
-            for (file, content) in &opts.preserved_agent_content {
-                existing_override.push_str(&format!(
-                    "\n### adoption/{}\n\n{}\n",
-                    file,
-                    content.trim()
-                ));
-            }
-            existing_override.push_str("\n---\n");
-            fs::write(&override_path, existing_override).map_err(error::DecapodError::IoError)?;
-        }
         cfg_preserved += 1;
     } else {
         match write_file(opts, ".decapod/OVERRIDE.md", &override_md)? {
@@ -1269,6 +1294,10 @@ pub fn scaffold_project_entrypoints(
             FileAction::Preserved => cfg_preserved += 1,
         }
     }
+
+    // Legacy agent entrypoint backups (*.bak) are NOT auto-blended here.
+    // Use get_legacy_entrypoint_contents() to read them and return to the agent.
+    // The agent will manually consolidate content into appropriate OVERRIDE.md sections.
 
     // Generate .decapod/generated/Dockerfile from Rust-owned template component.
     let generated_dir = opts.target_dir.join(".decapod/generated");
