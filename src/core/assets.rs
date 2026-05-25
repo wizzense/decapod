@@ -275,13 +275,7 @@ decapod data schema --deterministic
 - Capability authority: `decapod capabilities --format json`.
 -- Scoped context feature: `decapod rpc --op context.scope --params '{"query":"<problem>","op":"<op>"}'` or `decapod rpc --op context.scope`.
 
-## Living Specs Governance
-
-Treat `.decapod/generated/specs/*` as living documents.
-- **Continuous Alignment**: Adjust specs as intent and code change over time.
-- **Intent-Driven**: Generally, specs only change when user intent evolves.
-- **Clarification**: When specs change, clarify the code change in terms of the updated intent.
-
+Treat `.decapod/generated/specs/*` as living documents. Adjust specs as intent and code change over time.
 
 Stop if requirements are ambiguous or conflicting.
 <!-- decapod-validator-anchors
@@ -362,6 +356,30 @@ Call Decapod before proceeding when continuing would require guessing about:
 Concrete triggers: ambiguous requests, public impact, unclear proof, todo lifecycle, scope expansion, conflicting intent/specs, context loss, multi-agent collision risk, or readiness to claim completion.
 
 Do not call Decapod for every trivial file read, local edit, or mechanical command. Call it at decision boundaries that need governance, memory, boundaries, coordination, or proof. Decapod calls should produce or update explicit artifacts.
+## Epistemic Custody
+
+**Epistemic custody** is the preserved chain between intent, context, assumptions, action, evidence, contradiction, and proof, so agent work remains inspectable, bounded, and falsifiable across time, agents, and recursive passes.
+
+| Term | Meaning |
+|---|---|
+| Intent | Original human goal; the "Why" that must not be lost during compression. |
+| Assumption | A belief or prior used to proceed when evidence is incomplete. |
+| Contradiction | Evidence or observation that conflicts with a prior assumption or intent. |
+| Measured | Direct observation (e.g., test output, file content, shell exit code). |
+| Inferred | Derived conclusion or guess (e.g., "this looks like a bug in the parser"). |
+| Provenance | The source of a fact or change (e.g., "User said X", "File Y contains Z"). |
+
+### Custody Rules
+1. **Preserve Uncertainty**: Summaries must preserve uncertainty, risk, and unresolved contradictions instead of compressing them away into polished prose.
+2. **Recursive Continuity**: Prior assumptions and unresolved contradictions MUST carry forward across recursive agent passes until resolved.
+3. **Evidence-Based Claims**: Any claim of success or completion must be tied to measured evidence (artifacts, tests, or explicit user instruction).
+4. **Falsifiability**: Work must be structured so a human can quickly identify where an assumption was wrong or where proof failed.
+5. **Clarification Trigger**: If a critical assumption cannot be proven or a contradiction cannot be resolved, you MUST stop and request human clarification.
+
+## Custody artifacts
+Decapod maintains custody via:
+- `.decapod/generated/specs/INTENT.md`: Tracks active assumptions and stop conditions.
+- `.decapod/generated/artifacts/custody/`: Directory for detailed evidence, contradiction logs, and deferred questions.
 
 ## Invariants (Normative)
 - **INV-DAEMONLESS**: Decapod MUST NOT leave background processes running.
