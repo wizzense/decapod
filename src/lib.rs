@@ -476,6 +476,7 @@ fn apply_repo_context_cli_overrides(ctx: &mut RepoContext, init_with: &InitWithC
             .filter(|s| !s.is_empty())
             .collect();
     }
+    ctx.container_workspaces = init_with.container_workspaces;
     dedupe_sorted(&mut ctx.primary_languages);
     dedupe_sorted(&mut ctx.detected_surfaces);
 }
@@ -1314,6 +1315,7 @@ fn init_with_from_config(
         done_criteria: config.repo.done_criteria.clone(),
         primary_languages: config.repo.primary_languages.clone(),
         detected_surfaces: config.repo.detected_surfaces.clone(),
+        container_workspaces: config.repo.container_workspaces,
     }
 }
 
@@ -1408,6 +1410,19 @@ fn enrich_repo_context_interactive(repo: &mut RepoContext) -> Result<(), error::
         });
         repo.done_criteria = Some(prompt_line_default("Done criteria", &current_done)?);
     }
+
+    let use_external_tracker = prompt_yes_no(
+        "Use an external task tracker (e.g. Beads) instead of Decapod todos?",
+        false,
+    )?;
+    repo.external_tracker = use_external_tracker;
+
+    let enable_container_workspaces = prompt_yes_no(
+        "Enable container workspaces? (Required for multi-agent concurrent runs. Disable only for single-agent workflows.)",
+        true,
+    )?;
+    repo.container_workspaces = enable_container_workspaces;
+
     Ok(())
 }
 
@@ -1722,6 +1737,7 @@ pub fn run() -> Result<(), error::DecapodError> {
                             done_criteria: init_group.done_criteria.clone(),
                             primary_languages: init_group.primary_languages.clone(),
                             detected_surfaces: init_group.detected_surfaces.clone(),
+                            container_workspaces: init_group.container_workspaces,
                         }
                     }
                 }
