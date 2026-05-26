@@ -447,6 +447,13 @@ pub struct CapabilitiesReport {
     pub interview: InterviewCapabilities,
     /// Stable interlock codes exposed by the assurance harness
     pub interlock_codes: Vec<String>,
+    /// Active repository configuration
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub config: Option<crate::cli::DecapodProjectConfig>,
+    /// Current version status against crates.io
+    pub is_latest: bool,
+    /// Latest version available on crates.io
+    pub latest_version: String,
 }
 
 /// Individual capability
@@ -566,6 +573,12 @@ pub struct Attestation {
 /// Generate capabilities report
 pub fn generate_capabilities() -> CapabilitiesReport {
     let docker_available = container_runtime::container_runtime_available();
+    let config = crate::core::workspace::discover_repo_root(None)
+        .map(|root| crate::cli::DecapodProjectConfig::load(&root).ok())
+        .unwrap_or_default();
+
+    let latest_version = get_latest_version();
+    let is_latest = latest_version == env!("CARGO_PKG_VERSION");
 
     CapabilitiesReport {
         version: env!("CARGO_PKG_VERSION").to_string(),
@@ -779,7 +792,32 @@ pub fn generate_capabilities() -> CapabilitiesReport {
             "store_boundary_violation".to_string(),
             "decision_required".to_string(),
         ],
+        config,
+        is_latest,
+        latest_version,
     }
+}
+
+fn get_latest_version() -> String {
+    use std::process::Command;
+    let output = Command::new("curl")
+        .args([
+            "-s",
+            "--connect-timeout",
+            "2",
+            "https://crates.io/api/v1/crates/decapod",
+        ])
+        .output();
+
+    if let Ok(output) = output
+        && output.status.success()
+    {
+        let json: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap_or_default();
+        if let Some(v) = json["crate"]["max_version"].as_str() {
+            return v.to_string();
+        }
+    }
+    env!("CARGO_PKG_VERSION").to_string()
 }
 
 /// Create a successful response

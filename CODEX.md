@@ -3,6 +3,14 @@
 You are working in a Decapod-managed repository.
 See `AGENTS.md` for the universal contract.
 
+## Orientation & Documentation
+
+- **Read `docs/agent/api-index.md` before using Decapod beyond help/version checks.**
+- Use `docs/agent/command-contracts.md` instead of guessing command arguments.
+- Treat Decapod errors as recovery instructions.
+- Respect repo-local config policy and workspace boundaries.
+- Do not bypass Decapod boundaries to appear productive.
+
 ## Project Context
 
 - Read `.decapod/config.toml` before planning; it captures project name, summary, architecture, primary languages, and entrypoint preferences.
@@ -13,8 +21,9 @@ See `AGENTS.md` for the universal contract.
 ## Quick Start
 
 ```bash
-cargo install decapod
-decapod validate && decapod docs ingest && decapod session acquire
+# Smart bootstrap: only install/init if a newer version is available
+(decapod capabilities --format json | grep -q '"is_latest":true') || (cargo install decapod && decapod init)
+decapod docs ingest && decapod validate && decapod session acquire
 decapod rpc --op agent.init
 decapod workspace status
 decapod todo add "<task>" && decapod todo claim --id <task-id>

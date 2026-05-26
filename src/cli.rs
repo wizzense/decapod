@@ -154,7 +154,7 @@ pub(crate) struct InitGroupCli {
     /// Multi-agent concurrent runs require container isolation to prevent environment
     /// corruption and race conditions. Only disable if you are the only agent working
     /// in this repository.
-    #[clap(long, default_value_t = true)]
+    #[clap(long = "no-container-workspaces", action = clap::ArgAction::SetFalse, default_value_t = true)]
     pub container_workspaces: bool,
 }
 
@@ -234,33 +234,33 @@ pub(crate) struct InitWithCli {
     /// Multi-agent concurrent runs require container isolation to prevent environment
     /// corruption and race conditions. Only disable if you are the only agent working
     /// in this repository.
-    #[clap(long, default_value_t = true)]
+    #[clap(long = "no-container-workspaces", action = clap::ArgAction::SetFalse, default_value_t = true)]
     pub container_workspaces: bool,
 }
 
 #[derive(clap::ValueEnum, Clone, Copy, Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "lowercase")]
-pub(crate) enum InitDiagramStyle {
+pub enum InitDiagramStyle {
     Ascii,
     Mermaid,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub(crate) struct DecapodProjectConfig {
+pub struct DecapodProjectConfig {
     pub schema_version: String,
     pub init: InitConfigSection,
     pub repo: RepoContext,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub(crate) struct InitConfigSection {
+pub struct InitConfigSection {
     pub specs: bool,
     pub diagram_style: InitDiagramStyle,
     pub entrypoints: Vec<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
-pub(crate) struct RepoContext {
+pub struct RepoContext {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub product_name: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -284,6 +284,22 @@ pub(crate) struct RepoContext {
 
 fn default_container_workspaces_true() -> bool {
     true
+}
+
+impl DecapodProjectConfig {
+    pub fn load(repo_root: &std::path::Path) -> Result<Self, crate::error::DecapodError> {
+        let config_path = repo_root.join(".decapod").join("config.toml");
+        if !config_path.exists() {
+            return Err(crate::error::DecapodError::NotFound(
+                "config.toml not found".to_string(),
+            ));
+        }
+        let content = std::fs::read_to_string(config_path)?;
+        let config: Self = toml::from_str(&content).map_err(|e| {
+            crate::error::DecapodError::Config(format!("Failed to parse config.toml: {}", e))
+        })?;
+        Ok(config)
+    }
 }
 
 impl Default for DecapodProjectConfig {

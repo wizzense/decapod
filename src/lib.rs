@@ -1345,37 +1345,6 @@ fn config_from_init_with(init: &InitWithCli, repo: RepoContext) -> DecapodProjec
     }
 }
 
-fn interactive_init_with(
-    config: &DecapodProjectConfig,
-    target_dir: PathBuf,
-    force: bool,
-    dry_run: bool,
-) -> Result<InitWithCli, error::DecapodError> {
-    print_init_block(
-        "Decapod Setup",
-        "Existing .decapod/config.toml detected. Confirm your setup profile.",
-    );
-    let mut next = init_with_from_config(config, target_dir, force, dry_run);
-    if config.init.entrypoints.is_empty() {
-        let all_entrypoints = prompt_yes_no(
-            "Include all default agent entrypoints (AGENTS/CLAUDE/GEMINI/CODEX)?",
-            true,
-        )?;
-        if all_entrypoints {
-            next.all = true;
-            next.agents = true;
-            next.claude = true;
-            next.gemini = true;
-            next.cdx_ep = true;
-        }
-    }
-    if config.init.specs {
-        next.specs = true;
-    }
-    next.diagram_style = prompt_diagram_style(next.diagram_style)?;
-    Ok(next)
-}
-
 fn enrich_repo_context_interactive(repo: &mut RepoContext) -> Result<(), error::DecapodError> {
     print_init_block(
         "Repository Context",
@@ -1445,12 +1414,17 @@ fn run_init_apply(
     if setup_decapod_root.exists() && !init_with.force {
         use crate::core::ansi::AnsiExt;
         println!(
-            "{} {}",
-            "init:".bright_yellow(),
-            "already initialized (.decapod exists); rerun with --force, or use `decapod init with --force`"
-                .bright_red()
+            "{} Existing Decapod project detected. Refreshing environment...",
+            "init:".bright_yellow()
         );
-        return Ok(target_dir);
+        // Blend OVERRIDE.md additions
+        let _ = scaffold::blend_overrides(&target_dir)?;
+        // Sync config (adds missing default fields)
+        if let Some(cfg) = load_project_config_if_present(&target_dir)? {
+            write_project_config(&target_dir, &cfg, false)?;
+        }
+        // Sync override checksums
+        let _ = docs_cli::sync_override_checksum(&target_dir, false)?;
     }
 
     use sha2::{Digest, Sha256};
@@ -1655,21 +1629,13 @@ pub fn run() -> Result<(), error::DecapodError> {
                     };
                     let maybe_cfg = load_project_config_if_present(&target)?;
                     if let Some(cfg) = maybe_cfg {
-                        let mut with = if io::stdin().is_terminal() {
-                            interactive_init_with(
-                                &cfg,
-                                target.clone(),
-                                init_group.force,
-                                init_group.dry_run,
-                            )?
-                        } else {
-                            init_with_from_config(
-                                &cfg,
-                                target.clone(),
-                                init_group.force,
-                                init_group.dry_run,
-                            )
-                        };
+                        // REFRESH FLOW: Sidestep manual entries if .decapod already exists
+                        let mut with = init_with_from_config(
+                            &cfg,
+                            target.clone(),
+                            init_group.force,
+                            init_group.dry_run,
+                        );
                         // Keep base command flags as explicit runtime overrides.
                         if init_group.all {
                             with.all = true;
@@ -1763,7 +1729,10 @@ pub fn run() -> Result<(), error::DecapodError> {
             apply_repo_context_cli_overrides(&mut repo_ctx, &init_with);
             apply_substrate_adoption(&mut repo_ctx, &init_target);
             apply_architecture_language_recommendation(&mut repo_ctx);
-            if base_init_invocation && io::stdin().is_terminal() {
+
+            // Only do full TUI experience if not refreshing an existing project
+            let is_refresh = init_target.join(".decapod").exists();
+            if base_init_invocation && io::stdin().is_terminal() && !is_refresh {
                 enrich_repo_context_interactive(&mut repo_ctx)?;
             }
             let target_dir = run_init_apply(&init_with, &current_dir, &repo_ctx)?;
