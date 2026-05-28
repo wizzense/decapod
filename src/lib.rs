@@ -1314,6 +1314,7 @@ fn init_with_from_config(
         cdx_ep: has("CODEX.md"),
         agents: has("AGENTS.md"),
         specs: config.init.specs,
+        ci: config.init.ci,
         diagram_style: config.init.diagram_style,
         product_name: config.repo.product_name.clone(),
         product_summary: config.repo.product_summary.clone(),
@@ -1345,6 +1346,7 @@ fn config_from_init_with(init: &InitWithCli, repo: RepoContext) -> DecapodProjec
         schema_version: "1.0.0".to_string(),
         init: InitConfigSection {
             specs: init.specs,
+            ci: init.ci,
             diagram_style: init.diagram_style,
             entrypoints,
         },
@@ -1352,7 +1354,10 @@ fn config_from_init_with(init: &InitWithCli, repo: RepoContext) -> DecapodProjec
     }
 }
 
-fn enrich_repo_context_interactive(repo: &mut RepoContext) -> Result<(), error::DecapodError> {
+fn enrich_repo_context_interactive(
+    repo: &mut RepoContext,
+    init: &mut InitWithCli,
+) -> Result<(), error::DecapodError> {
     print_init_block(
         "Repository Context",
         "Review inferred intent before generating .decapod/generated/specs/.",
@@ -1398,6 +1403,9 @@ fn enrich_repo_context_interactive(repo: &mut RepoContext) -> Result<(), error::
         true,
     )?;
     repo.container_workspaces = enable_container_workspaces;
+
+    let enable_ci = prompt_yes_no("Scaffold GitHub Action for decapod validate?", init.ci)?;
+    init.ci = enable_ci;
 
     Ok(())
 }
@@ -1507,6 +1515,7 @@ fn run_init_apply(
         all: init_with.all,
         preserved_agent_content,
         generate_specs: init_with.specs,
+        generate_ci: init_with.ci,
         diagram_style: match init_with.diagram_style {
             InitDiagramStyle::Ascii => scaffold::DiagramStyle::Ascii,
             InitDiagramStyle::Mermaid => scaffold::DiagramStyle::Mermaid,
@@ -1570,6 +1579,12 @@ fn run_init_apply(
         scaffold_summary.specs_created.to_string().bright_green(),
         scaffold_summary.specs_unchanged.to_string().bright_yellow(),
         scaffold_summary.specs_preserved.to_string().bright_white()
+    );
+    println!(
+        "  CI: created={}, unchanged={}, preserved={}",
+        scaffold_summary.ci_created.to_string().bright_green(),
+        scaffold_summary.ci_unchanged.to_string().bright_yellow(),
+        scaffold_summary.ci_preserved.to_string().bright_white()
     );
     println!("  Backups: {}", backup_count.to_string().bright_magenta());
     println!(
@@ -1665,6 +1680,13 @@ pub fn run() -> Result<(), error::DecapodError> {
                         if init_group.cdx_ep {
                             with.cdx_ep = true;
                         }
+                        // CLI overrides for specs/ci
+                        if !init_group.specs {
+                            with.specs = false;
+                        }
+                        if !init_group.ci {
+                            with.ci = false;
+                        }
                         if init_group.product_name.is_some() {
                             with.product_name = init_group.product_name.clone();
                         }
@@ -1704,7 +1726,8 @@ pub fn run() -> Result<(), error::DecapodError> {
                             gemini: init_group.gemini,
                             cdx_ep: init_group.cdx_ep,
                             agents: init_group.agents,
-                            specs: true,
+                            specs: init_group.specs,
+                            ci: init_group.ci,
                             diagram_style,
                             product_name: init_group.product_name.clone(),
                             product_summary: init_group.product_summary.clone(),
@@ -1744,7 +1767,7 @@ pub fn run() -> Result<(), error::DecapodError> {
             let is_refresh = init_target.join(".decapod").exists();
             if base_init_invocation && io::stdin().is_terminal() && !is_refresh && !init_with.proof
             {
-                enrich_repo_context_interactive(&mut repo_ctx)?;
+                enrich_repo_context_interactive(&mut repo_ctx, &mut init_with)?;
             }
             let target_dir = run_init_apply(&init_with, &current_dir, &repo_ctx)?;
             let config = config_from_init_with(&init_with, repo_ctx);
@@ -4139,6 +4162,7 @@ fn heal_validation_scaffold(
         all: false,
         preserved_agent_content: Vec::new(),
         generate_specs: true,
+        generate_ci: true,
         diagram_style: scaffold::DiagramStyle::Ascii,
         specs_seed: Some(scaffold::SpecsSeed {
             product_name: repo_ctx.product_name,
@@ -4155,8 +4179,11 @@ fn heal_validation_scaffold(
         action: "heal_validation_scaffold".to_string(),
         outcome: "updated".to_string(),
         detail: format!(
-            "Scaffolded missing validation surfaces (entrypoints_created={}, config_created={}, specs_created={}).",
-            summary.entrypoints_created, summary.config_created, summary.specs_created
+            "Scaffolded missing validation surfaces (entrypoints_created={}, config_created={}, specs_created={}, ci_created={}).",
+            summary.entrypoints_created,
+            summary.config_created,
+            summary.specs_created,
+            summary.ci_created
         ),
     }))
 }
