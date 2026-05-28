@@ -21,7 +21,7 @@ Decapod is not intended to be called for every mechanical step. Instead, agents 
 
 ## The Thin Waist
 
-Decapod serves as the "thin waist" of agentic software engineering. On the "top" are diverse agents (Claude, Gemini, Codex, etc.) and human developers. On the "bottom" are the actual tools and codebases. Decapod provides the shared, neutral protocol that allows all these entities to converge on a single, verified outcome.
+Decapod serves as the "thin waist" of agentic software engineering. On the "top" are diverse agents (Claude, Gemini, Codex, etc.) and human developers. On the "bottom" are the actual tools and codebases. Decapod provides the shared, neutral protocol that allows all these entities to converge on a single, verified outcome, without increasing complexity or cognitive load of the human user. All interactions the human wants to execute through decapod, will happen by the agent when the agent determines such an action is necessary.
 
 ## Epistemic Custody
 
