@@ -182,6 +182,16 @@ fn render_embedded_doc_text(id: &str, raw_content: &str) -> String {
     rendered.push_str(id);
     rendered.push('\n');
 
+    if let Some(authority) = value.get("authority").and_then(|v| v.as_str()) {
+        rendered.push_str(&format!("**Authority:** {}\n", authority));
+    }
+    if let Some(category) = value.get("category").and_then(|v| v.as_str()) {
+        rendered.push_str(&format!("**Layer:** {}\n", category));
+    }
+    if let Some(binding) = value.get("binding").and_then(|v| v.as_str()) {
+        rendered.push_str(&format!("**Binding:** {}\n", binding));
+    }
+
     if let Some(summary) = value.get("summary").and_then(|summary| summary.as_str())
         && !summary.trim().is_empty()
     {
@@ -199,7 +209,14 @@ fn render_embedded_doc_text(id: &str, raw_content: &str) -> String {
             rendered.push_str("## ");
             rendered.push_str(title);
             rendered.push_str("\n\n");
-            if let Some(text) = section.as_str() {
+            if let Some(texts) = section.as_array() {
+                for text in texts {
+                    if let Some(t) = text.as_str() {
+                        rendered.push_str(t.trim());
+                        rendered.push('\n');
+                    }
+                }
+            } else if let Some(text) = section.as_str() {
                 rendered.push_str(text.trim());
             } else {
                 rendered.push_str(&section.to_string());
@@ -255,7 +272,7 @@ decapod todo add "<task>" && decapod todo claim --id <task-id>
 decapod infer orientation --task-id <task-id>
 decapod workspace ensure
 cd .decapod/workspaces/<your-worktree>
-decapod rpc --op constitution.get --params '{"section":"core/DECAPOD"}'
+decapod constitution get core/DECAPOD
 decapod rpc --op context.resolve
 ```
 
@@ -263,7 +280,7 @@ decapod rpc --op context.resolve
 
 ```bash
 decapod capabilities --format json
-decapod rpc --op context.scope --params '{"query":"<problem>","limit":8}'
+decapod constitution search --query "<problem>"
 decapod data schema --deterministic
 ```
 
@@ -278,11 +295,11 @@ decapod data schema --deterministic
 - Read and update `.decapod/config.toml` as project context; use Decapod CLI for other `.decapod/` state.
 - Read `.decapod/OVERRIDE.md` for repo-local constitution overrides when present.
 - `DECAPOD_SESSION_PASSWORD` is required for session-scoped operations.
-- Read canonical router: `decapod rpc --op constitution.get --params '{"section":"core/DECAPOD"}'`.
+- Read canonical router: `decapod constitution get core/DECAPOD`.
 - Use shared aptitude memory for human-taught preferences across sessions/providers: `decapod data memory add|get` (aliases: `decapod data aptitude`).
-- Operator reference: `decapod rpc --op constitution.get --params '{"section":"docs/PLAYBOOK"}'`.
+- Operator reference: `decapod constitution get docs/PLAYBOOK`.
 - Capability authority: `decapod capabilities --format json`.
--- Scoped context feature: `decapod rpc --op context.scope --params '{"query":"<problem>","op":"<op>"}'` or `decapod rpc --op context.scope`.
+-- Scoped context feature: `decapod rpc --op context.scope --params '{"query":"<problem>","op":"<op>"}'` or `decapod constitution search --query "<problem>"`.
 
 Treat `.decapod/generated/specs/*` as living documents. Adjust specs as intent and code change over time.
 
@@ -321,7 +338,7 @@ decapod todo add "<task>" && decapod todo claim --id <task-id>
 decapod infer orientation --task-id <task-id>
 decapod workspace ensure
 cd .decapod/workspaces/<your-worktree>
-decapod rpc --op constitution.get --params '{"section":"core/DECAPOD"}'
+decapod constitution get core/DECAPOD
 decapod rpc --op context.resolve
 ```
 
@@ -332,8 +349,18 @@ decapod capabilities --format json
 decapod data schema --deterministic
 decapod infer orientation --intent "<your-goal>" --task-id <id>
 decapod govern capsule query --topic "<topic>" --scope interfaces --task-id <task-id>
-decapod rpc --op context.scope --params '{"query":"<problem>","limit":8}'
+decapod constitution search --query "<problem>"
 ```
+
+
+## Pre-Inference Governance
+
+**Decapod is pre-inference faculty, not post-hoc validation.**
+- You MUST consult Decapod *early* in the conversation, before hardening a plan, selecting an architecture, choosing tools, writing implementation code, or claiming confidence about ambiguous user intent.
+- Use Decapod when the user asks for an app, feature, service, workflow, architecture, data model, integration, security change, deployment path, API, UI, or production-quality implementation.
+- Start with `core/DECAPOD` for broad prompts. Use `core/*` nodes as secondary routers. Use non-core nodes as institutional doctrine.
+- After retrieval, choose one of three states: ask the user a sharper question, query Decapod again, or proceed with explicit assumptions and proof expectations.
+- Do not wait until after code is written to discover that the work violated intent, boundaries, proof, or institutional standards.
 
 ## Golden Rules (Non-Negotiable)
 
@@ -375,7 +402,7 @@ Preserve the chain between intent, context, assumptions, action, and proof.
 - **INV-ROOT-ISOLATION**: Agents MUST NOT mutate files in the main repository checkout.
 
 ## Safety Invariants
-- ✅ Router: `decapod rpc --op constitution.get --params '{"section":"core/DECAPOD"}'`
+- ✅ Router: `decapod constitution get core/DECAPOD`
 - ✅ Gates: `decapod capabilities` | `decapod docs ingest` | `decapod validate`
 - ✅ Claims: `decapod todo claim --id <task-id>` | ✅ Auth: `DECAPOD_SESSION_PASSWORD`
 - ✅ Workspace: Docker git workspaces | ✅ Privilege: request elevated permissions before Docker/container workspace commands
@@ -420,7 +447,7 @@ It keeps Decapod-owned state, generated artifacts, and isolated workspaces separ
 
 1. `decapod init --proof`
 2. `decapod validate`
-3. `decapod rpc --op constitution.get --params '{"section":"core/DECAPOD"}'`
+3. `decapod constitution get core/DECAPOD`
 4. `decapod session acquire`
 5. `decapod rpc --op agent.init`
 6. `decapod workspace status`
@@ -593,8 +620,10 @@ over the embedded JSON constitution.
         "interfaces",
         "methodology",
         "architecture",
+        "data",
         "plugins",
         "docs",
+        "metadata",
     ];
 
     for cat in cat_order {

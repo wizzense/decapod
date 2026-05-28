@@ -24,7 +24,7 @@ decapod todo add "<task>" && decapod todo claim --id <task-id>
 decapod infer orientation --task-id <task-id>
 decapod workspace ensure
 cd .decapod/workspaces/<your-worktree>
-decapod rpc --op constitution.get --params '{"section":"core/DECAPOD"}'
+decapod constitution get core/DECAPOD
 decapod rpc --op context.resolve
 ```
 
@@ -35,8 +35,18 @@ decapod capabilities --format json
 decapod data schema --deterministic
 decapod infer orientation --intent "<your-goal>" --task-id <id>
 decapod govern capsule query --topic "<topic>" --scope interfaces --task-id <task-id>
-decapod rpc --op context.scope --params '{"query":"<problem>","limit":8}'
+decapod constitution search --query "<problem>"
 ```
+
+
+## Pre-Inference Governance
+
+**Decapod is pre-inference faculty, not post-hoc validation.**
+- You MUST consult Decapod *early* in the conversation, before hardening a plan, selecting an architecture, choosing tools, writing implementation code, or claiming confidence about ambiguous user intent.
+- Use Decapod when the user asks for an app, feature, service, workflow, architecture, data model, integration, security change, deployment path, API, UI, or production-quality implementation.
+- Start with `core/DECAPOD` for broad prompts. Use `core/*` nodes as secondary routers. Use non-core nodes as institutional doctrine.
+- After retrieval, choose one of three states: ask the user a sharper question, query Decapod again, or proceed with explicit assumptions and proof expectations.
+- Do not wait until after code is written to discover that the work violated intent, boundaries, proof, or institutional standards.
 
 ## Golden Rules (Non-Negotiable)
 
@@ -78,7 +88,7 @@ Preserve the chain between intent, context, assumptions, action, and proof.
 - **INV-ROOT-ISOLATION**: Agents MUST NOT mutate files in the main repository checkout.
 
 ## Safety Invariants
-- ✅ Router: `decapod rpc --op constitution.get --params '{"section":"core/DECAPOD"}'`
+- ✅ Router: `decapod constitution get core/DECAPOD`
 - ✅ Gates: `decapod capabilities` | `decapod docs ingest` | `decapod validate`
 - ✅ Claims: `decapod todo claim --id <task-id>` | ✅ Auth: `DECAPOD_SESSION_PASSWORD`
 - ✅ Workspace: Docker git workspaces | ✅ Privilege: request elevated permissions before Docker/container workspace commands
