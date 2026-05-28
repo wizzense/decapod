@@ -20,7 +20,7 @@ decapod init
 
 ## 3. Orientation
 
-Verify that your repository meets basic governance requirements. Decapod will check for the presence of mandatory files and invariants.
+Verify that your repository meets basic governance requirements. Decapod will check for the presence of mandatory files and invariants. Agemts will automatically call `decapod validate` as needed.
 
 ```bash
 decapod validate
