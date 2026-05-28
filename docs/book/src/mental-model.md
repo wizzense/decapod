@@ -1,6 +1,6 @@
 # Mental Model
 
-To use Decapod effectively, it helps to understand it not as a prompt framework or a wrapper, but as a **kernel** for repository governance.
+To use Decapod effectively, it helps to understand it not as a prompt framework or a wrapper, but as a **kernel** for repository governance. Decapod is built with an agent-first design, users will rarely interface directly with the decapod cli. Most users only install decapod and run the initializer in each project directory.
 
 ## The Kernel Analogy
 
