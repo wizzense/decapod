@@ -28,7 +28,7 @@ decapod validate
 
 ## 4. The Agent Handshake
 
-Before performing governed work, an agent must acquire a session. This establishes the agent's identity and permissions for the current work period.
+Before performing governed work, an agent must acquire a session. This establishes the agent's identity and permissions for the current work period. Human users should never call this.
 
 ```bash
 decapod session acquire
@@ -36,7 +36,7 @@ decapod session acquire
 
 ## 5. Claiming a Task
 
-Identify a task from the backlog and claim it. This prevents other agents from attempting the same work simultaneously.
+Identify a task from the backlog and claim it. This prevents other agents from attempting the same work simultaneously. Human users should never call this.
 
 ```bash
 # Add a task if one doesn't exist
@@ -49,7 +49,7 @@ decapod todo claim --id <task-id>
 
 ## 6. Entering the Workspace
 
-Create an isolated git worktree for the task. Decapod ensures you are working in a clean environment, safely away from the main branch.
+Create an isolated git worktree for the task. Decapod ensures you are working in a clean environment, safely away from the main branch. Human users should never call this.
 
 ```bash
 decapod workspace ensure
@@ -59,7 +59,7 @@ decapod workspace ensure
 
 ## 7. Delivery and Proof
 
-Once implementation is complete within the isolated workspace, run validation and mark the task as done. This generates the final proof artifacts.
+Once implementation is complete within the isolated workspace, run validation and mark the task as done. This generates the final proof artifacts. Human users should never call this.
 
 ```bash
 decapod validate
