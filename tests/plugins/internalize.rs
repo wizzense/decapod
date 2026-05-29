@@ -41,7 +41,7 @@ fn run_decapod(dir: &Path, args: &[&str]) -> (bool, String) {
 
     let stdout = String::from_utf8_lossy(&output.stdout).to_string();
     let stderr = String::from_utf8_lossy(&output.stderr).to_string();
-    (output.status.success(), format!("{}\n{}", stdout, stderr))
+    (output.status.success(), format!("{stdout}\n{stderr}"))
 }
 
 fn parse_json_from_output(output: &str) -> serde_json::Value {
@@ -81,7 +81,11 @@ fn test_internalization_manifest_schema_roundtrip() {
         replay_recipe: ReplayRecipe {
             mode: ReplayClass::Replayable,
             command: "decapod".to_string(),
-            args: vec!["context".to_string(), "internalize".to_string(), "create".to_string()],
+            args: vec![
+                "context".to_string(),
+                "internalize".to_string(),
+                "create".to_string(),
+            ],
             env: BTreeMap::new(),
             reason: "deterministic profile with pinned binary hash".to_string(),
         },
@@ -127,8 +131,13 @@ fn test_schema_files_exist_and_parse() {
             String::from_utf8_lossy(&output.stderr)
         );
         let raw = String::from_utf8_lossy(&output.stdout);
-        let wrapper: serde_json::Value = serde_json::from_str(&raw).expect(&format!("parse wrapper for {}: {}", file, raw));
-        let content_obj = wrapper.get("result").expect(&format!("has result for {}: {}", file, raw)).get("content").expect(&format!("has content for {}: {}", file, raw));
+        let wrapper: serde_json::Value = serde_json::from_str(&raw)
+            .unwrap_or_else(|_| panic!("parse wrapper for {file}: {raw}"));
+        let content_obj = wrapper
+            .get("result")
+            .unwrap_or_else(|| panic!("has result for {file}: {raw}"))
+            .get("content")
+            .unwrap_or_else(|| panic!("has content for {file}: {raw}"));
         let schema_str = content_obj
             .get("summary")
             .expect("has summary")
@@ -139,8 +148,7 @@ fn test_schema_files_exist_and_parse() {
         });
         assert!(
             parsed.get("$id").is_some(),
-            "schema {} must declare $id",
-            file
+            "schema {file} must declare $id"
         );
     }
 }
@@ -207,7 +215,7 @@ fn test_source_hash_binding_is_enforced_on_attach() {
         1800,
     )
     .unwrap_err();
-    assert!(format!("{}", err).contains("Source integrity check failed"));
+    assert!(format!("{err}").contains("Source integrity check failed"));
 }
 
 #[test]
@@ -319,7 +327,8 @@ fn test_cli_create_attach_detach_inspect() {
     let (success, output) = run_decapod(
         &temp_path,
         &[
-            "context", "internalize",
+            "context",
+            "internalize",
             "create",
             "--source",
             "sample_doc.txt",
@@ -331,14 +340,15 @@ fn test_cli_create_attach_detach_inspect() {
             "json",
         ],
     );
-    assert!(success, "create should succeed:\n{}", output);
+    assert!(success, "create should succeed:\n{output}");
     let created = parse_json_from_output(&output);
     let artifact_id = created["artifact_id"].as_str().unwrap();
 
     let (success, output) = run_decapod(
         &temp_path,
         &[
-            "context", "internalize",
+            "context",
+            "internalize",
             "attach",
             "--id",
             artifact_id,
@@ -352,12 +362,13 @@ fn test_cli_create_attach_detach_inspect() {
             "json",
         ],
     );
-    assert!(success, "attach should succeed:\n{}", output);
+    assert!(success, "attach should succeed:\n{output}");
 
     let (success, output) = run_decapod(
         &temp_path,
         &[
-            "context", "internalize",
+            "context",
+            "internalize",
             "detach",
             "--id",
             artifact_id,
@@ -367,12 +378,13 @@ fn test_cli_create_attach_detach_inspect() {
             "json",
         ],
     );
-    assert!(success, "detach should succeed:\n{}", output);
+    assert!(success, "detach should succeed:\n{output}");
 
     let (success, output) = run_decapod(
         &temp_path,
         &[
-            "context", "internalize",
+            "context",
+            "internalize",
             "inspect",
             "--id",
             artifact_id,
@@ -380,5 +392,5 @@ fn test_cli_create_attach_detach_inspect() {
             "json",
         ],
     );
-    assert!(success, "inspect should succeed:\n{}", output);
+    assert!(success, "inspect should succeed:\n{output}");
 }
