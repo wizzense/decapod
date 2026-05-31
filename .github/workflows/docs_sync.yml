@@ -14,16 +14,33 @@ jobs:
   sync-docs:
     runs-on: ubuntu-latest
     steps:
+      - name: Generate GitHub App token
+        uses: actions/create-github-app-token@v2
+        id: generate-token
+        with:
+          app-id: ${{ secrets.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+          owner: DecapodLabs
+          
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
+          token: ${{ steps.generate-token.outputs.token }}
+          persist-credentials: false
+
+      - name: Configure Git for Private Dependencies
+        run: |
+          git config --global url."https://${{ secrets.PROPODUS_READONLY_PAT }}@github.com/DecapodLabs/propodus".insteadOf "https://github.com/DecapodLabs/propodus"
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 
       - name: Build Decapod
-        run: cargo build
+        env:
+          CARGO_NET_GIT_FETCH_WITH_CLI: "true"
+          GIT_TERMINAL_PROMPT: "0"
+        run: cargo build --all-features
 
       - name: Get changed files
         id: changed-files
@@ -45,6 +62,7 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${{ steps.generate-token.outputs.token }}@github.com/${{ github.repository }}
           git add docs/agent/command-contracts.md docs/agent/config-schema.md
           if git diff --staged --quiet; then
             echo "No doc changes detected."
