@@ -1,7 +1,7 @@
 <p align="center">🦀</p>
 
 <p align="center">
-  <code>cargo install decapod && decapod init --proof</code>
+  <code>cargo install decapod && decapod init</code>
 </p>
 
 <p align="center">
