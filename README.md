@@ -25,14 +25,6 @@ Canonical Contract: `assets/constitution.json` section `core/DECAPOD`
 
 ---
 
-## Documentation
-
-Decapod provides comprehensive documentation for both human operators and AI agents.
-
-- **[Human Documentation (mdBook)](docs/book/src/introduction.md)**: Conceptual overview, workflows, adoption guide, and reference.
-- **[Agent Orientation Corpus](docs/agent/api-index.md)**: API-awareness layer for agents, including command contracts and payload examples.
-- **[Universal Agent Contract (AGENTS.md)](AGENTS.md)**: The machine-readable entrypoint for all agents operating in this repo.
-
 ## Quick Start
 
 ```bash
@@ -138,6 +130,14 @@ Everything an engineering org usually keeps in tribal memory or review culture b
 - **Boundary-aware** — Enforces protected paths and branch isolation.
 
 ---
+
+## Documentation
+
+Decapod provides comprehensive documentation for both human operators and AI agents.
+
+- **[Human Documentation (mdBook)](docs/book/src/introduction.md)**: Conceptual overview, workflows, adoption guide, and reference.
+- **[Agent Orientation Corpus](docs/agent/api-index.md)**: API-awareness layer for agents, including command contracts and payload examples.
+- **[Universal Agent Contract (AGENTS.md)](AGENTS.md)**: The machine-readable entrypoint for all agents operating in this repo.
 
 ## Contributing
 
