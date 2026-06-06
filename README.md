@@ -88,9 +88,10 @@ Decapod is called before:
 
 1. **Clarifies intent** — Converts vague requests into explicit, versioned specifications.
 2. **Bounds context** — Resolves only the minimal relevant code/docs for the task.
-3. **Enforces boundaries** — Safeguards protected branches and sensitive modules.
-4. **Governs adaptation** — Manages feedback-driven instruction changes through explicit review.
-5. **Requires proof** — Gates completion on deterministic verification artifacts.
+3. **Coordinates concurrent agents** — Lets Cursor, Claude Code, Codex, Gemini CLI, and other tools work against the same repo without duplicating work, trampling workspaces, or losing state.
+4. **Enforces boundaries** — Safeguards protected branches and sensitive modules.
+5. **Governs adaptation** — Manages feedback-driven instruction changes through explicit review.
+6. **Requires proof** — Gates completion on deterministic verification artifacts.
 
 ---
 
