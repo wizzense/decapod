@@ -6,13 +6,13 @@
 
 <p align="center">
   <strong>Decapod</strong><br />
-  The agent remains your interface; natural language becomes the control surface; agents use Decapod to keep concurrent AI coding work governed, coordinated, and provable.
+  The agent remains your interface; natural language becomes the control surface; fleets of agents use Decapod to keep concurrent AI coding work governed, coordinated, and provable.
 </p>
 
 <p align="center">
-  Decapod is a daemonless, local-first governance kernel for AI coding agents. Users stay inside Cursor, Claude Code, Codex, Gemini CLI, and other agent tools while agents 
-  call Decapod on demand to enrich repo context, turn natural-language intent into explicit specs, enforce workspace and policy boundaries, coordinate mutable state, and require 
-  proof-backed completion across concurrent tools and providers.
+  Decapod is a daemonless, local-first governance kernel for agentic coding fleets. Users stay inside Cursor, Claude Code, Codex, Gemini CLI, and other agent tools while agents 
+  call Decapod on demand to enrich context, turn natural-language intent into explicit specs, enforce workspace and policy boundaries, coordinate mutable state, and require 
+  proof-backed completion concurrently.
 </p>
 
 <p align="center">
