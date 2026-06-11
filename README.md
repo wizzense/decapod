@@ -6,7 +6,7 @@
 
 <p align="center">
   <strong>Decapod</strong><br />
-  The agent remains your interface; natural language becomes the control surface; fleets of agents use Decapod to keep concurrent AI coding work governed, coordinated, and provable.
+  The agent remains your interface; natural language becomes the control surface; fleets of looping agents use Decapod to keep concurrent AI coding work governed, coordinated, and provable.
 </p>
 
 <p align="center">
