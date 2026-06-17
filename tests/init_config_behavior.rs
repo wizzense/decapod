@@ -13,17 +13,48 @@ fn run_decapod(dir: &std::path::Path, args: &[&str]) -> std::process::Output {
 #[test]
 fn init_with_backend_cloud_saves_to_config() {
     let tmp = tempdir().expect("tempdir");
-    // We use a dummy curl that returns failure to avoid hanging on real Auth0 flow
-    // or we just check that the config was written before auth (it's not, auth is before config write)
-
-    // Actually, let's just test that the CLI accepts the flag.
     let out = Command::new(env!("CARGO_BIN_EXE_decapod"))
-        .args(["init", "with", "--mode", "cloud", "--force", "--dry-run"])
+        .args(["init", "with", "--mode", "cloud", "--force"])
         .current_dir(tmp.path())
         .output()
         .expect("run decapod");
 
-    assert!(out.status.success());
+    assert!(
+        out.status.success(),
+        "decapod init with --mode cloud failed: {}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+
+    let config_path = tmp.path().join(".decapod/config.toml");
+    let config = fs::read_to_string(config_path).expect("read config.toml");
+    assert!(
+        config.contains("[cloud]"),
+        "missing [cloud] section: {config}"
+    );
+    assert!(
+        config.contains("enabled = true"),
+        "cloud opt-in should be recorded: {config}"
+    );
+    assert!(
+        config.contains("experimental = true"),
+        "cloud should be marked experimental: {config}"
+    );
+    assert!(
+        config.contains("provider = \"decapod\""),
+        "cloud provider should be non-secret Decapod wiring: {config}"
+    );
+    assert!(
+        config.contains("api_url = \"https://api.decapodlabs.com\""),
+        "cloud API URL should use Decapod Labs default: {config}"
+    );
+    assert!(
+        config.contains("mode = \"local\""),
+        "cloud opt-in must not switch storage away from local by default: {config}"
+    );
+    assert!(
+        !config.contains("supabase") && !config.contains("token") && !config.contains("secret"),
+        "repo config must not contain credentials or legacy backend secrets: {config}"
+    );
 }
 
 #[test]
@@ -34,6 +65,87 @@ fn init_with_backend_local_is_default() {
     let config_path = tmp.path().join(".decapod/config.toml");
     let config = fs::read_to_string(config_path).expect("read config.toml");
     assert!(config.contains("mode = \"local\""));
+    assert!(config.contains("[cloud]"));
+    assert!(config.contains("enabled = false"));
+}
+
+#[test]
+fn init_cloud_opt_in_does_not_store_secret_environment_values() {
+    let tmp = tempdir().expect("tempdir");
+    let out = Command::new(env!("CARGO_BIN_EXE_decapod"))
+        .args(["init", "with", "--mode", "cloud", "--force"])
+        .current_dir(tmp.path())
+        .env("SUPABASE_URL", "https://private.supabase.local")
+        .env("SUPABASE_KEY", "super-secret-service-role")
+        .env("DECAPOD_ACCESS_TOKEN", "repo-config-must-not-store-this")
+        .output()
+        .expect("run decapod");
+
+    assert!(
+        out.status.success(),
+        "decapod init with secret-like env failed: {}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+
+    let config_path = tmp.path().join(".decapod/config.toml");
+    let config = fs::read_to_string(config_path).expect("read config.toml");
+    assert!(config.contains("enabled = true"));
+    assert!(!config.contains("private.supabase.local"));
+    assert!(!config.contains("super-secret-service-role"));
+    assert!(!config.contains("repo-config-must-not-store-this"));
+    assert!(!config.contains("supabase_key"));
+    assert!(!config.contains("access_token"));
+}
+
+#[test]
+fn session_acquire_uses_machine_local_config_not_repo_session_file() {
+    let tmp = tempdir().expect("tempdir");
+    let config_home = tempdir().expect("config home");
+    let out = run_decapod(tmp.path(), &["init", "with", "--force"]);
+    assert!(
+        out.status.success(),
+        "decapod init failed: {}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+
+    let acquire = Command::new(env!("CARGO_BIN_EXE_decapod"))
+        .args(["session", "acquire"])
+        .current_dir(tmp.path())
+        .env("XDG_CONFIG_HOME", config_home.path())
+        .env("DECAPOD_AGENT_ID", "machine-local-agent")
+        .output()
+        .expect("session acquire");
+    assert!(
+        acquire.status.success(),
+        "session acquire failed: {}",
+        String::from_utf8_lossy(&acquire.stderr)
+    );
+
+    assert!(
+        !tmp.path().join(".decapod/session_token").exists(),
+        "repo-local session_token should not be created"
+    );
+    assert!(
+        !tmp.path().join(".decapod/generated/sessions").exists(),
+        "session credentials should not be written under repo generated state"
+    );
+
+    let machine_sessions = config_home.path().join("decapod/sessions");
+    assert!(
+        machine_sessions.exists(),
+        "machine-local session directory missing"
+    );
+    let mut found_session = false;
+    for project_entry in fs::read_dir(machine_sessions).expect("read machine sessions") {
+        let project_entry = project_entry.expect("project session dir");
+        for agent_entry in fs::read_dir(project_entry.path()).expect("read project session dir") {
+            let agent_entry = agent_entry.expect("agent session file");
+            if agent_entry.file_name() == "machine-local-agent.json" {
+                found_session = true;
+            }
+        }
+    }
+    assert!(found_session, "machine-local agent session file missing");
 }
 
 #[test]
