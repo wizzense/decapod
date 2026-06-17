@@ -39,7 +39,10 @@ fn machine_data_dir() -> Result<PathBuf, DecapodError> {
             "HOME is required to locate ~/.local/share/decapod for cloud credentials.".to_string(),
         )
     })?;
-    Ok(PathBuf::from(home).join(".local").join("share").join("decapod"))
+    Ok(PathBuf::from(home)
+        .join(".local")
+        .join("share")
+        .join("decapod"))
 }
 
 fn machine_session_token_path() -> Result<PathBuf, DecapodError> {
@@ -87,14 +90,13 @@ pub fn perform_cloud_auth(_target_dir: &Path) -> Result<(), DecapodError> {
     let data_dir = machine_data_dir()?;
     fs::create_dir_all(&data_dir).map_err(DecapodError::IoError)?;
     let token_path = machine_session_token_path()?;
-    
+
     // Write token in JSON format
     let token_json = serde_json::json!({
         "token": token
     });
-    let body = serde_json::to_string_pretty(&token_json).map_err(|e| {
-        DecapodError::ValidationError(format!("Failed to serialize token: {e}"))
-    })?;
+    let body = serde_json::to_string_pretty(&token_json)
+        .map_err(|e| DecapodError::ValidationError(format!("Failed to serialize token: {e}")))?;
     fs::write(&token_path, body).map_err(DecapodError::IoError)?;
 
     #[cfg(unix)]
