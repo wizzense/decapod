@@ -26,6 +26,7 @@ use crate::{db, primitives, todo};
 use fancy_regex::Regex;
 use serde::{Deserialize, Serialize};
 use serde_json;
+use sha2::{Digest, Sha256};
 use std::collections::HashSet;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -1273,6 +1274,75 @@ fn validate_project_config_toml(
             ctx,
         );
     }
+
+    let cloud_table = value.get("cloud").and_then(|v| v.as_table());
+    let forbidden_cloud_secret_keys = [
+        "access_token",
+        "refresh_token",
+        "device_code",
+        "auth_code",
+        "client_secret",
+        "session_cookie",
+        "account_password",
+        "private_key",
+        "supabase_key",
+        "supabase_url",
+    ];
+    let mut forbidden_present = Vec::new();
+    for key in forbidden_cloud_secret_keys {
+        if cloud_table.map(|t| t.contains_key(key)).unwrap_or(false)
+            || repo_table.map(|t| t.contains_key(key)).unwrap_or(false)
+        {
+            forbidden_present.push(key);
+        }
+    }
+    if forbidden_present.is_empty() {
+        pass(
+            "Project config does not store cloud credentials or tokens",
+            ctx,
+        );
+    } else {
+        fail(
+            &format!(
+                "Project config must not store cloud credentials or backend secrets in repo config: {forbidden_present:?}"
+            ),
+            ctx,
+        );
+    }
+
+    if let Some(cloud_table) = cloud_table {
+        let cloud_enabled = cloud_table
+            .get("enabled")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(false);
+        if cloud_enabled {
+            let experimental = cloud_table
+                .get("experimental")
+                .and_then(|v| v.as_bool())
+                .unwrap_or(false);
+            let provider_present = cloud_table
+                .get("provider")
+                .and_then(|v| v.as_str())
+                .map(|s| !s.trim().is_empty())
+                .unwrap_or(false);
+            let api_url_present = cloud_table
+                .get("api_url")
+                .and_then(|v| v.as_str())
+                .map(|s| !s.trim().is_empty())
+                .unwrap_or(false);
+            if experimental && provider_present && api_url_present {
+                pass(
+                    "Project config captures experimental Decapod Cloud opt-in boundary",
+                    ctx,
+                );
+            } else {
+                fail(
+                    "Enabled cloud config must be experimental and include non-secret provider/api_url wiring.",
+                    ctx,
+                );
+            }
+        }
+    }
     Ok(())
 }
 
@@ -2233,10 +2303,7 @@ fn validate_internalization_artifacts_if_present(
         }
     }
 
-    let sessions_dir = repo_root
-        .join(".decapod")
-        .join("generated")
-        .join("sessions");
+    let sessions_dir = validation_sessions_dir(repo_root);
     if sessions_dir.exists() {
         for session_entry in fs::read_dir(&sessions_dir).map_err(error::DecapodError::IoError)? {
             let session_entry = session_entry.map_err(error::DecapodError::IoError)?;
@@ -2522,6 +2589,36 @@ fn validate_policy_integrity(
     }
 
     Ok(())
+}
+
+fn validation_sessions_dir(repo_root: &Path) -> PathBuf {
+    machine_validation_sessions_dir(repo_root).unwrap_or_else(|| {
+        repo_root
+            .join(".decapod")
+            .join("generated")
+            .join("sessions")
+    })
+}
+
+fn machine_validation_sessions_dir(repo_root: &Path) -> Option<PathBuf> {
+    let config_root = std::env::var("XDG_CONFIG_HOME")
+        .ok()
+        .map(|v| PathBuf::from(v.trim()).join("decapod"))
+        .or_else(|| {
+            std::env::var("HOME")
+                .ok()
+                .map(|v| PathBuf::from(v).join(".config").join("decapod"))
+        })?;
+
+    let canonical = fs::canonicalize(repo_root).unwrap_or_else(|_| repo_root.to_path_buf());
+    let mut hasher = Sha256::new();
+    hasher.update(canonical.to_string_lossy().as_bytes());
+    let digest = hasher.finalize();
+    let mut scope = String::with_capacity(digest.len() * 2);
+    for b in digest {
+        scope.push_str(&format!("{b:02x}"));
+    }
+    Some(config_root.join("sessions").join(scope))
 }
 
 #[derive(Debug, Deserialize)]

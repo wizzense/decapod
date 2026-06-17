@@ -1,14 +1,15 @@
 use crate::core::ansi::AnsiExt;
 use crate::core::error::DecapodError;
 use serde::Deserialize;
+use std::env;
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::time::{Duration, Instant};
 
 const AUTH0_DOMAIN: &str = "decapod.auth0.com";
 const AUTH0_CLIENT_ID: &str = "decapod-cli-client-id";
-const AUTH0_AUDIENCE: &str = "https://api.decapod.io";
+const AUTH0_AUDIENCE: &str = "https://api.decapodlabs.com";
 
 #[derive(Deserialize, Debug)]
 struct DeviceCodeResponse {
@@ -25,7 +26,27 @@ struct TokenResponse {
     error: Option<String>,
 }
 
-pub fn perform_cloud_auth(target_dir: &Path) -> Result<(), DecapodError> {
+fn machine_config_dir() -> Result<PathBuf, DecapodError> {
+    if let Ok(config_home) = env::var("XDG_CONFIG_HOME") {
+        let trimmed = config_home.trim();
+        if !trimmed.is_empty() {
+            return Ok(PathBuf::from(trimmed).join("decapod"));
+        }
+    }
+
+    let home = env::var("HOME").map_err(|_| {
+        DecapodError::ValidationError(
+            "HOME is required to locate ~/.config/decapod for cloud credentials.".to_string(),
+        )
+    })?;
+    Ok(PathBuf::from(home).join(".config").join("decapod"))
+}
+
+fn machine_session_token_path() -> Result<PathBuf, DecapodError> {
+    Ok(machine_config_dir()?.join("session_token"))
+}
+
+pub fn perform_cloud_auth(_target_dir: &Path) -> Result<(), DecapodError> {
     // Check if curl is available
     if Command::new("curl").arg("--version").output().is_err() {
         return Err(DecapodError::ValidationError(
@@ -38,7 +59,8 @@ pub fn perform_cloud_auth(target_dir: &Path) -> Result<(), DecapodError> {
     println!("◢ {}", "Cloud Authentication".bright_cyan().bold());
     println!(
         "  {}",
-        "Authenticating with Auth0 to access Supabase backend...".bright_black()
+        "Authenticating with Decapod Cloud. Credentials are stored outside this repository."
+            .bright_black()
     );
 
     let device_code_res = initiate_device_flow()?;
@@ -62,8 +84,19 @@ pub fn perform_cloud_auth(target_dir: &Path) -> Result<(), DecapodError> {
 
     let token = poll_for_token(&device_code_res)?;
 
-    let token_path = target_dir.join(".decapod").join("session_token");
+    let config_dir = machine_config_dir()?;
+    fs::create_dir_all(&config_dir).map_err(DecapodError::IoError)?;
+    let token_path = machine_session_token_path()?;
     fs::write(&token_path, token).map_err(DecapodError::IoError)?;
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        let mut perms = fs::metadata(&token_path)
+            .map_err(DecapodError::IoError)?
+            .permissions();
+        perms.set_mode(0o600);
+        fs::set_permissions(&token_path, perms).map_err(DecapodError::IoError)?;
+    }
 
     println!(
         "{} {}",
@@ -74,8 +107,10 @@ pub fn perform_cloud_auth(target_dir: &Path) -> Result<(), DecapodError> {
     Ok(())
 }
 
-pub fn is_token_valid(target_dir: &Path) -> bool {
-    let token_path = target_dir.join(".decapod").join("session_token");
+pub fn is_token_valid(_target_dir: &Path) -> bool {
+    let Ok(token_path) = machine_session_token_path() else {
+        return false;
+    };
     if !token_path.exists() {
         return false;
     }

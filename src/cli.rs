@@ -164,15 +164,12 @@ pub(crate) struct InitGroupCli {
     /// in this repository.
     #[clap(long = "no-container-workspaces", action = clap::ArgAction::SetFalse, default_value_t = true)]
     pub container_workspaces: bool,
-    /// Backend mode: 'local' (default) or 'cloud' (experimental).
+    /// Init storage boundary: 'local' (default) or 'cloud' (experimental, account required).
+    ///
+    /// Cloud mode records non-secret Decapod Cloud intent in `.decapod/config.toml`.
+    /// It does not perform login, provisioning, or sync during init.
     #[clap(long, value_enum, default_value_t = BackendType::Local)]
     pub mode: BackendType,
-    /// Supabase URL for cloud mode.
-    #[clap(long)]
-    pub supabase_url: Option<String>,
-    /// Supabase API key (service role) for cloud mode.
-    #[clap(long)]
-    pub supabase_key: Option<String>,
 }
 
 #[derive(Subcommand, Debug)]
@@ -259,15 +256,12 @@ pub(crate) struct InitWithCli {
     /// in this repository.
     #[clap(long = "no-container-workspaces", action = clap::ArgAction::SetFalse, default_value_t = true)]
     pub container_workspaces: bool,
-    /// Backend mode: 'local' (default) or 'cloud' (experimental).
+    /// Init storage boundary: 'local' (default) or 'cloud' (experimental, account required).
+    ///
+    /// Cloud mode records non-secret Decapod Cloud intent in `.decapod/config.toml`.
+    /// It does not perform login, provisioning, or sync during init.
     #[clap(long, value_enum, default_value_t = BackendType::Local)]
     pub mode: BackendType,
-    /// Supabase URL for cloud mode.
-    #[clap(long)]
-    pub supabase_url: Option<String>,
-    /// Supabase API key (service role) for cloud mode.
-    #[clap(long)]
-    pub supabase_key: Option<String>,
 }
 
 #[derive(clap::ValueEnum, Clone, Copy, Debug, Serialize, Deserialize, PartialEq, Eq)]
@@ -282,6 +276,8 @@ pub struct DecapodProjectConfig {
     pub schema_version: String,
     pub init: InitConfigSection,
     pub repo: RepoContext,
+    #[serde(default)]
+    pub cloud: CloudConfigSection,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -304,6 +300,43 @@ pub enum BackendType {
     #[default]
     Local,
     Cloud,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct CloudConfigSection {
+    #[serde(default)]
+    pub enabled: bool,
+    #[serde(default = "default_true")]
+    pub experimental: bool,
+    #[serde(default = "default_cloud_provider")]
+    pub provider: String,
+    #[serde(default = "default_cloud_api_url")]
+    pub api_url: String,
+    #[serde(default)]
+    pub project_id: String,
+    #[serde(default)]
+    pub repo_id: String,
+}
+
+fn default_cloud_provider() -> String {
+    "decapod".to_string()
+}
+
+fn default_cloud_api_url() -> String {
+    "https://api.decapodlabs.com".to_string()
+}
+
+impl Default for CloudConfigSection {
+    fn default() -> Self {
+        Self {
+            enabled: false,
+            experimental: true,
+            provider: default_cloud_provider(),
+            api_url: default_cloud_api_url(),
+            project_id: String::new(),
+            repo_id: String::new(),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
@@ -329,10 +362,6 @@ pub struct RepoContext {
     pub container_workspaces: bool,
     #[serde(default)]
     pub mode: BackendType,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub supabase_url: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub supabase_key: Option<String>,
 }
 
 fn default_container_workspaces_true() -> bool {
@@ -371,6 +400,7 @@ impl Default for DecapodProjectConfig {
                 ],
             },
             repo: RepoContext::default(),
+            cloud: CloudConfigSection::default(),
         }
     }
 }

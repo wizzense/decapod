@@ -418,12 +418,6 @@ fn apply_repo_context_env_overrides(ctx: &mut RepoContext) {
             ctx.mode = crate::cli::BackendType::Local;
         }
     }
-    if let Ok(v) = std::env::var("SUPABASE_URL") {
-        ctx.supabase_url = Some(v);
-    }
-    if let Ok(v) = std::env::var("SUPABASE_KEY") {
-        ctx.supabase_key = Some(v);
-    }
     dedupe_sorted(&mut ctx.primary_languages);
     dedupe_sorted(&mut ctx.detected_surfaces);
 }
@@ -477,12 +471,6 @@ fn apply_repo_context_cli_overrides(ctx: &mut RepoContext, init_with: &InitWithC
     }
     ctx.container_workspaces = init_with.container_workspaces;
     ctx.mode = init_with.mode.clone();
-    if let Some(v) = init_with.supabase_url.as_ref() {
-        ctx.supabase_url = Some(v.clone());
-    }
-    if let Some(v) = init_with.supabase_key.as_ref() {
-        ctx.supabase_key = Some(v.clone());
-    }
     dedupe_sorted(&mut ctx.primary_languages);
     dedupe_sorted(&mut ctx.detected_surfaces);
 }
@@ -1324,13 +1312,22 @@ fn init_with_from_config(
         primary_languages: config.repo.primary_languages.clone(),
         detected_surfaces: config.repo.detected_surfaces.clone(),
         container_workspaces: config.repo.container_workspaces,
-        mode: config.repo.mode.clone(),
-        supabase_url: config.repo.supabase_url.clone(),
-        supabase_key: config.repo.supabase_key.clone(),
+        mode: if config.cloud.enabled || config.repo.mode == crate::cli::BackendType::Cloud {
+            crate::cli::BackendType::Cloud
+        } else {
+            crate::cli::BackendType::Local
+        },
     }
 }
 
 fn config_from_init_with(init: &InitWithCli, repo: RepoContext) -> DecapodProjectConfig {
+    let cloud_enabled =
+        init.mode == crate::cli::BackendType::Cloud || repo.mode == crate::cli::BackendType::Cloud;
+    let mut repo = repo;
+    // #688 adds the cloud opt-in boundary only. Fresh init config must keep
+    // local storage canonical until a later sync feature explicitly changes it.
+    repo.mode = crate::cli::BackendType::Local;
+
     let mut entrypoints = Vec::new();
     let no_entrypoint_flags = !init.claude && !init.gemini && !init.cdx_ep && !init.agents;
     if init.all || init.agents || no_entrypoint_flags {
@@ -1354,6 +1351,10 @@ fn config_from_init_with(init: &InitWithCli, repo: RepoContext) -> DecapodProjec
             entrypoints,
         },
         repo,
+        cloud: crate::cli::CloudConfigSection {
+            enabled: cloud_enabled,
+            ..crate::cli::CloudConfigSection::default()
+        },
     }
 }
 
@@ -1407,18 +1408,29 @@ fn enrich_repo_context_interactive(
     )?;
     repo.container_workspaces = enable_container_workspaces;
 
+    println!();
+    println!("Enable Decapod Cloud? [experimental, account required]");
+    println!("  No  - local-first repo governance only");
+    println!("  Yes - sign in to Decapod Labs to sync governed work state");
     let backend_choice = prompt_yes_no(
-        "Use cloud backend? (EXPERIMENTAL: Requires Auth0 authentication and grants access to Supabase.)",
-        matches!(repo.mode, crate::cli::BackendType::Cloud),
+        "Enable Decapod Cloud? [experimental, account required]",
+        matches!(init.mode, crate::cli::BackendType::Cloud),
     )?;
-    repo.mode = if backend_choice {
-        if repo.supabase_url.is_none() {
-            repo.supabase_url = Some("https://api.decapod.io".to_string());
+    init.mode = if backend_choice {
+        println!();
+        println!("Decapod Cloud is experimental.");
+        println!("It syncs governed operational state for this repo.");
+        println!("Local state remains canonical unless cloud sync is enabled.");
+        println!();
+        if prompt_yes_no("Continue?", false)? {
+            crate::cli::BackendType::Cloud
+        } else {
+            crate::cli::BackendType::Local
         }
-        crate::cli::BackendType::Cloud
     } else {
         crate::cli::BackendType::Local
     };
+    repo.mode = crate::cli::BackendType::Local;
 
     let enable_ci = prompt_yes_no("Scaffold GitHub Action for decapod validate?", init.ci)?;
     init.ci = enable_ci;
@@ -1756,8 +1768,6 @@ pub fn run() -> Result<(), error::DecapodError> {
                             detected_surfaces: init_group.detected_surfaces.clone(),
                             container_workspaces: init_group.container_workspaces,
                             mode: init_group.mode.clone(),
-                            supabase_url: init_group.supabase_url.clone(),
-                            supabase_key: init_group.supabase_key.clone(),
                         }
                     }
                 }
@@ -1781,6 +1791,11 @@ pub fn run() -> Result<(), error::DecapodError> {
             let mut repo_ctx = infer_repo_context(&init_target);
             apply_repo_context_env_overrides(&mut repo_ctx);
             apply_repo_context_cli_overrides(&mut repo_ctx, &init_with);
+            if repo_ctx.mode == crate::cli::BackendType::Cloud
+                && init_with.mode == crate::cli::BackendType::Local
+            {
+                init_with.mode = crate::cli::BackendType::Cloud;
+            }
             apply_substrate_adoption(&mut repo_ctx, &init_target);
             apply_architecture_language_recommendation(&mut repo_ctx);
 
@@ -1791,9 +1806,6 @@ pub fn run() -> Result<(), error::DecapodError> {
                 enrich_repo_context_interactive(&mut repo_ctx, &mut init_with)?;
             }
             let target_dir = run_init_apply(&init_with, &current_dir, &repo_ctx)?;
-            if repo_ctx.mode == crate::cli::BackendType::Cloud && !init_with.dry_run {
-                crate::core::auth::perform_cloud_auth(&target_dir)?;
-            }
             let config = config_from_init_with(&init_with, repo_ctx);
             write_project_config(&target_dir, &config, init_with.dry_run)?;
             seed_init_generated_state(&target_dir, init_with.dry_run)?;
@@ -2363,11 +2375,50 @@ fn sanitize_agent_component(s: &str) -> String {
     out.trim_matches('-').to_string()
 }
 
-fn sessions_dir(project_root: &Path) -> PathBuf {
+fn machine_config_dir() -> Result<PathBuf, error::DecapodError> {
+    if let Ok(config_home) = std::env::var("XDG_CONFIG_HOME") {
+        let trimmed = config_home.trim();
+        if !trimmed.is_empty() {
+            return Ok(PathBuf::from(trimmed).join("decapod"));
+        }
+    }
+
+    let home = std::env::var("HOME").map_err(|_| {
+        error::DecapodError::ValidationError(
+            "HOME is required to locate ~/.config/decapod for session state.".to_string(),
+        )
+    })?;
+    Ok(PathBuf::from(home).join(".config").join("decapod"))
+}
+
+fn project_session_scope(project_root: &Path) -> String {
+    let canonical = fs::canonicalize(project_root).unwrap_or_else(|_| project_root.to_path_buf());
+    let mut hasher = Sha256::new();
+    hasher.update(canonical.to_string_lossy().as_bytes());
+    let digest = hasher.finalize();
+    let mut out = String::with_capacity(digest.len() * 2);
+    for b in digest {
+        out.push_str(&format!("{b:02x}"));
+    }
+    out
+}
+
+fn machine_project_sessions_dir(project_root: &Path) -> Result<PathBuf, error::DecapodError> {
+    Ok(machine_config_dir()?
+        .join("sessions")
+        .join(project_session_scope(project_root)))
+}
+
+fn legacy_project_sessions_dir(project_root: &Path) -> PathBuf {
     project_root
         .join(".decapod")
         .join("generated")
         .join("sessions")
+}
+
+fn sessions_dir(project_root: &Path) -> PathBuf {
+    machine_project_sessions_dir(project_root)
+        .unwrap_or_else(|_| legacy_project_sessions_dir(project_root))
 }
 
 fn session_file_for_agent(project_root: &Path, agent_id: &str) -> PathBuf {
