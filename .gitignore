@@ -37,7 +37,6 @@ dev/
 !.decapod/data/knowledge.promotions.jsonl
 .decapod/.stfolder
 .decapod/workspaces
-.decapod/session_token
 # Generated runtime outputs are non-canonical; allowlist only governed artifacts.
 .decapod/generated/*
 # Allowlist deterministic generated artifact used as container build baseline.
