@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.58.4](https://github.com/DecapodLabs/decapod/compare/v0.58.3...v0.58.4) - 2026-06-17
+
+### Added
+
+- migrate cloud session token path to ~/.local/share/decapod/session_token.json and clean up .gitignore
+
+### Other
+
+- run cargo fmt and update specs manifest fingerprint
+
 ## [0.58.3](https://github.com/DecapodLabs/decapod/compare/v0.58.1...v0.58.3) - 2026-06-17
 
 ### Added
