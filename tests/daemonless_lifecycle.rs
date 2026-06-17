@@ -76,8 +76,27 @@ fn decapod_has_no_lingering_background_process() {
         );
     }
 
-    thread::sleep(Duration::from_millis(150));
+    thread::sleep(Duration::from_millis(500));
     let after = running_decapod_pids(exe_path);
+
+    if before != after {
+        println!("before: {:?}", before);
+        println!("after: {:?}", after);
+        for pid in &after {
+            if !before.contains(pid) {
+                let out = Command::new("ps")
+                    .args(["-p", &pid.to_string(), "-o", "args="])
+                    .output();
+                if let Ok(o) = out {
+                    println!(
+                        "lingering pid {} args: {}",
+                        pid,
+                        String::from_utf8_lossy(&o.stdout).trim()
+                    );
+                }
+            }
+        }
+    }
 
     assert_eq!(
         before, after,

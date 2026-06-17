@@ -26,9 +26,9 @@ struct TokenResponse {
     error: Option<String>,
 }
 
-fn machine_config_dir() -> Result<PathBuf, DecapodError> {
-    if let Ok(config_home) = env::var("XDG_CONFIG_HOME") {
-        let trimmed = config_home.trim();
+fn machine_data_dir() -> Result<PathBuf, DecapodError> {
+    if let Ok(data_home) = env::var("XDG_DATA_HOME") {
+        let trimmed = data_home.trim();
         if !trimmed.is_empty() {
             return Ok(PathBuf::from(trimmed).join("decapod"));
         }
@@ -36,14 +36,17 @@ fn machine_config_dir() -> Result<PathBuf, DecapodError> {
 
     let home = env::var("HOME").map_err(|_| {
         DecapodError::ValidationError(
-            "HOME is required to locate ~/.config/decapod for cloud credentials.".to_string(),
+            "HOME is required to locate ~/.local/share/decapod for cloud credentials.".to_string(),
         )
     })?;
-    Ok(PathBuf::from(home).join(".config").join("decapod"))
+    Ok(PathBuf::from(home)
+        .join(".local")
+        .join("share")
+        .join("decapod"))
 }
 
 fn machine_session_token_path() -> Result<PathBuf, DecapodError> {
-    Ok(machine_config_dir()?.join("session_token"))
+    Ok(machine_data_dir()?.join("session_token.json"))
 }
 
 pub fn perform_cloud_auth(_target_dir: &Path) -> Result<(), DecapodError> {
@@ -84,10 +87,18 @@ pub fn perform_cloud_auth(_target_dir: &Path) -> Result<(), DecapodError> {
 
     let token = poll_for_token(&device_code_res)?;
 
-    let config_dir = machine_config_dir()?;
-    fs::create_dir_all(&config_dir).map_err(DecapodError::IoError)?;
+    let data_dir = machine_data_dir()?;
+    fs::create_dir_all(&data_dir).map_err(DecapodError::IoError)?;
     let token_path = machine_session_token_path()?;
-    fs::write(&token_path, token).map_err(DecapodError::IoError)?;
+
+    // Write token in JSON format
+    let token_json = serde_json::json!({
+        "token": token
+    });
+    let body = serde_json::to_string_pretty(&token_json)
+        .map_err(|e| DecapodError::ValidationError(format!("Failed to serialize token: {e}")))?;
+    fs::write(&token_path, body).map_err(DecapodError::IoError)?;
+
     #[cfg(unix)]
     {
         use std::os::unix::fs::PermissionsExt;
@@ -115,9 +126,21 @@ pub fn is_token_valid(_target_dir: &Path) -> bool {
         return false;
     }
 
-    let token = match fs::read_to_string(&token_path) {
+    let token_str = match fs::read_to_string(&token_path) {
         Ok(v) => v,
         Err(_) => return false,
+    };
+
+    let token = match serde_json::from_str::<serde_json::Value>(&token_str) {
+        Ok(v) => v["token"]
+            .as_str()
+            .or_else(|| v["session_token"].as_str())
+            .map(|s| s.to_string()),
+        Err(_) => None,
+    };
+
+    let Some(token) = token else {
+        return false;
     };
 
     if token.trim().is_empty() {

@@ -21,8 +21,15 @@ fn run_decapod_with_env(
 ) -> (bool, String) {
     let mut cmd = Command::new(env!("CARGO_BIN_EXE_decapod"));
     cmd.current_dir(temp_dir).args(args);
+    let mut has_xdg = false;
     for (k, v) in envs {
         cmd.env(k, v);
+        if *k == "XDG_CONFIG_HOME" {
+            has_xdg = true;
+        }
+    }
+    if !has_xdg {
+        cmd.env("XDG_CONFIG_HOME", temp_dir.join(".config"));
     }
     let output = cmd.output().expect("Failed to execute decapod");
 
@@ -36,8 +43,15 @@ fn run_decapod_with_env(
 fn run_raw(temp_dir: &PathBuf, args: &[&str], envs: &[(&str, &str)]) -> Output {
     let mut cmd = Command::new(env!("CARGO_BIN_EXE_decapod"));
     cmd.current_dir(temp_dir).args(args);
+    let mut has_xdg = false;
     for (k, v) in envs {
         cmd.env(k, v);
+        if *k == "XDG_CONFIG_HOME" {
+            has_xdg = true;
+        }
+    }
+    if !has_xdg {
+        cmd.env("XDG_CONFIG_HOME", temp_dir.join(".config"));
     }
     cmd.output().expect("Failed to execute decapod")
 }
@@ -265,11 +279,18 @@ fn test_expired_session_releases_assigned_tasks() {
         String::from_utf8_lossy(&claim_out.stderr)
     );
 
-    let session_path = temp_path
-        .join(".decapod")
-        .join("generated")
-        .join("sessions")
-        .join("agent-expire.json");
+    let sessions_dir = temp_path.join(".config").join("decapod").join("sessions");
+    let mut project_dir = None;
+    for entry in fs::read_dir(sessions_dir).expect("read sessions dir") {
+        let entry = entry.expect("read entry");
+        if entry.file_type().expect("file type").is_dir() {
+            project_dir = Some(entry.path());
+            break;
+        }
+    }
+    let project_dir = project_dir.expect("project sessions dir not found");
+    let session_path = project_dir.join("agent-expire.json");
+
     let mut session_json: serde_json::Value =
         serde_json::from_str(&fs::read_to_string(&session_path).expect("session file"))
             .expect("session json");
