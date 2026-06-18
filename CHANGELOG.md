@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.59.2](https://github.com/DecapodLabs/decapod/compare/v0.59.1...v0.59.2) - 2026-06-18
+
+### Fixed
+
+- resolve clippy warnings in PR #707
+
+### Other
+
+- Add safety comments explaining unsafe env var usage
+- translate relative links in docs/index.md to live pages and fix decapod verify deadlock
+- Fix Deploy Docs: proper mdBook install, CSS path, and premium styling
+
 ## [0.59.1](https://github.com/DecapodLabs/decapod/compare/v0.59.0...v0.59.1) - 2026-06-18
 
 ### Other
