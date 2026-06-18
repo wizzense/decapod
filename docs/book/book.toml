@@ -7,4 +7,5 @@ title = "Decapod Book"
 
 [output.html]
 git-repository-url = "https://github.com/DecapodLabs/decapod"
+additional-css = ["src/custom.css"]
 edit-url-template = "https://github.com/DecapodLabs/decapod/edit/main/docs/book/{path}"
