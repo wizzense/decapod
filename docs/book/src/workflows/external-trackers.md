@@ -5,13 +5,14 @@ Decapod is built to be a "good citizen" in your existing developer ecosystem. It
 ## The Integration Pattern
 
 1.  **Management Layer (External):** A human creates an issue in Linear (e.g., `DEV-456`).
-2.  **Operational Layer (Decapod):** An agent adds a Decapod todo that references the external issue.
+2.  **Operational Layer (Decapod):** An agent adds a Decapod todo that references the external issue (see [CLI Reference](../reference/cli.md#task-tracking)).
     ```bash
     decapod todo add "Fix regression in auth" --ref "DEV-456"
     ```
-3.  **Execution (Isolated):** The agent claims the todo and enters its isolated workspace.
-4.  **Proof (Verification):** The agent marks the task as done, satisfying the Decapod proof gates.
+3.  **Execution (Isolated):** The agent claims the todo and enters its isolated workspace (see [Workspace Isolation](workspace-isolation.md)).
+4.  **Proof (Verification):** The agent marks the task as done, satisfying the Decapod proof gates (see [Proof & Validation](../concepts/proof.md)).
 5.  **Sync (Closure):** The passing Decapod state provides the "green light" to close the external Linear issue.
+
 
 ## Why This Bridge Matters
 

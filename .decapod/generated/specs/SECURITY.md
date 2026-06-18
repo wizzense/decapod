@@ -3,11 +3,11 @@
 ## Threat Model
 ```mermaid
 flowchart LR
-  U[User/Client] --> A[Application Boundary]
-  A --> D[(Data Stores)]
-  A --> X[External Dependencies]
-  I[Identity Provider] --> A
-  A --> L[Audit Logs]
+   U[User/Client] --> A[Application Boundary]
+   A --> D[(Data Stores)]
+   A --> X[External Dependencies]
+   I[Identity Provider] --> A
+   A --> L[Audit Logs]
 ```
 
 ## STRIDE Table
@@ -51,8 +51,8 @@ flowchart LR
 ## Secrets Management
 | Secret | Source | Rotation | Consumer |
 |---|---|---|---|
-| API credentials | secret manager/env | periodic | runtime services |
-| Signing keys | HSM/KMS/local secure store | periodic | release pipeline |
+| External service auth material | managed runtime configuration | periodic | runtime services |
+| Artifact signing material | managed signing service/local secure store | periodic | release pipeline |
 
 ## Security Testing
 | Test Type | Cadence | Tooling |
@@ -71,3 +71,11 @@ flowchart LR
 - [ ] Auth/authz tests pass.
 - [ ] Dependency vulnerability scan reviewed.
 - [ ] No unresolved critical/high security findings.
+
+## Strongest Security Primitives
+1. **Constitution Access System**: The assets module provides robust, versioned access to embedded constitution documents with override capability via OVERRIDE.md. This is a mature, well-tested system for declarative governance.
+2. **Proof System**: The proof.rs module enables configurable, auditable proof execution with health claim synchronization and event logging.
+3. **Workspace Isolation**: The workspace.rs module provides sophisticated git worktree management with branch protection, containerization support, and todo-scoped branch naming.
+
+## Generated Security Analysis
+Generated security specs should document the active trust boundaries exposed by repository facts: local state stores, generated artifacts, session tokens, workspace paths, command execution surfaces, policy gates, proof artifacts, and any external service integrations. Security output must distinguish confirmed repo facts from inferred risks and leave unresolved questions visible for future agents.

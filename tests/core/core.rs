@@ -883,7 +883,7 @@ fn schemas_errors_and_validate_entrypoint_are_exercised() {
         root: store_root.path().to_path_buf(),
     };
 
-    let result = validate::run_validation(&store, repo.path(), repo.path(), false)
+    let result = validate::run_validation(&store, repo.path(), repo.path(), false, false)
         .expect("validation report");
     assert!(result.fail_count > 0);
 }

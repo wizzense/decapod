@@ -4405,6 +4405,7 @@ fn run_validate_command(
         governance_root,
         workspace_root,
         validate_cli.verbose,
+        validate_cli.refresh_specs,
     )?;
     for _ in 0..2 {
         if report.fail_count == 0 {
@@ -4420,6 +4421,7 @@ fn run_validate_command(
             governance_root,
             workspace_root,
             validate_cli.verbose,
+            validate_cli.refresh_specs,
         )?;
     }
 
@@ -4665,6 +4667,7 @@ fn run_validation_bounded(
     governance_root: &Path,
     workspace_root: &Path,
     verbose: bool,
+    refresh_specs: bool,
 ) -> Result<validate::ValidationReport, error::DecapodError> {
     let timeout_secs = validate_timeout_secs();
     let started = std::time::Instant::now();
@@ -4674,7 +4677,8 @@ fn run_validation_bounded(
     let w_root = workspace_root.to_path_buf();
 
     std::thread::spawn(move || {
-        let mut result = validate::run_validation(&store_cloned, &g_root, &w_root, verbose);
+        let mut result =
+            validate::run_validation(&store_cloned, &g_root, &w_root, verbose, refresh_specs);
         for attempt in 1..=2 {
             let should_retry = match &result {
                 Err(error::DecapodError::RusqliteError(err)) => {
@@ -4693,7 +4697,8 @@ fn run_validation_bounded(
             }
             let backoff_ms = 200_u64 * attempt as u64;
             std::thread::sleep(std::time::Duration::from_millis(backoff_ms));
-            result = validate::run_validation(&store_cloned, &g_root, &w_root, verbose);
+            result =
+                validate::run_validation(&store_cloned, &g_root, &w_root, verbose, refresh_specs);
         }
         let _ = tx.send(result);
     });
@@ -5945,6 +5950,7 @@ fn run_workspace_command(
                     &governance_root,
                     workspace_root,
                     false,
+                    false,
                 )?;
                 report_summary = Some(report);
             }
@@ -5971,8 +5977,13 @@ fn run_workspace_command(
                 store_root: &project_store.root,
                 todo_id: None,
             })?;
-            let report =
-                run_validation_bounded(&project_store, &governance_root, workspace_root, false)?;
+            let report = run_validation_bounded(
+                &project_store,
+                &governance_root,
+                workspace_root,
+                false,
+                false,
+            )?;
             if report.fail_count > 0 {
                 return Err(error::DecapodError::ValidationError(format!(
                     "{} test(s) failed before workspace publish.",
@@ -6985,7 +6996,7 @@ mod rpc_handlers {
     }
 
     pub(crate) fn handle_validate_run(ctx: &RpcCtx) -> Result<RpcResponse, error::DecapodError> {
-        let _params: ValidateRunParams = serde_json::from_value(ctx.request.params.clone())
+        let params: ValidateRunParams = serde_json::from_value(ctx.request.params.clone())
             .map_err(|e| error::DecapodError::ValidationError(format!("Invalid params: {e}")))?;
 
         let workspace_root = &ctx.project_root;
@@ -6994,8 +7005,13 @@ mod rpc_handlers {
             kind: StoreKind::Repo,
             root: governance_root.join(".decapod").join("data"),
         };
-        let res =
-            super::run_validation_bounded(&project_store, &governance_root, workspace_root, false);
+        let res = super::run_validation_bounded(
+            &project_store,
+            &governance_root,
+            workspace_root,
+            false,
+            params.refresh_specs,
+        );
 
         match res {
             Ok(report) if report.fail_count == 0 => {
@@ -7478,7 +7494,7 @@ mod rpc_handlers {
         let _params: SpecsRefreshParams = serde_json::from_value(ctx.request.params.clone())
             .map_err(|e| error::DecapodError::ValidationError(format!("Invalid params: {e}")))?;
 
-        let manifest = crate::core::project_specs::refresh_specs_manifest(ctx.project_root)?;
+        let manifest = crate::core::scaffold::refresh_project_specs_from_config(ctx.project_root)?;
 
         Ok(success_response(
             ctx.request.id.clone(),

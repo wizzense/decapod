@@ -1,10 +1,11 @@
 # Overrides
 
-Overrides are the primary mechanism for customizing Decapod's behavior for a specific project. They allow you to apply your team's unique engineering culture to the Decapod governance kernel.
+Overrides are the primary mechanism for customizing Decapod's behavior for a specific project. They allow you to apply your team's unique engineering culture to the Decapod governance kernel (see [Configuration](../configuration.md)).
 
 ## The `OVERRIDE.md` Substrate
 
-The `.decapod/OVERRIDE.md` file is a structured Markdown document where you can redefine specific constitution directives.
+The `.decapod/OVERRIDE.md` file is a structured Markdown document where you can redefine specific constitution directives (see [Repository Constitution](constitution.md)).
+
 
 ### Example Override
 

@@ -40,8 +40,3 @@ These files are the project-local contract for humans and agents.
 - [ ] Define threat model and auth/authz decisions in [SECURITY.md](./SECURITY.md).
 - [ ] Ensure architecture diagram, docs, changelog, and tests are mapped to promotion gates.
 - [ ] Run all validation/test commands and attach evidence artifacts.
-
-## Agent Directive
-- **Living Specs**: Treat these files as executable governance surfaces.
-- **Continuous Alignment**: Before implementation: resolve ambiguity and update specs. During/After implementation: align specs with reality.
-- **Intent-Driven**: Spec changes should generally only occur when user intent has evolved. Clarify code changes in the context of these updates.

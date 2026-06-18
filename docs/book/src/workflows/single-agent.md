@@ -1,21 +1,22 @@
 # Single-Agent Workflow
 
-Even in single-agent environments, Decapod provides a rigorous structure that prevents common agentic errors and ensures high-quality delivery.
+Even in single-agent environments, Decapod provides a rigorous structure that prevents common agentic errors and ensures high-quality delivery (see [Agent-First Architecture](../concepts/agent-first.md)).
 
 ## The Standard Loop
 
-1.  **Orientation:** The agent reads `AGENTS.md` and initializes its session.
+1.  **Orientation:** The agent reads `AGENTS.md` and initializes its session (see [CLI Reference](../reference/cli.md#core-operations)).
     - `decapod session acquire`
-2.  **Intent Capture:** The agent identifies its task and formalizes the intent.
+2.  **Intent Capture:** The agent identifies its task and formalizes the intent (see [Explicit Intent](../concepts/intent.md)).
     - `decapod todo claim --id <id>`
-    - `update specs/INTENT.md`
-3.  **Workspace Entry:** The agent moves into an isolated environment.
+    - `update specs/INTENT.md` (see [Artifacts Reference](../reference/artifacts.md))
+3.  **Workspace Entry:** The agent moves into an isolated environment (see [Workspace Sandboxing](../concepts/workspaces.md)).
     - `decapod workspace ensure`
 4.  **Implementation:** The agent performs the work within the workspace.
 5.  **Validation:** The agent verifies the change against project policy.
     - `decapod validate`
-6.  **Completion:** The agent generates proof and marks the task as done.
+6.  **Completion:** The agent generates proof and marks the task as done (see [Proof & Validation](../concepts/proof.md)).
     - `decapod todo done --id <id> --validated`
+
 
 ## Key Benefits
 

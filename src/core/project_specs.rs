@@ -149,7 +149,7 @@ pub fn local_project_specs_context(project_root: &Path) -> LocalProjectSpecsCont
     ctx
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ProjectSpecManifestEntry {
     pub path: String,
     pub template_hash: String,
@@ -169,6 +169,32 @@ pub fn hash_text(text: &str) -> String {
     let mut hasher = Sha256::new();
     hasher.update(text.as_bytes());
     format!("{:x}", hasher.finalize())
+}
+
+fn repo_signal_requires_content_hash(rel_path: &str) -> bool {
+    rel_path == "AGENTS.md"
+        || rel_path == "CLAUDE.md"
+        || rel_path == "CODEX.md"
+        || rel_path == "GEMINI.md"
+        || rel_path == "Cargo.toml"
+        || rel_path == "Cargo.lock"
+        || rel_path == "package.json"
+        || rel_path == "package-lock.json"
+        || rel_path == "pyproject.toml"
+        || rel_path == "requirements.txt"
+        || rel_path == "go.mod"
+        || rel_path == "go.sum"
+        || rel_path == "Dockerfile"
+        || rel_path == "docker-compose.yml"
+        || rel_path == "docker-compose.yaml"
+        || rel_path == "compose.yml"
+        || rel_path == "compose.yaml"
+        || rel_path == "README.md"
+        || rel_path == "Makefile"
+        || rel_path.starts_with("infra/")
+        || rel_path.starts_with("deploy/")
+        || rel_path.starts_with("k8s/")
+        || rel_path.ends_with(".sql")
 }
 
 fn collect_significant_repo_paths(
@@ -253,9 +279,13 @@ pub fn repo_signal_fingerprint(project_root: &Path) -> Result<String, error::Dec
             .to_string();
         hasher.update(rel.as_bytes());
         hasher.update(b"\0");
-        let content = fs::read(&path).map_err(error::DecapodError::IoError)?;
-        let content_hash = hash_text(&String::from_utf8_lossy(&content));
-        hasher.update(content_hash.as_bytes());
+        if repo_signal_requires_content_hash(&rel) {
+            let content = fs::read(&path).map_err(error::DecapodError::IoError)?;
+            let content_hash = hash_text(&String::from_utf8_lossy(&content));
+            hasher.update(content_hash.as_bytes());
+        } else {
+            hasher.update(b"path-only");
+        }
         hasher.update(b"\n");
     }
     Ok(format!("{:x}", hasher.finalize()))
