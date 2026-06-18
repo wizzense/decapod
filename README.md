@@ -136,7 +136,7 @@ Everything an engineering org usually keeps in tribal memory or review culture b
 
 Decapod provides comprehensive documentation for both human operators and AI agents.
 
-- **[Human Documentation (mdBook)](docs/book/src/introduction.md)**: Conceptual overview, workflows, adoption guide, and reference.
+- **[Human Documentation (mdBook)](https://decapodlabs.github.io/decapod/)**: Conceptual overview, workflows, adoption guide, and reference.
 - **[Agent Orientation Corpus](docs/agent/api-index.md)**: API-awareness layer for agents, including command contracts and payload examples.
 - **[Universal Agent Contract (AGENTS.md)](AGENTS.md)**: The machine-readable entrypoint for all agents operating in this repo.
 

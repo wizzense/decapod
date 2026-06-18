@@ -8,3 +8,4 @@ title = "Decapod Book"
 [output.html]
 git-repository-url = "https://github.com/DecapodLabs/decapod"
 edit-url-template = "https://github.com/DecapodLabs/decapod/edit/main/docs/book/{path}"
+additional-css = ["custom.css"]
