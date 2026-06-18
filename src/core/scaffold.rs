@@ -94,20 +94,24 @@ fn default_test_commands(seed: Option<&SpecsSeed>) -> Vec<String> {
     let langs = seed.map(|s| s.primary_languages.as_slice()).unwrap_or(&[]);
     let surfaces = seed.map(|s| s.detected_surfaces.as_slice()).unwrap_or(&[]);
 
-    if langs.iter().any(|l| l.contains("rust")) {
+    if langs
+        .iter()
+        .any(|l| l.to_ascii_lowercase().contains("rust"))
+    {
         commands.push("cargo test".to_string());
     }
-    if surfaces.iter().any(|s| s == "npm")
-        || langs
-            .iter()
-            .any(|l| l.contains("typescript") || l.contains("javascript"))
+    if surfaces.iter().any(|s| s.eq_ignore_ascii_case("npm"))
+        || langs.iter().any(|l| {
+            let l = l.to_ascii_lowercase();
+            l.contains("typescript") || l.contains("javascript")
+        })
     {
         commands.push("npm test".to_string());
     }
-    if langs.iter().any(|l| l == "python") {
+    if langs.iter().any(|l| l.eq_ignore_ascii_case("python")) {
         commands.push("pytest".to_string());
     }
-    if langs.iter().any(|l| l == "go") {
+    if langs.iter().any(|l| l.eq_ignore_ascii_case("go")) {
         commands.push("go test ./...".to_string());
     }
     commands
@@ -1241,6 +1245,10 @@ fn render_project_spec_content(
     }
 }
 
+fn project_spec_scaffold_hash(rel_path: &str, diagram_style: DiagramStyle) -> Option<String> {
+    render_project_spec_content(rel_path, diagram_style, None).map(|content| hash_text(&content))
+}
+
 fn preserve_intent_custody(project_root: &Path, rel_path: &str, mut content: String) -> String {
     if rel_path != LOCAL_PROJECT_SPECS_INTENT {
         return content;
@@ -1317,7 +1325,8 @@ pub fn refresh_project_specs(
             content = assets::merge_override_content(&content, &override_content);
         }
 
-        let template_hash = hash_text(&content);
+        let template_hash = project_spec_scaffold_hash(spec.path, diagram_style)
+            .unwrap_or_else(|| hash_text(&content));
         let content = preserve_intent_custody(project_root, spec.path, content);
         let content_hash = hash_text(&content);
         let dest = project_root.join(spec.path);
@@ -1784,7 +1793,8 @@ Agents operating in this repo MUST maintain these artifacts to ensure long-horiz
             // If we are regenerating INTENT.md and it already exists, try to preserve the Epistemic Custody Fields section.
             content = preserve_intent_custody(&opts.target_dir, rel_path, content);
 
-            let template_hash = hash_text(&content);
+            let template_hash = project_spec_scaffold_hash(rel_path, opts.diagram_style)
+                .unwrap_or_else(|| hash_text(&content));
             match write_file(opts, rel_path, &content)? {
                 FileAction::Created => created += 1,
                 FileAction::Unchanged => unchanged += 1,
@@ -1792,8 +1802,8 @@ Agents operating in this repo MUST maintain these artifacts to ensure long-horiz
             }
             manifest_entries.push(ProjectSpecManifestEntry {
                 path: rel_path.to_string(),
-                template_hash: template_hash.clone(),
-                content_hash: template_hash,
+                template_hash,
+                content_hash: hash_text(&content),
             });
         }
 

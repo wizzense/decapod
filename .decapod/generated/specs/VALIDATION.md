@@ -54,7 +54,7 @@ flowchart LR
 ## Proof Surfaces
 - `decapod validate`
 - Required test commands:
-- Add repository-specific test command(s) here.
+- `cargo test`
 - Required integration/e2e commands:
 
 ## Promotion Gates
