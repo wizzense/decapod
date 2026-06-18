@@ -3,6 +3,29 @@
 ## Validation Philosophy
 > Validation is a release gate, not documentation theater.
 
+## Validation Harness
+The validate.rs module implements a comprehensive, extensible validation suite with clear pass/fail/warn semantics and auto-remediation hints. Key features include:
+- **Methodology Gates**: Numerous validation gates enforce intent-driven development practices
+- **Auto-Remediation Hints**: Provides specific guidance on how to fix validation failures
+- **Workspace Enforcement**: Ensures agents work in isolated git worktrees or containers
+- **Specs Integrity**: Validates that living specs match repository state
+- **Proof Requirements**: Requires evidence artifacts for promotion gates
+- **Constitution Integration**: Validates adherence to embedded constitution directives
+
+## Generated Spec Refresh Gates
+Decapod must keep generated specs synchronized at governance pressure points. When repository surfaces change, validation should either fail with a concrete refresh instruction or, when explicitly requested through a refresh path, regenerate the existing spec files and update the manifest fingerprint. Refresh must update the canonical spec set rather than creating one-off analysis files.
+
+Refresh-capable paths:
+- `decapod validate --refresh-specs`
+- `decapod rpc --op specs.refresh`
+- initialization or scaffold refresh paths that regenerate `.decapod/generated/specs/*.md`
+
+Refresh output requirements:
+- Preserve hand-maintained epistemic custody fields where possible.
+- Blend repo context into the existing canonical spec files.
+- Update `.decapod/generated/specs/.manifest.json` after writing files.
+- Avoid adding parallel project-state or architecture-survey documents outside the canonical spec set.
+
 ## Validation Decision Tree
 ```mermaid
 flowchart TD

@@ -295,6 +295,8 @@ pub struct StoreQueryResult {
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct ValidateRunParams {
     pub gate: Option<String>,
+    #[serde(default)]
+    pub refresh_specs: bool,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]

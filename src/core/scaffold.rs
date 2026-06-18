@@ -13,7 +13,7 @@ use crate::core::project_specs::{
     LOCAL_PROJECT_SPECS_MANIFEST_SCHEMA, LOCAL_PROJECT_SPECS_OPERATIONS,
     LOCAL_PROJECT_SPECS_README, LOCAL_PROJECT_SPECS_SECURITY, LOCAL_PROJECT_SPECS_SEMANTICS,
     LOCAL_PROJECT_SPECS_VALIDATION, ProjectSpecManifestEntry, ProjectSpecsManifest, hash_text,
-    repo_signal_fingerprint,
+    read_specs_manifest, repo_signal_fingerprint,
 };
 use crate::plugins::container;
 use std::fs;
@@ -78,6 +78,8 @@ pub struct SpecsSeed {
     pub detected_surfaces: Vec<String>,
     pub done_criteria: Option<String>,
 }
+
+pub const PROJECT_SPEC_TEMPLATE_VERSION: &str = "scaffold-v3";
 
 fn joined_or_fallback(items: &[String], fallback: &str) -> String {
     if items.is_empty() {
@@ -427,7 +429,6 @@ These files are the project-local contract for humans and agents.
 - [SEMANTICS.md](./SEMANTICS.md): state machines, invariants, replay rules, and idempotency.
 - [OPERATIONS.md](./OPERATIONS.md): SLOs, monitoring, incident response, and rollout strategy.
 - [SECURITY.md](./SECURITY.md): threat model, trust boundaries, auth/authz, and supply-chain posture.
-- [RECONNAISSANCE.md](./RECONNAISSANCE.md): auto-generated architectural analysis and project reconnaissance.
 
 ## Canonical `.decapod/` Layout
 - `.decapod/data/`: canonical control-plane state (SQLite + ledgers).
@@ -441,7 +442,7 @@ These files are the project-local contract for humans and agents.
 - `.decapod/workspaces/`: isolated todo-scoped git worktrees.
 
 ## Day-0 Onboarding Checklist
-- [ ] Replace all placeholders in all 9 spec files.
+- [ ] Replace all placeholders in all 8 spec files.
 - [ ] Confirm primary user outcome and acceptance criteria in [INTENT.md](./INTENT.md).
 - [ ] Confirm topology and runtime model in [ARCHITECTURE.md](./ARCHITECTURE.md).
 - [ ] Document all inbound/outbound contracts in [INTERFACES.md](./INTERFACES.md).
@@ -449,11 +450,10 @@ These files are the project-local contract for humans and agents.
 - [ ] Define state machines and invariants in [SEMANTICS.md](./SEMANTICS.md).
 - [ ] Define SLOs, alerting, and incident process in [OPERATIONS.md](./OPERATIONS.md).
 - [ ] Define threat model and auth/authz decisions in [SECURITY.md](./SECURITY.md).
-- [ ] Review architectural reconnaissance in [RECONNAISSANCE.md](./RECONNAISSANCE.md).
 - [ ] Ensure architecture diagram, docs, changelog, and tests are mapped to promotion gates.
 - [ ] Run all validation/test commands and attach evidence artifacts.
 "#
-        )
+    )
 }
 
 fn specs_intent_template(seed: Option<&SpecsSeed>) -> String {
@@ -488,6 +488,18 @@ fn specs_intent_template(seed: Option<&SpecsSeed>) -> String {
 
 ## Product Outcome
 - {product_outcome}
+
+## What This Project Is
+Decapod is a daemonless, local-first governance kernel for AI coding agents. It is not a passive checklist or a documentation folder. Agents invoke Decapod at governance boundaries to turn human intent into explicit local contracts, refresh generated context, enforce workspace and policy boundaries, coordinate mutable work, and require proof-backed completion.
+
+Key operating facts:
+- **Agent control plane**: Agents call Decapod before inference-heavy work, before workspace mutation, before validation, and before claiming completion.
+- **Repo-native state**: Canonical mutable state lives under `.decapod/`, including todos, generated specs, context capsules, proof artifacts, policy, and isolated workspaces.
+- **Constitution-driven context**: The embedded constitution and project overrides provide queryable doctrine for architecture, interfaces, security, testing, delivery, and agent behavior.
+- **Generated specs as live contracts**: `.decapod/generated/specs/*.md` are generated from repo context and refreshed by Decapod execution so agents receive current architecture, interface, validation, operational, and security context.
+- **Todo-based coordination**: `decapod todo` provides claim ownership, dependencies, and event journaling for concurrent agents.
+- **Validation and proof**: `decapod validate`, proof plans, health claims, and provenance artifacts form the promotion boundary.
+- **Workspace isolation**: Todo-scoped git worktrees and optional containers keep agent changes out of the human root checkout.
 
 ## Product View
 ```mermaid
@@ -600,10 +612,67 @@ fn specs_architecture_template(style: DiagramStyle, seed: Option<&SpecsSeed>) ->
 ## Direction
 {summary}
 
+## What This Project Is
+Decapod is a daemonless, local-first governance kernel for AI coding agents. Its architecture centers on an explicit control plane: agents call Decapod to refine intent, resolve context, claim exclusive work, generate living specs, execute inside isolated workspaces, and emit proof before promotion.
+
+Architectural principles:
+- **Daemonless invocation**: Decapod should run only when invoked and must not require a background service to enforce governance.
+- **Local-first authority**: The repository carries the operational truth under `.decapod/`; external systems may reference work but do not replace Decapod's coordination state.
+- **Generated architecture custody**: Generated specs are the agent-facing architecture map. They should be refreshed from current repo facts instead of relying on a stale manually maintained design note.
+- **Explicit boundaries**: CLI/RPC contracts, store ownership, validation gates, workspace isolation, and proof artifacts are separate surfaces with documented responsibilities.
+- **Proof before promotion**: Completion claims are only credible when validation gates and artifacts support them.
+
 ## Current Facts
 - Runtime/languages: {runtime_langs}
 - Detected surfaces/framework hints: {surfaces}
 - Product type: {product_type}
+
+## Architecture Map
+This project's architecture consists of several interconnected subsystems:
+1. **CLI Layer** (`src/cli.rs`): Defines command-line interface and argument parsing for all Decapod commands (init, todo, validate, proof, workspace, etc.).
+2. **Core Runtime** (`src/core/`):
+   - **Todo System** (`todo.rs`): SQLite-backed task management with claims, ownership, dependencies, and event journaling.
+   - **Validation** (`validate.rs`): Intent-driven methodology validation harness with numerous gates (namespace purge, embedded self-contained, repo map, etc.).
+   - **Proof** (`proof.rs`): Configurable proof execution from `proofs.toml` with health claim synchronization.
+   - **Workspace** (`workspace.rs`): Git worktree and Docker container management for isolated agent workspaces.
+   - **Constitution Access** (`assets.rs`): Embedded constitution retrieval and merging with project overrides (OVERRIDE.md).
+   - **Specs Generation** (`project_specs.rs`): Scaffolding and manifest management for `.decapod/generated/specs/`.
+   - **Storage** (`store.rs`, `db.rs`): Store abstraction and SQLite database access.
+   - **Broker** (`broker.rs`): Audit log mutation broker with replay verification.
+   - **Workunit** (`workunit.rs`): Work unit manifests linking tasks to specs, state, and proof.
+   - **Plan Governance** (`plan_governance.rs`): Governed PLAN artifacts with state transitions.
+   - **Context Capsules** (`context_capsule.rs`): Deterministic context resolution from embedded constitution.
+   - **Obligation Graph** (`obligation.rs`): Obligation tracking for governance.
+   - **Flight Recorder** (`flight_recorder.rs`): Timeline rendering from event logs.
+3. **Plugins** (`src/plugins/`): Extensible subsystems (aptitude, federation, health, knowledge, policy, verify, workflow, etc.).
+4. **Constitution** (`src/constitution/`): Core constitution nodes (core, interfaces, methodology, specs) re-exported via `src/constitution/core.rs`.
+5. **Agent Interface**: Agent-facing documentation (AGENTS.md, CLAUDE.md, etc.) and the Universal Agent Contract (AGENTS.md) that mandates Decapod usage patterns.
+
+## Generated Architecture Contract
+Decapod-generated architecture documentation must be detailed enough for a new agent to orient without reading an external architecture note. It should describe:
+- What the project is and what it is not.
+- The control-plane entrypoints agents call and when those calls are required.
+- Core subsystems, storage locations, and event journals.
+- Data flows from agent invocation through CLI/RPC, core execution, persistence, validation, and proof emission.
+- Current strongest primitives and the extension seams they imply.
+- Known limitations, architectural risks, and traps to avoid.
+- Candidate follow-up work as design issues, not hidden notes.
+
+## Data Flows
+- Agent → Decapod CLI → Core subsystems (todo, validate, proof, workspace, etc.) → `.decapod/` storage
+- Constitution access via `assets.rs` → embedded JSON or merged with OVERRIDE.md
+- Specs generated via `project_specs.rs` → `.decapod/generated/specs/`
+- Workspaces created via `workspace.rs` → `.decapod/workspaces/` (git worktrees)
+- Events journaled via todo and proof subsystems → `.decapod/data/todo.events.jsonl` and `proof.events.jsonl`
+
+## Strongest Existing Primitives
+1. **Constitution Access System**: The assets module provides robust, versioned access to embedded constitution documents with override capability via OVERRIDE.md. This is a mature, well-tested system for declarative governance.
+2. **Todo Subsystem**: The todo.rs implementation features rich task properties (dependencies, blocking, ownership, claims, verification), event journaling for deterministic rebuild, and sophisticated claiming mechanisms for agent isolation.
+3. **Validation Harness**: The validate.rs module implements a comprehensive, extensible validation suite with clear pass/fail/warn semantics and auto-remediation hints.
+4. **Workspace Isolation**: The workspace.rs module provides sophisticated git worktree management with branch protection, containerization support, and todo-scoped branch naming.
+5. **Specs as Living Contracts**: The project_specs.rs system creates a feedback loop between generated specs and user intent, with manifest-based change detection and update guidance.
+6. **Proof System**: The proof.rs module enables configurable, auditable proof execution with health claim synchronization and event logging.
+7. **Embedded Agent Contract**: The AGENTS.md file (and templates in assets.rs) provides a comprehensive, machine-readable contract that agents must follow, reducing ambiguity.
 
 ## Topology
 {topology}
@@ -696,6 +765,21 @@ fn specs_interfaces_template(seed: Option<&SpecsSeed>) -> String {
 - Every mutating interface defines idempotency semantics.
 - Every failure path maps to a typed, documented error code.
 
+## CLI Layer
+Defines command-line interface and argument parsing for all Decapod commands. CLI contracts should describe command purpose, preconditions, expected side effects, output shape, recovery path, and whether the command may mutate `.decapod/` state.
+
+## Agent Interface
+Agent-facing documentation (AGENTS.md, CLAUDE.md, etc.) and the Universal Agent Contract mandate Decapod usage patterns. Product docs under `docs/agent` and `docs/book` teach Decapod itself; generated specs under `.decapod/generated/specs/` teach the current repository to active agents.
+
+## Generated Contract Depth
+Generated interface specs should include more than endpoint names:
+- Command/RPC trigger conditions and required prior Decapod calls.
+- Read/write ownership for each store and generated artifact path.
+- Idempotency and retry behavior for mutations.
+- Typed failure classes and concrete recovery instructions.
+- Compatibility expectations for existing agent workflows.
+- Evidence an agent must attach before claiming an interface change complete.
+
 ## API / RPC Contracts
 | Interface | Method | Request Schema | Response Schema | Errors | Idempotency |
 |---|---|---|---|---|---|
@@ -763,6 +847,29 @@ fn specs_validation_template(seed: Option<&SpecsSeed>) -> String {
 
 ## Validation Philosophy
 > Validation is a release gate, not documentation theater.
+
+## Validation Harness
+The validate.rs module implements a comprehensive, extensible validation suite with clear pass/fail/warn semantics and auto-remediation hints. Key features include:
+- **Methodology Gates**: Numerous validation gates enforce intent-driven development practices
+- **Auto-Remediation Hints**: Provides specific guidance on how to fix validation failures
+- **Workspace Enforcement**: Ensures agents work in isolated git worktrees or containers
+- **Specs Integrity**: Validates that living specs match repository state
+- **Proof Requirements**: Requires evidence artifacts for promotion gates
+- **Constitution Integration**: Validates adherence to embedded constitution directives
+
+## Generated Spec Refresh Gates
+Decapod must keep generated specs synchronized at governance pressure points. When repository surfaces change, validation should either fail with a concrete refresh instruction or, when explicitly requested through a refresh path, regenerate the existing spec files and update the manifest fingerprint. Refresh must update the canonical spec set rather than creating one-off analysis files.
+
+Refresh-capable paths:
+- `decapod validate --refresh-specs`
+- `decapod rpc --op specs.refresh`
+- initialization or scaffold refresh paths that regenerate `.decapod/generated/specs/*.md`
+
+Refresh output requirements:
+- Preserve hand-maintained epistemic custody fields where possible.
+- Blend repo context into the existing canonical spec files.
+- Update `.decapod/generated/specs/.manifest.json` after writing files.
+- Avoid adding parallel project-state or architecture-survey documents outside the canonical spec set.
 
 ## Validation Decision Tree
 ```mermaid
@@ -856,12 +963,6 @@ stateDiagram-v2
   Verified --> [*]
 ```
 
-| From | Event | To | Guard | Side Effect |
-|---|---|---|---|---|
-| Draft | start | InProgress | owner assigned | emit state change |
-| InProgress | validate_pass | Verified | all blocking gates pass | persist receipt hash |
-| InProgress | dependency_blocked | Blocked | external dependency unavailable | emit alert event |
-
 ## Invariants
 | Invariant | Type | Validation |
 |---|---|---|
@@ -902,6 +1003,38 @@ stateDiagram-v2
 
 ## Language Note
 - Primary language inferred: {lang}
+
+## Trajectory Concepts
+The current todo-centric model shows signs of strain when representing complex, evolving work:
+- **Atomic Task Bias**: Treating work as discrete tickets loses the narrative of how intent evolves over time through iterations, pivots, and discoveries.
+- **Context Loss**: Each todo is an isolated unit; there's no inherent mechanism to carry forward assumptions, context summaries, or learned lessons across a sequence of related work.
+- **Manual Coordination**: Agents must manually maintain epistemic custody (preserving intent-context-assumptions-action-proof chains) across multiple todos, which is error-prone.
+- **Limited Retrospection**: While the worker loop records lessons, there's no first-class construct for representing the evolutionary path of a feature or system.
+- **Overloading Todo Fields**: Current attempts to store trajectory-like data (e.g., in description, tags, or custom fields) fight against the todo subsystem's primary purpose as a task tracker.
+- **Missing Abstractions**: Concepts like "work streams," "feature branches," "evolutionary trajectories," or "custody chains" lack explicit representation, forcing agents to encode them implicitly in todo relationships or external documentation.
+
+Trajectories as first-class entities would provide:
+- Explicit modeling of work sequences with temporal ordering and state evolution.
+- Built-in mechanisms for preserving uncertainty and recursive continuity of assumptions.
+- Natural encapsulation of intent-context-specs-state-proof chains.
+- Improved tooling for visualizing and navigating work histories.
+- Better alignment with how humans and agents actually work in iterative, discovery-driven processes.
+
+## Recommended Redesign Seam for Trajectories
+The most appropriate seam for introducing trajectories is at the intersection of the todo, spec, and workunit subsystems, without replacing any existing functionality:
+1. **Extend the Workunit Concept**: Elevate workunit.rs from a per-task manifest to a potential trajectory container. A trajectory could be a linked series of workunits representing the evolution of a feature, architectural decision, or system component.
+2. **Trajectory Spec**: Introduce a new spec type (e.g., `TRAJECTORY.md`) in `.decapod/generated/specs/` that documents the evolutionary path, key decisions, and state transitions of a coherent work effort.
+3. **Minimal Core Changes**:
+   - Add a `trajectory_id` field to the workunit model (optional, for grouping).
+   - Create a new `trajectory.rs` subsystem for trajectory-specific operations (creation, linking, state transitions).
+   - Extend the validation harness to check trajectory integrity (e.g., monotonic state progression, proof linkage).
+   - Add CLI commands under `decapod trajectory` for trajectory management (init, list, show, transition).
+4. **Preserve Existing Todos**: Keep the todo subsystem unchanged for atomic task tracking. Trajectories would coordinate or group todos but not replace them.
+5. **Leverage Existing Mechanisms**:
+   - Use the existing event journaling pattern for trajectory mutations.
+   - Reuse the spec manifest system for trajectory specs.
+   - Utilize the workspace subsystem for trajectory-scoped isolation (optional).
+   - Depend on the constitution for trajectory-related directives (e.g., methodology/trajectory_lifecycle).
 "#
     )
 }
@@ -918,6 +1051,16 @@ fn specs_operations_template(seed: Option<&SpecsSeed>) -> String {
 - [ ] Runbooks linked for all Sev1/Sev2 alerts.
 - [ ] Rollback plan validated.
 - [ ] Capacity guardrails documented.
+
+## Workspace Isolation
+Git worktrees and optional Docker containers provide isolated workspaces scoped to specific todos, preventing interference with the main repository checkout. Key features:
+- **Todo-scoped Worktrees**: Each todo gets an isolated git worktree with branch naming that includes todo IDs/hashes
+- **Exclusive Agent Ownership**: Claiming mechanism ensures only one agent can work on a todo at a time
+- **Event Journaling**: Todo state changes are journaled for deterministic rebuild
+- **Health Subsystem Integration**: Proof events can be associated with todos via health claims
+
+## Generated Artifact Operations
+Generated artifacts are operational outputs, not static docs. Agents should expect Decapod to refresh `.decapod/generated/specs/*.md` during explicit refresh operations and validation-assisted refresh. The operation is bounded: product docs under `docs/` remain the human learning surface for Decapod itself, while generated specs carry repo-specific live architecture, interface, validation, semantic, operational, and security facts.
 
 ## Service Level Objectives
 | SLI | SLO Target | Measurement Window | Owner |
@@ -940,45 +1083,50 @@ fn specs_operations_template(seed: Option<&SpecsSeed>) -> String {
 - Dependency health:
 - Synthetic transaction:
 
-## Alerting and Runbooks
-| Alert | Severity | Runbook Link | Escalation |
-|---|---|---|---|
-| API error rate spike | Sev2 | TBD | App on-call |
-| Persistent dependency timeout | Sev1 | TBD | App + platform |
-| Validation gate outage | Sev2 | TBD | Maintainers |
-
 ## Incident Response
-- Incident commander model:
-- Communication channels:
-- Postmortem SLA:
-- Corrective action tracking:
+- Detection:
+- Triage:
+- Mitigation:
+- Communication:
+- Post-mortem:
 
-## Structured Logging
-- {logging_hint}
-
-## Severity Definitions
-| Severity | Definition | Response Time |
-|---|---|---|
-| Sev1 | Production outage or data integrity risk | Immediate |
-| Sev2 | Major functionality impaired | 30 minutes |
-| Sev3 | Minor degradation | Next business day |
-
-## Deployment Strategy
-- Primary strategy:
-- Change validation process:
-- Rollback and forward-fix policy:
-
-## Environment Configuration
-| Variable | Purpose | Default | Secret |
-|---|---|---|---|
-| APP_ENV | runtime environment | dev | no |
-| LOG_LEVEL | observability verbosity | info | no |
-| API_TOKEN | external auth | none | yes |
+## Rollout Strategy
+- Blue/green deployment:
+- Canary release:
+- Rolling update:
+- Feature flags:
 
 ## Capacity Planning
-- Peak request assumption:
-- Storage growth model:
-- Queue/worker headroom:
+- Traffic patterns:
+- Resource utilization:
+- Scaling triggers:
+
+## Logging
+{logging_hint}
+
+## Secrets Management
+| Secret | Source | Rotation | Consumer |
+|---|---|---|---|
+| External service auth material | managed runtime configuration | periodic | runtime services |
+| Artifact signing material | managed signing service/local secure store | periodic | release pipeline |
+
+## Security Testing
+| Test Type | Cadence | Tooling |
+|---|---|---|
+| SAST | each PR | language linters/scanners |
+| Dependency scan | each PR + weekly | supply-chain tools |
+| DAST/pentest | scheduled | external/internal |
+
+## Compliance and Audit
+- Regulatory scope:
+- Audit evidence location:
+- Exception process:
+
+## Pre-Promotion Security Checklist
+- [ ] Threat model updated for changed surfaces.
+- [ ] Auth/authz tests pass.
+- [ ] Dependency vulnerability scan reviewed.
+- [ ] No unresolved critical/high security findings.
 "#
     )
 }
@@ -1043,8 +1191,8 @@ flowchart LR
 ## Secrets Management
 | Secret | Source | Rotation | Consumer |
 |---|---|---|---|
-| API credentials | secret manager/env | periodic | runtime services |
-| Signing keys | HSM/KMS/local secure store | periodic | release pipeline |
+| External service auth material | managed runtime configuration | periodic | runtime services |
+| Artifact signing material | managed signing service/local secure store | periodic | release pipeline |
 
 ## Security Testing
 | Test Type | Cadence | Tooling |
@@ -1063,93 +1211,168 @@ flowchart LR
 - [ ] Auth/authz tests pass.
 - [ ] Dependency vulnerability scan reviewed.
 - [ ] No unresolved critical/high security findings.
+
+## Strongest Security Primitives
+1. **Constitution Access System**: The assets module provides robust, versioned access to embedded constitution documents with override capability via OVERRIDE.md. This is a mature, well-tested system for declarative governance.
+2. **Proof System**: The proof.rs module enables configurable, auditable proof execution with health claim synchronization and event logging.
+3. **Workspace Isolation**: The workspace.rs module provides sophisticated git worktree management with branch protection, containerization support, and todo-scoped branch naming.
+
+## Generated Security Analysis
+Generated security specs should document the active trust boundaries exposed by repository facts: local state stores, generated artifacts, session tokens, workspace paths, command execution surfaces, policy gates, proof artifacts, and any external service integrations. Security output must distinguish confirmed repo facts from inferred risks and leave unresolved questions visible for future agents.
 "#
     )
 }
 
-fn specs_reconnaissance_template(_seed: Option<&SpecsSeed>) -> String {
-    // This template will be replaced with dynamic content generation
-    // that analyzes the repository state to produce architectural reconnaissance
-    r#"# Architectural Reconnaissance
-
-## Auto-Generated Project Architecture Analysis
-
-This spec is automatically generated during validation to reflect the current architectural state of the project.
-It contains dynamically discovered information about the project's structure, dependencies, and architectural characteristics.
-
-### Generation Note
-This file is generated by the Decapod validation process to keep architectural documentation in sync with the actual state of the repository. Content is analyzed from the current repository state rather than hardcoded.
-
-### Analysis Contents
-- Project structure analysis
-- Technology stack detection
-- Dependency mapping
-- Architectural pattern identification
-- Component boundary detection
-
-### Regeneration
-This spec is automatically regenerated when `decapod validate` detects that the repository has changed significantly since the last specs generation. To manually trigger regeneration,
-run `decapod rpc --op specs.refresh`.
-
-*"#
-        .to_string()
+fn render_project_spec_content(
+    rel_path: &str,
+    diagram_style: DiagramStyle,
+    seed: Option<&SpecsSeed>,
+) -> Option<String> {
+    match rel_path {
+        LOCAL_PROJECT_SPECS_README => Some(specs_readme_template(seed)),
+        LOCAL_PROJECT_SPECS_INTENT => Some(specs_intent_template(seed)),
+        LOCAL_PROJECT_SPECS_ARCHITECTURE => Some(specs_architecture_template(diagram_style, seed)),
+        LOCAL_PROJECT_SPECS_INTERFACES => Some(specs_interfaces_template(seed)),
+        LOCAL_PROJECT_SPECS_VALIDATION => Some(specs_validation_template(seed)),
+        LOCAL_PROJECT_SPECS_SEMANTICS => Some(specs_semantics_template(seed)),
+        LOCAL_PROJECT_SPECS_OPERATIONS => Some(specs_operations_template(seed)),
+        LOCAL_PROJECT_SPECS_SECURITY => Some(specs_security_template(seed)),
+        _ => None,
+    }
 }
 
-fn specs_status_template(_seed: Option<&SpecsSeed>) -> String {
-    r#"# Current Status
+fn preserve_intent_custody(project_root: &Path, rel_path: &str, mut content: String) -> String {
+    if rel_path != LOCAL_PROJECT_SPECS_INTENT {
+        return content;
+    }
 
-## Auto-Generated Project Status
+    let dest = project_root.join(rel_path);
+    let Ok(existing_content) = fs::read_to_string(&dest) else {
+        return content;
+    };
+    let Some(start_idx) = existing_content.find("## Epistemic Custody Fields") else {
+        return content;
+    };
 
-This spec is automatically generated during validation to reflect the current state of the project.
-It contains dynamically discovered information about the repository that helps maintain awareness
-of the project's current condition.
+    let end_marker = "## Tradeoffs Register";
+    let custody_section = if let Some(end_idx) = existing_content[start_idx..].find(end_marker) {
+        &existing_content[start_idx..start_idx + end_idx]
+    } else {
+        &existing_content[start_idx..]
+    };
 
-### Discovery Note
-This file is generated by the Decapod validation process to keep project status documentation
-in sync with the actual state of the repository. Manual edits may be overwritten during
-validation runs when the repo fingerprint indicates significant changes.
+    if let Some(new_start_idx) = content.find("## Epistemic Custody Fields")
+        && let Some(new_end_idx) = content[new_start_idx..].find(end_marker)
+    {
+        let mut new_merged = content[..new_start_idx].to_string();
+        new_merged.push_str(custody_section.trim_end());
+        new_merged.push_str("\n\n");
+        new_merged.push_str(&content[new_start_idx + new_end_idx..]);
+        content = new_merged;
+    }
 
-### Contents
-- Auto-discovered project statistics
-- Detected technology usage patterns
-- Identified active development areas
-- Current operational indicators
-
-### Regeneration
-This spec is automatically regenerated when `decapod validate` detects that the repository
-has changed significantly since the last specs generation. To manually trigger regeneration,
-run `decapod rpc --op specs.refresh`.
-
-*"#
-        .to_string()
+    content
 }
 
-fn specs_reconnaissance_template(_seed: Option<&SpecsSeed>) -> String {
-    r#"# Reconnaissance
+pub fn refresh_project_specs_from_config(
+    project_root: &Path,
+) -> Result<ProjectSpecsManifest, error::DecapodError> {
+    let config = crate::cli::DecapodProjectConfig::load(project_root)?;
+    let diagram_style = match config.init.diagram_style {
+        crate::cli::InitDiagramStyle::Ascii => DiagramStyle::Ascii,
+        crate::cli::InitDiagramStyle::Mermaid => DiagramStyle::Mermaid,
+    };
+    let seed = SpecsSeed {
+        product_name: config.repo.product_name,
+        product_summary: config.repo.product_summary,
+        architecture_direction: config.repo.architecture_direction,
+        product_type: config.repo.product_type,
+        primary_languages: config.repo.primary_languages,
+        detected_surfaces: config.repo.detected_surfaces,
+        done_criteria: config.repo.done_criteria,
+    };
+    refresh_project_specs(project_root, diagram_style, Some(&seed))
+}
 
-## Auto-Generated Architecture Documentation
+pub fn refresh_project_specs(
+    project_root: &Path,
+    diagram_style: DiagramStyle,
+    seed: Option<&SpecsSeed>,
+) -> Result<ProjectSpecsManifest, error::DecapodError> {
+    let specs_dir = project_root.join(crate::core::project_specs::LOCAL_PROJECT_SPECS_DIR);
+    fs::create_dir_all(&specs_dir).map_err(error::DecapodError::IoError)?;
 
-This spec is automatically generated during validation when the repository fingerprint changes.
-It contains dynamically discovered architectural information about the codebase.
+    let existing_manifest = read_specs_manifest(project_root)?;
+    let current_repo_fingerprint = repo_signal_fingerprint(project_root)?;
+    let mut manifest_entries = Vec::new();
+    let mut file_writes: Vec<(PathBuf, String)> = Vec::new();
+    for spec in LOCAL_PROJECT_SPECS {
+        let Some(mut content) = render_project_spec_content(spec.path, diagram_style, seed) else {
+            continue;
+        };
 
-### Discovery Note
-This file is generated by the Decapod validation process to keep architectural documentation
-in sync with the actual state of the repository. Manual edits may be overwritten during
-validation runs when the repo fingerprint indicates significant changes.
+        if let Some(override_content) =
+            assets::get_override_doc(project_root, spec.constitution_ref)
+        {
+            content = assets::merge_override_content(&content, &override_content);
+        }
 
-### Contents
-- Auto-discovered project structure
-- Detected technology stacks and frameworks
-- Identified architectural boundaries and components
-- Inferred deployment and operational characteristics
+        let template_hash = hash_text(&content);
+        let content = preserve_intent_custody(project_root, spec.path, content);
+        let content_hash = hash_text(&content);
+        let dest = project_root.join(spec.path);
+        let existing_content = fs::read_to_string(&dest).ok();
+        if existing_content.as_deref() != Some(content.as_str()) {
+            file_writes.push((dest, content));
+        }
+        manifest_entries.push(ProjectSpecManifestEntry {
+            path: spec.path.to_string(),
+            template_hash,
+            content_hash,
+        });
+    }
 
-### Regeneration
-This spec is automatically regenerated when `decapod validate` detects that the repository
-has changed significantly since the last specs generation. To manually trigger regeneration,
-run `decapod rpc --op specs.refresh`.
+    let manifest = ProjectSpecsManifest {
+        schema_version: LOCAL_PROJECT_SPECS_MANIFEST_SCHEMA.to_string(),
+        template_version: PROJECT_SPEC_TEMPLATE_VERSION.to_string(),
+        generated_at: existing_manifest
+            .as_ref()
+            .filter(|existing| {
+                existing.schema_version == LOCAL_PROJECT_SPECS_MANIFEST_SCHEMA
+                    && existing.template_version == PROJECT_SPEC_TEMPLATE_VERSION
+                    && existing.repo_signal_fingerprint == current_repo_fingerprint
+                    && existing.files == manifest_entries
+                    && file_writes.is_empty()
+            })
+            .map(|existing| existing.generated_at.clone())
+            .unwrap_or_else(crate::core::time::now_epoch_z),
+        repo_signal_fingerprint: current_repo_fingerprint,
+        files: manifest_entries,
+    };
 
-*"#
-        .to_string()
+    if let Some(existing) = existing_manifest.as_ref()
+        && existing.schema_version == manifest.schema_version
+        && existing.template_version == manifest.template_version
+        && existing.repo_signal_fingerprint == manifest.repo_signal_fingerprint
+        && existing.files == manifest.files
+        && file_writes.is_empty()
+    {
+        return Ok(existing.clone());
+    }
+
+    for (dest, content) in file_writes {
+        ensure_parent(&dest)?;
+        fs::write(dest, content).map_err(error::DecapodError::IoError)?;
+    }
+
+    let manifest_path = project_root.join(LOCAL_PROJECT_SPECS_MANIFEST);
+    ensure_parent(&manifest_path)?;
+    let manifest_body = serde_json::to_string_pretty(&manifest).map_err(|e| {
+        error::DecapodError::ValidationError(format!("Failed to serialize specs manifest: {e}"))
+    })?;
+    fs::write(manifest_path, manifest_body).map_err(error::DecapodError::IoError)?;
+
+    Ok(manifest)
 }
 
 /// Canonical .gitignore rules managed by `decapod init`.
@@ -1540,19 +1763,10 @@ Agents operating in this repo MUST maintain these artifacts to ensure long-horiz
         let seed = opts.specs_seed.as_ref();
         let mut specs_files: Vec<(&str, String)> = Vec::new();
         for spec in LOCAL_PROJECT_SPECS {
-            let mut content = match spec.path {
-                LOCAL_PROJECT_SPECS_README => specs_readme_template(seed),
-                LOCAL_PROJECT_SPECS_INTENT => specs_intent_template(seed),
-                LOCAL_PROJECT_SPECS_ARCHITECTURE => {
-                    specs_architecture_template(opts.diagram_style, seed)
-                }
-                LOCAL_PROJECT_SPECS_INTERFACES => specs_interfaces_template(seed),
-                LOCAL_PROJECT_SPECS_VALIDATION => specs_validation_template(seed),
-                LOCAL_PROJECT_SPECS_SEMANTICS => specs_semantics_template(seed),
-                LOCAL_PROJECT_SPECS_OPERATIONS => specs_operations_template(seed),
-                LOCAL_PROJECT_SPECS_SECURITY => specs_security_template(seed),
-                LOCAL_PROJECT_SPECS_RECONNAISSANCE => specs_reconnaissance_template(seed),
-                _ => continue,
+            let Some(mut content) =
+                render_project_spec_content(spec.path, opts.diagram_style, seed)
+            else {
+                continue;
             };
 
             // Respect component-specific override in .decapod/OVERRIDE.md if present
@@ -1568,31 +1782,7 @@ Agents operating in this repo MUST maintain these artifacts to ensure long-horiz
         for (rel_path, mut content) in specs_files {
             // Epistemic Custody Preservation:
             // If we are regenerating INTENT.md and it already exists, try to preserve the Epistemic Custody Fields section.
-            if rel_path == LOCAL_PROJECT_SPECS_INTENT {
-                let dest = opts.target_dir.join(rel_path);
-                if let Ok(existing_content) = fs::read_to_string(&dest)
-                    && let Some(start_idx) = existing_content.find("## Epistemic Custody Fields")
-                {
-                    let end_marker = "## Tradeoffs Register";
-                    let custody_section =
-                        if let Some(end_idx) = existing_content[start_idx..].find(end_marker) {
-                            &existing_content[start_idx..start_idx + end_idx]
-                        } else {
-                            &existing_content[start_idx..]
-                        };
-
-                    // Now replace it in the new content
-                    if let Some(new_start_idx) = content.find("## Epistemic Custody Fields")
-                        && let Some(new_end_idx) = content[new_start_idx..].find(end_marker)
-                    {
-                        let mut new_merged = content[..new_start_idx].to_string();
-                        new_merged.push_str(custody_section.trim_end());
-                        new_merged.push_str("\n\n");
-                        new_merged.push_str(&content[new_start_idx + new_end_idx..]);
-                        content = new_merged;
-                    }
-                }
-            }
+            content = preserve_intent_custody(&opts.target_dir, rel_path, content);
 
             let template_hash = hash_text(&content);
             match write_file(opts, rel_path, &content)? {
@@ -1610,7 +1800,7 @@ Agents operating in this repo MUST maintain these artifacts to ensure long-horiz
         if !opts.dry_run {
             let manifest = ProjectSpecsManifest {
                 schema_version: LOCAL_PROJECT_SPECS_MANIFEST_SCHEMA.to_string(),
-                template_version: "scaffold-v2".to_string(),
+                template_version: PROJECT_SPEC_TEMPLATE_VERSION.to_string(),
                 generated_at: crate::core::time::now_epoch_z(),
                 repo_signal_fingerprint: repo_signal_fingerprint(&opts.target_dir)?,
                 files: manifest_entries,
