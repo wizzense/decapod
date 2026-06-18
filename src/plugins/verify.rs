@@ -212,6 +212,11 @@ fn run_validate_and_hash(
     todo_id: Option<&str>,
 ) -> Result<(bool, String), error::DecapodError> {
     if let Some(id) = todo_id {
+        // SAFETY: Setting env var is safe here because:
+        // 1. This is a CLI tool that runs single-threaded by default
+        // 2. We immediately scope the env var to the validate call below
+        // 3. We remove the var right after the call, ensuring no leakage
+        // 4. No concurrent threads are spawned that might race on this env var
         unsafe { std::env::set_var("DECAPOD_VERIFYING_TODO", id); }
     }
     let exe = std::env::current_exe()?;
@@ -225,6 +230,10 @@ fn run_validate_and_hash(
         repo_root,
     );
     if todo_id.is_some() {
+        // SAFETY: Removing env var is safe here because:
+        // 1. We only remove the var we set above
+        // 2. No other part of the code depends on this var during validation
+        // 3. This restores the environment to its original state
         unsafe { std::env::remove_var("DECAPOD_VERIFYING_TODO"); }
     }
     let output = output?;
