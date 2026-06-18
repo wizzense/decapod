@@ -154,7 +154,44 @@ fn normalize_json_value(value: &serde_json::Value) -> serde_json::Value {
             let mut keys: Vec<&String> = map.keys().collect();
             keys.sort();
             for key in keys {
-                normalized.insert(key.clone(), normalize_json_value(&map[key]));
+                if key == "elapsed_ms" {
+                    normalized.insert(
+                        key.clone(),
+                        serde_json::Value::Number(serde_json::Number::from(0)),
+                    );
+                } else if key == "failures" || key == "warnings" || key == "self_heal" {
+                    if let Some(arr) = map[key].as_array() {
+                        let mut sorted_arr = arr.clone();
+                        sorted_arr.sort_by_key(|a| a.to_string());
+                        normalized.insert(
+                            key.clone(),
+                            serde_json::Value::Array(
+                                sorted_arr.iter().map(normalize_json_value).collect(),
+                            ),
+                        );
+                    } else {
+                        normalized.insert(key.clone(), normalize_json_value(&map[key]));
+                    }
+                } else if key == "gate_timings" {
+                    if let Some(arr) = map[key].as_array() {
+                        let mut sorted_arr = arr.clone();
+                        sorted_arr.sort_by(|a, b| {
+                            let a_name = a.get("name").and_then(|v| v.as_str()).unwrap_or("");
+                            let b_name = b.get("name").and_then(|v| v.as_str()).unwrap_or("");
+                            a_name.cmp(b_name)
+                        });
+                        normalized.insert(
+                            key.clone(),
+                            serde_json::Value::Array(
+                                sorted_arr.iter().map(normalize_json_value).collect(),
+                            ),
+                        );
+                    } else {
+                        normalized.insert(key.clone(), normalize_json_value(&map[key]));
+                    }
+                } else {
+                    normalized.insert(key.clone(), normalize_json_value(&map[key]));
+                }
             }
             serde_json::Value::Object(normalized)
         }
@@ -185,7 +222,18 @@ fn hash_file(path: &Path) -> Result<(String, u64, Option<u64>), error::DecapodEr
 fn run_validate_and_hash(
     store_root: &Path,
     repo_root: &Path,
+    todo_id: Option<&str>,
 ) -> Result<(bool, String), error::DecapodError> {
+    if let Some(id) = todo_id {
+        // SAFETY: Setting env var is safe here because:
+        // 1. This is a CLI tool that runs single-threaded by default
+        // 2. We immediately scope the env var to the validate call below
+        // 3. We remove the var right after the call, ensuring no leakage
+        // 4. No concurrent threads are spawned that might race on this env var
+        unsafe {
+            std::env::set_var("DECAPOD_VERIFYING_TODO", id);
+        }
+    }
     let exe = std::env::current_exe()?;
     let exe_str = exe.to_string_lossy().to_string();
     let output = external_action::execute(
@@ -195,7 +243,17 @@ fn run_validate_and_hash(
         &exe_str,
         &["validate", "--format", "json"],
         repo_root,
-    )?;
+    );
+    if todo_id.is_some() {
+        // SAFETY: Removing env var is safe here because:
+        // 1. We only remove the var we set above
+        // 2. No other part of the code depends on this var during validation
+        // 3. This restores the environment to its original state
+        unsafe {
+            std::env::remove_var("DECAPOD_VERIFYING_TODO");
+        }
+    }
+    let output = output?;
 
     let stdout = String::from_utf8_lossy(&output.stdout).to_string();
     if let Ok(value) = serde_json::from_str::<serde_json::Value>(&stdout) {
@@ -489,7 +547,8 @@ fn verify_target(
 
     // Only check validate_passes if it's in the proof plan
     if validate_check_needed {
-        let (validate_ok, actual_hash) = run_validate_and_hash(store_root, repo_root)?;
+        let (validate_ok, actual_hash) =
+            run_validate_and_hash(store_root, repo_root, Some(&target.todo_id))?;
         let expected = expected_hash.unwrap_or_default();
 
         if !validate_ok {
@@ -764,7 +823,7 @@ pub fn capture_baseline_for_todo(
         });
     }
 
-    let (validate_ok, output_hash) = run_validate_and_hash(&store.root, repo_root)?;
+    let (validate_ok, output_hash) = run_validate_and_hash(&store.root, repo_root, Some(todo_id))?;
 
     let ts = now_iso();
     let artifacts = VerificationArtifacts {

@@ -1,16 +1,195 @@
-/* Custom CSS for mdBook - modern premium styling */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+/* Modern elegant font import */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
-html { background: linear-gradient(135deg, rgba(10,10,15,0.95), rgba(20,20,30,0.95)); color: #e0e0e0; font-family: 'Inter', sans-serif; }
-body { margin: 0; padding: 2rem; line-height: 1.6; background: rgba(255,255,255,0.04); backdrop-filter: blur(12px); border-radius: 12px; box-shadow: 0 4px 30px rgba(0,0,0,0.5); }
-nav { background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); padding: 0.8rem 1.5rem; border-radius: 8px; }
-nav a {color:#a0c0ff;font-weight:500;text-decoration:none;margin-right:1rem;}
-nav a:hover {color:#c0e0ff;text-decoration:underline;}
-.sidebars .sidebar-item.active {background:rgba(255,255,255,0.1);border-left:4px solid #66b2ff;color:#fff;}
-pre,code {font-family:'JetBrains Mono',monospace;background:rgba(0,0,0,0.6);color:#ffdd80;border-radius:6px;padding:0.4rem 0.6rem;}
-pre {overflow-x:auto;padding:1rem;}
-.admonition {border-left:4px solid #66b2ff;background:rgba(20,30,45,0.6);padding:1rem;border-radius:8px;margin:1rem 0;}
-.admonition-title {font-weight:600;color:#66b2ff;margin-bottom:0.5rem;}
-a {color:#66b2ff;transition:color 0.2s ease;}
-a:hover {color:#99cfff;}
-footer {text-align:center;margin-top:2rem;font-size:0.9rem;color:#a0a0a0;}
+/* Typography override */
+:root {
+    --mono-font: 'JetBrains Mono', 'Fira Code', monospace;
+}
+body, html {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Custom styles for light theme */
+.light {
+    --bg: #ffffff;
+    --fg: #1f2937; /* gray-800 */
+    --sidebar-bg: #f9fafb; /* gray-50 */
+    --sidebar-fg: #4b5563; /* gray-600 */
+    --sidebar-active: #6366f1; /* indigo-500 */
+    --links: #4f46e5; /* indigo-600 */
+    --inline-code-color: #3b82f6; /* blue-500 */
+    --theme-popup-bg: #ffffff;
+    --theme-popup-border: #e5e7eb; /* gray-200 */
+    --table-header-bg: #f3f4f6;
+    --table-alternate-bg: #f9fafb;
+    --table-border-color: #e5e7eb;
+}
+
+/* Custom styles for navy/dark themes */
+.navy, .coal, .ayu {
+    --bg: #0b0f19; /* premium deep dark */
+    --fg: #f3f4f6; /* gray-100 */
+    --sidebar-bg: #111827; /* gray-900 */
+    --sidebar-fg: #9ca3af; /* gray-400 */
+    --sidebar-active: #818cf8; /* indigo-400 */
+    --links: #6366f1; /* indigo-500 */
+    --inline-code-color: #60a5fa; /* blue-400 */
+    --theme-popup-bg: #111827;
+    --theme-popup-border: #1f2937;
+    --table-header-bg: #1f2937;
+    --table-alternate-bg: #111827;
+    --table-border-color: #1f2937;
+}
+
+/* Layout adjustments */
+#sidebar {
+    border-right: 1px solid rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease-in-out;
+}
+.navy #sidebar, .coal #sidebar, .ayu #sidebar {
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Glassmorphism for menu bar */
+#menu-bar {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: background-color 0.2s;
+}
+.light #menu-bar {
+    background-color: rgba(255, 255, 255, 0.8) !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+.navy #menu-bar, .coal #menu-bar, .ayu #menu-bar {
+    background-color: rgba(11, 15, 25, 0.8) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Smooth transition for active chapter link and hover effects */
+.chapter-item a {
+    border-radius: 6px;
+    padding: 6px 12px;
+    margin: 2px 8px;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+.chapter-item a:hover {
+    background: rgba(0, 0, 0, 0.03);
+    text-decoration: none !important;
+}
+.navy .chapter-item a:hover, .coal .chapter-item a:hover, .ayu .chapter-item a:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+.chapter-item a.active {
+    font-weight: 600;
+    color: var(--sidebar-active) !important;
+    background: rgba(99, 102, 241, 0.08) !important;
+}
+.navy .chapter-item a.active, .coal .chapter-item a.active, .ayu .chapter-item a.active {
+    background: rgba(129, 140, 248, 0.1) !important;
+}
+
+/* Premium Code Block Styling */
+main pre {
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    background: #1e293b !important; /* Always dark for code syntax readability */
+    padding: 1.2rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+.navy main pre, .coal main pre, .ayu main pre {
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+}
+main code {
+    font-family: var(--mono-font);
+    font-size: 0.9em;
+}
+/* Inline code blocks */
+:not(pre) > code {
+    border-radius: 4px;
+    padding: 2px 6px;
+    background: rgba(0, 0, 0, 0.04) !important;
+    color: var(--inline-code-color) !important;
+    font-weight: 500;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+}
+.navy :not(pre) > code, .coal :not(pre) > code, .ayu :not(pre) > code {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+/* Elegant Content Formatting */
+#content main {
+    max-width: var(--content-max-width);
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem 1.5rem;
+    line-height: 1.7;
+    color: var(--fg);
+}
+#content main h1, #content main h2, #content main h3, #content main h4 {
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    color: #111827;
+}
+.navy #content main h1, .navy #content main h2, .navy #content main h3, .navy #content main h4,
+.coal #content main h1, .coal #content main h2, .coal #content main h3, .coal #content main h4,
+.ayu #content main h1, .ayu #content main h2, .ayu #content main h3, .ayu #content main h4 {
+    color: #ffffff;
+}
+#content main h1 { font-size: 2.25em; margin-bottom: 0.8em; }
+#content main h2 { font-size: 1.5em; margin-top: 2em; margin-bottom: 0.6em; }
+#content main h3 { font-size: 1.25em; margin-top: 1.8em; margin-bottom: 0.6em; }
+
+/* Custom Admonitions / Callouts (Stripe/VitePress style) */
+blockquote {
+    border-left: 4px solid var(--links);
+    background: rgba(99, 102, 241, 0.03);
+    margin: 1.5rem 0;
+    padding: 1rem 1.5rem;
+    border-radius: 0 8px 8px 0;
+}
+.navy blockquote, .coal blockquote, .ayu blockquote {
+    background: rgba(129, 140, 248, 0.03);
+}
+
+/* Custom Table Design */
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 2rem 0;
+    font-size: 0.95em;
+}
+th {
+    background-color: var(--table-header-bg);
+    font-weight: 600;
+    text-align: left;
+    padding: 10px 16px;
+    border-bottom: 2px solid var(--table-border-color);
+}
+td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--table-border-color);
+}
+tr:nth-child(even) {
+    background-color: var(--table-alternate-bg);
+}
+
+/* Custom styling for standard navigation buttons */
+.nav-chapters {
+    border-radius: 50% !important;
+    background: rgba(0, 0, 0, 0.02) !important;
+    border: 1px solid rgba(0, 0, 0, 0.05) !important;
+    transition: background 0.2s, border-color 0.2s;
+}
+.light .nav-chapters:hover {
+    background: rgba(0, 0, 0, 0.05) !important;
+}
+.navy .nav-chapters, .coal .nav-chapters, .ayu .nav-chapters {
+    background: rgba(255, 255, 255, 0.02) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    color: var(--fg) !important;
+}
+.navy .nav-chapters:hover, .coal .nav-chapters:hover, .ayu .nav-chapters:hover {
+    background: rgba(255, 255, 255, 0.06) !important;
+}

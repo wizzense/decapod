@@ -14,10 +14,10 @@ This documentation serves as the comprehensive guide (the **Decapod Book**) for 
 
 ## 🚀 Getting Started
 
-*   **[Introduction](book/src/introduction.md)**: What is Decapod? Learn about the governance gap and the core pillars of repo-native agent control.
-*   **[Quickstart](book/src/quickstart.md)**: Install, initialize, and run your first agent handshake and validation in under five minutes.
-*   **[Mental Model](book/src/mental-model.md)**: Understand how agents, tasks, sessions, and workspaces interact.
-*   **[Configuration](book/src/configuration.md)**: Structure your repository config, enable cloud backends, and configure containerization.
+*   **[Introduction](https://decapodlabs.github.io/decapod/introduction.html)**: What is Decapod? Learn about the governance gap and the core pillars of repo-native agent control.
+*   **[Quickstart](https://decapodlabs.github.io/decapod/quickstart.html)**: Install, initialize, and run your first agent handshake and validation in under five minutes.
+*   **[Mental Model](https://decapodlabs.github.io/decapod/mental-model.html)**: Understand how agents, tasks, sessions, and workspaces interact.
+*   **[Configuration](https://decapodlabs.github.io/decapod/configuration.html)**: Structure your repository config, enable cloud backends, and configure containerization.
 
 ---
 
@@ -25,10 +25,10 @@ This documentation serves as the comprehensive guide (the **Decapod Book**) for 
 
 Learn how agents move through the lifecycle of planning, execution, validation, and completion.
 
-*   **[Single-Agent Workflows](book/src/workflows/single-agent.md)**: The lifecycle of an agent claim, ensure, validate, and finish loop.
-*   **[Multi-Agent Workflows](book/src/workflows/multi-agent.md)**: Handling concurrent agents, task claiming, and locking database state.
-*   **[Workspace Isolation](book/src/workflows/workspace-isolation.md)**: Setting up isolated Git worktrees and Docker containers to run tasks securely.
-*   **[External Trackers](book/src/workflows/external-trackers.md)**: Integrating Decapod with Jira, Linear, or GitHub Issues.
+*   **[Single-Agent Workflows](https://decapodlabs.github.io/decapod/workflows/single-agent.html)**: The lifecycle of an agent claim, ensure, validate, and finish loop.
+*   **[Multi-Agent Workflows](https://decapodlabs.github.io/decapod/workflows/multi-agent.html)**: Handling concurrent agents, task claiming, and locking database state.
+*   **[Workspace Isolation](https://decapodlabs.github.io/decapod/workflows/workspace-isolation.html)**: Setting up isolated Git worktrees and Docker containers to run tasks securely.
+*   **[External Trackers](https://decapodlabs.github.io/decapod/workflows/external-trackers.html)**: Integrating Decapod with Jira, Linear, or GitHub Issues.
 
 ---
 
@@ -36,13 +36,13 @@ Learn how agents move through the lifecycle of planning, execution, validation, 
 
 Deep dive into the architecture and mechanisms that make Decapod unique.
 
-*   **[Agent-First Architecture](book/src/concepts/agent-first.md)**: Why Decapod is designed to be called directly at agent "inference pressure points".
-*   **[Explicit Intent](book/src/concepts/intent.md)**: Converting ambiguous prompts into concrete, versioned specifications.
-*   **[Workspace Sandboxing](book/src/concepts/workspaces.md)**: How isolated execution layers keep your primary branches clean and safe.
-*   **[Proof & Validation](book/src/concepts/proof.md)**: Verifying correctness programmatically through policy evaluation instead of agent self-reporting.
-*   **[Repository Constitution](book/src/concepts/constitution.md)**: Setting the global guidelines that steer agent behavior.
-*   **[Config Overrides](book/src/concepts/overrides.md)**: Project-specific adjustments to constitutional guidelines.
-*   **[Model Context Protocol (MCP)](book/src/concepts/mcp.md)**: Navigating Decapod tools through structured agent protocols.
+*   **[Agent-First Architecture](https://decapodlabs.github.io/decapod/concepts/agent-first.html)**: Why Decapod is designed to be called directly at agent "inference pressure points".
+*   **[Explicit Intent](https://decapodlabs.github.io/decapod/concepts/intent.html)**: Converting ambiguous prompts into concrete, versioned specifications.
+*   **[Workspace Sandboxing](https://decapodlabs.github.io/decapod/concepts/workspaces.html)**: How isolated execution layers keep your primary branches clean and safe.
+*   **[Proof & Validation](https://decapodlabs.github.io/decapod/concepts/proof.html)**: Verifying correctness programmatically through policy evaluation instead of agent self-reporting.
+*   **[Repository Constitution](https://decapodlabs.github.io/decapod/concepts/constitution.html)**: Setting the global guidelines that steer agent behavior.
+*   **[Config Overrides](https://decapodlabs.github.io/decapod/concepts/overrides.html)**: Project-specific adjustments to constitutional guidelines.
+*   **[Model Context Protocol (MCP)](https://decapodlabs.github.io/decapod/concepts/mcp.html)**: Navigating Decapod tools through structured agent protocols.
 
 ---
 
@@ -50,10 +50,10 @@ Deep dive into the architecture and mechanisms that make Decapod unique.
 
 Hard specifications, command lists, configuration schemas, and error codes.
 
-*   **[Config Specification (config.toml)](book/src/reference/config-toml.md)**: Key-value reference for repo-level policy control.
-*   **[CLI Reference](book/src/reference/cli.md)**: Detailed breakdown of commands and options (init, validate, session, todo, decide).
-*   **[Error Reference](book/src/reference/errors.md)**: Decapod exit codes, validator failures, and self-healing instructions.
-*   **[Artifact Reference](book/src/reference/artifacts.md)**: Layout and schema of generated intent, handshake, and validation specs.
+*   **[Config Specification (config.toml)](https://decapodlabs.github.io/decapod/reference/config-toml.html)**: Key-value reference for repo-level policy control.
+*   **[CLI Reference](https://decapodlabs.github.io/decapod/reference/cli.html)**: Detailed breakdown of commands and options (init, validate, session, todo, decide).
+*   **[Error Reference](https://decapodlabs.github.io/decapod/reference/errors.html)**: Decapod exit codes, validator failures, and self-healing instructions.
+*   **[Artifact Reference](https://decapodlabs.github.io/decapod/reference/artifacts.html)**: Layout and schema of generated intent, handshake, and validation specs.
 
 ---
 

@@ -295,9 +295,13 @@ pub fn collect_unverified_done_todos(
     let rows = stmt
         .query_map([], |row| row.get::<_, String>(0))
         .map_err(error::DecapodError::RusqliteError)?;
+    let verifying_todo = std::env::var("DECAPOD_VERIFYING_TODO").unwrap_or_default();
     let mut out = Vec::new();
     for row in rows {
-        out.push(row.map_err(error::DecapodError::RusqliteError)?);
+        let id = row.map_err(error::DecapodError::RusqliteError)?;
+        if id != verifying_todo {
+            out.push(id);
+        }
     }
     Ok(out)
 }
