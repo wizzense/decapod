@@ -15,10 +15,13 @@ Isolated execution environments.
 - **Artifacts:** Changes made in a workspace are transient until `workspace publish` is called.
 
 ## 3. Sessions
-Short-lived authentication tokens.
-- **Credential:** `DECAPOD_SESSION_PASSWORD`.
-- **Lifecycle:** Acquired via `session acquire`, released via `session release`.
-- **Restriction:** Most mutation commands (e.g., `todo add`, `workspace ensure`) require an active session.
+Authentication and identity verification tokens.
+
+- **Dual-Token Architecture:**
+  - **Local Agent Sessions:** Ephemeral, short-lived tokens generated on-the-fly via `session acquire`. Stored machine-locally under `~/.config/decapod/sessions/<project-hash>/<agent-id>.json`. Gates local coordination, TODO subsystem access, and database locking in the workspace (verified using the process-local or environment-provided `DECAPOD_SESSION_PASSWORD`).
+  - **Cloud Session Token:** Long-lived global OAuth identity token stored as JSON (`{"token": "..."}`) under `~/.local/share/decapod/session_token.json`. Used to authenticate the user's client with the Propodus cloud backend when cloud storage modes are enabled.
+- **Lifecycle:** Local sessions are acquired via `session acquire` and released via `session release`.
+- **Restriction:** Most repository mutation commands (e.g., `todo add`, `workspace ensure`) require an active local session.
 
 ## 4. Constitution
 The static/override rules of the repository.
