@@ -4400,12 +4400,13 @@ fn run_validate_command(
         heal_actions.push(action);
     }
 
-    let mut report = run_validation_bounded(
-        &store,
-        governance_root,
-        workspace_root,
-        validate_cli.verbose,
-    )?;
+     let mut report = run_validation_bounded(
+         &store,
+         governance_root,
+         workspace_root,
+         validate_cli.verbose,
+         validate_cli.refresh_specs,
+     )?;
     for _ in 0..2 {
         if report.fail_count == 0 {
             break;
@@ -4665,6 +4666,7 @@ fn run_validation_bounded(
     governance_root: &Path,
     workspace_root: &Path,
     verbose: bool,
+    refresh_specs: bool,
 ) -> Result<validate::ValidationReport, error::DecapodError> {
     let timeout_secs = validate_timeout_secs();
     let started = std::time::Instant::now();
@@ -4674,7 +4676,7 @@ fn run_validation_bounded(
     let w_root = workspace_root.to_path_buf();
 
     std::thread::spawn(move || {
-        let mut result = validate::run_validation(&store_cloned, &g_root, &w_root, verbose);
+        let mut result = validate::run_validation(&store_cloned, &g_root, &w_root, verbose, refresh_specs);
         for attempt in 1..=2 {
             let should_retry = match &result {
                 Err(error::DecapodError::RusqliteError(err)) => {

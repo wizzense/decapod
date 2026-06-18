@@ -1349,6 +1349,7 @@ fn validate_project_config_toml(
 fn validate_project_specs_docs(
     ctx: &ValidationContext,
     repo_root: &Path,
+    refresh_specs: bool,
 ) -> Result<(), error::DecapodError> {
     info("Project Specs Architecture Gate");
 
@@ -1453,6 +1454,17 @@ fn validate_project_specs_docs(
         if current_repo_fp == manifest.repo_signal_fingerprint {
             pass(
                 "Project specs manifest repo-signal fingerprint is current",
+                ctx,
+            );
+        } else if refresh_specs {
+            info(
+                "STALE_SPECS_FINGERPRINT: Significant repo surfaces changed since last specs refresh. Auto-refreshing specs...",
+                ctx,
+            );
+            // Auto-refresh the specs manifest
+            let _ = refresh_specs_manifest(repo_root)?;
+            pass(
+                "Project specs manifest refreshed due to stale fingerprint",
                 ctx,
             );
         } else {
@@ -4695,6 +4707,7 @@ pub fn run_validation(
     main_root: &Path,
     working_root: &Path,
     _verbose: bool,
+    refresh_specs: bool,
 ) -> Result<ValidationReport, error::DecapodError> {
     let total_start = Instant::now();
 
@@ -4729,6 +4742,7 @@ pub fn run_validation(
         let ctx = &ctx;
         let timings = &timings;
         let broker = broker_content.as_deref();
+        let refresh_specs = refresh_specs;
 
         gate!(
             s,
@@ -4800,13 +4814,13 @@ pub fn run_validation(
             "validate_project_config_toml",
             validate_project_config_toml(ctx, working_root)
         );
-        gate!(
-            s,
-            timings,
-            ctx,
-            "validate_project_specs_docs",
-            validate_project_specs_docs(ctx, working_root)
-        );
+            gate!(
+                s,
+                timings,
+                ctx,
+                "validate_project_specs_docs",
+                validate_project_specs_docs(ctx, working_root, refresh_specs)
+            );
         gate!(
             s,
             timings,
