@@ -8,18 +8,19 @@ Decapod integrates with MCP-compatible environments (like Claude Desktop or spec
 
 ### Exposed MCP Resources
 
-- **Constitution:** Browsable nodes of the technology and methodology graph.
-- **Tasks:** The current todo list and ownership state.
-- **Specs:** The living specifications (`INTENT.md`, `ARCHITECTURE.md`, etc.) for the project.
-- **Context Capsules:** Deterministic snapshots of repo state used for inference.
+- **Constitution:** Browsable nodes of the technology and methodology graph (see [Repository Constitution](constitution.md)).
+- **Tasks:** The current todo list and ownership state (see [Single-Agent Workflow](../workflows/single-agent.md)).
+- **Specs:** The living specifications (`INTENT.md`, `ARCHITECTURE.md`, etc.) for the project (see [Explicit Intent](intent.md) and [Artifact Reference](../reference/artifacts.md)).
+- **Context Capsules:** Deterministic snapshots of repo state used for inference (see [Agent-First Architecture](agent-first.md)).
 
 ### Exposed MCP Tools
 
-Decapod exposes its core CLI capabilities as MCP Tools, allowing agents to:
+Decapod exposes its core CLI capabilities as MCP Tools, allowing agents to perform operations detailed in the [CLI Reference](../reference/cli.md):
 - `todo_add` / `todo_claim`
 - `workspace_ensure`
 - `constitution_search`
 - `validate`
+
 
 ## Benefits of MCP Integration
 

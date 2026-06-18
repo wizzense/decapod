@@ -6,9 +6,10 @@ In Decapod, **Intent** is the primary driver of the development lifecycle. It is
 
 Agents often dive into implementation before fully understanding the human operator's goal. Decapod prevents this by mandating a spec-first approach:
 
-1.  **Capture:** Vague requests are converted into explicit tasks via `decapod todo add`.
-2.  **Formalize:** Agents are required to update or verify the `specs/INTENT.md` document scaffolded in the repository.
-3.  **Validate:** The final implementation is checked against this intent. If the outcome deviates from the recorded intent, validation fails.
+1.  **Capture:** Vague requests are converted into explicit tasks via `decapod todo add` (see [CLI Reference](../reference/cli.md#task-tracking)).
+2.  **Formalize:** Agents are required to update or verify the `specs/INTENT.md` document scaffolded in the repository (see [Artifacts Reference](../reference/artifacts.md)).
+3.  **Validate:** The final implementation is checked against this intent. If the outcome deviates from the recorded intent, validation fails (see [Proof & Validation](proof.md)).
+
 
 ## Intent Pressure
 
