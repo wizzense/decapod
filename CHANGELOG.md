@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.59.1](https://github.com/DecapodLabs/decapod/compare/v0.59.0...v0.59.1) - 2026-06-18
+
+### Other
+
+- Fix Deploy Docs: proper mdBook install, CSS path, premium styling (applies to PR #704)
+- Update README documentation section & style mdBook
+
 ## [0.59.0](https://github.com/DecapodLabs/decapod/compare/v0.58.5...v0.59.0) - 2026-06-18
 
 ### Added
