@@ -4771,7 +4771,6 @@ pub fn run_validation(
         let ctx = &ctx;
         let timings = &timings;
         let broker = broker_content.as_deref();
-        let refresh_specs = refresh_specs;
 
         gate!(
             s,
