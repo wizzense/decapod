@@ -12,12 +12,12 @@ In an operating system, the kernel manages hardware resources and provides a sta
 
 ## Pressure Points: The Agentic Loop
 
-Decapod is not intended to be called for every mechanical step. Instead, agents are taught to call Decapod at specific **Pressure Points** where governance is required:
+Decapod is not intended to be called for every mechanical step (see the [Single-Agent Workflow](workflows/single-agent.md)). Instead, agents are taught to call Decapod at specific **Pressure Points** where governance is required:
 
-1.  **Intent Pressure:** "I know what to do, but I need to formalize the spec." (`decapod todo add`, `decapod infer orientation`)
-2.  **Boundary Pressure:** "I'm about to touch a sensitive file or move to a new area." (`decapod workspace ensure`, `decapod govern gatekeeper`)
-3.  **Coordination Pressure:** "I need to ensure no one else is working on this." (`decapod todo claim`, `decapod workspace status`)
-4.  **Proof Pressure:** "I have finished the implementation and need to generate verification artifacts." (`decapod validate`, `decapod todo done`)
+1.  **Intent Pressure:** "I know what to do, but I need to formalize the spec." (see [Explicit Intent](concepts/intent.md), `decapod todo add`, `decapod infer orientation`)
+2.  **Boundary Pressure:** "I'm about to touch a sensitive file or move to a new area." (see [Workspace Sandboxing](concepts/workspaces.md), `decapod workspace ensure`, `decapod govern gatekeeper`)
+3.  **Coordination Pressure:** "I need to ensure no one else is working on this." (see [Multi-Agent Workflows](workflows/multi-agent.md), `decapod todo claim`, `decapod workspace status`)
+4.  **Proof Pressure:** "I have finished the implementation and need to generate verification artifacts." (see [Proof & Validation](concepts/proof.md), `decapod validate`, `decapod todo done`)
 
 ## The Thin Waist
 
@@ -25,4 +25,5 @@ Decapod serves as the "thin waist" of agentic software engineering. On the "top"
 
 ## Epistemic Custody
 
-A central concept in Decapod is **Epistemic Custody**. This is the preserved, auditable chain between the initial human intent, the context provided to the model, the assumptions made during implementation, and the final proof of completion. Decapod ensures this chain is never broken, making agent work fully falsifiable and transparent.
+A central concept in Decapod is **Epistemic Custody**. This is the preserved, auditable chain between the initial human intent, the context provided to the model, the assumptions made during implementation, and the final proof of completion. Decapod ensures this chain is never broken, making agent work fully falsifiable and transparent (see [Artifact Reference](reference/artifacts.md)).
+

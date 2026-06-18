@@ -5,14 +5,15 @@ Decapod replaces the unreliable "agent says it's done" claim with deterministic,
 ## Verification Gates
 
 A "Gate" is a discrete check that must pass for a task to be considered valid. Common gates include:
-- **Compliance Gates:** Checked by `decapod validate`.
+- **Compliance Gates:** Checked by `decapod validate` (see [CLI Reference](../reference/cli.md#core-operations)).
 - **Quality Gates:** Unit tests, linting, and type-checking.
 - **Security Gates:** Secret scanning and dependency audits.
 - **Human Gates:** Explicit approval for high-risk changes.
 
 ## The Evidence Ledger
 
-When an agent calls `decapod todo done --validated`, Decapod captures a snapshot of the repository state and the results of all required gates. This evidence is recorded in the `.decapod/generated/artifacts/` ledger.
+When an agent calls `decapod todo done --validated`, Decapod captures a snapshot of the repository state and the results of all required gates. This evidence is recorded in the `.decapod/generated/artifacts/` ledger (see [Artifacts Reference](../reference/artifacts.md)).
+
 
 This creates **Epistemic Custody**: a verifiable chain of proof that shows *how* the agent verified the work and *what* the state of the world was at the moment of completion.
 
