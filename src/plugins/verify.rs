@@ -155,12 +155,20 @@ fn normalize_json_value(value: &serde_json::Value) -> serde_json::Value {
             keys.sort();
             for key in keys {
                 if key == "elapsed_ms" {
-                    normalized.insert(key.clone(), serde_json::Value::Number(serde_json::Number::from(0)));
+                    normalized.insert(
+                        key.clone(),
+                        serde_json::Value::Number(serde_json::Number::from(0)),
+                    );
                 } else if key == "failures" || key == "warnings" || key == "self_heal" {
                     if let Some(arr) = map[key].as_array() {
                         let mut sorted_arr = arr.clone();
-                        sorted_arr.sort_by(|a, b| a.to_string().cmp(&b.to_string()));
-                        normalized.insert(key.clone(), serde_json::Value::Array(sorted_arr.iter().map(normalize_json_value).collect()));
+                        sorted_arr.sort_by_key(|a| a.to_string());
+                        normalized.insert(
+                            key.clone(),
+                            serde_json::Value::Array(
+                                sorted_arr.iter().map(normalize_json_value).collect(),
+                            ),
+                        );
                     } else {
                         normalized.insert(key.clone(), normalize_json_value(&map[key]));
                     }
@@ -172,7 +180,12 @@ fn normalize_json_value(value: &serde_json::Value) -> serde_json::Value {
                             let b_name = b.get("name").and_then(|v| v.as_str()).unwrap_or("");
                             a_name.cmp(b_name)
                         });
-                        normalized.insert(key.clone(), serde_json::Value::Array(sorted_arr.iter().map(normalize_json_value).collect()));
+                        normalized.insert(
+                            key.clone(),
+                            serde_json::Value::Array(
+                                sorted_arr.iter().map(normalize_json_value).collect(),
+                            ),
+                        );
                     } else {
                         normalized.insert(key.clone(), normalize_json_value(&map[key]));
                     }
@@ -217,7 +230,9 @@ fn run_validate_and_hash(
         // 2. We immediately scope the env var to the validate call below
         // 3. We remove the var right after the call, ensuring no leakage
         // 4. No concurrent threads are spawned that might race on this env var
-        unsafe { std::env::set_var("DECAPOD_VERIFYING_TODO", id); }
+        unsafe {
+            std::env::set_var("DECAPOD_VERIFYING_TODO", id);
+        }
     }
     let exe = std::env::current_exe()?;
     let exe_str = exe.to_string_lossy().to_string();
@@ -234,7 +249,9 @@ fn run_validate_and_hash(
         // 1. We only remove the var we set above
         // 2. No other part of the code depends on this var during validation
         // 3. This restores the environment to its original state
-        unsafe { std::env::remove_var("DECAPOD_VERIFYING_TODO"); }
+        unsafe {
+            std::env::remove_var("DECAPOD_VERIFYING_TODO");
+        }
     }
     let output = output?;
 
@@ -530,7 +547,8 @@ fn verify_target(
 
     // Only check validate_passes if it's in the proof plan
     if validate_check_needed {
-        let (validate_ok, actual_hash) = run_validate_and_hash(store_root, repo_root, Some(&target.todo_id))?;
+        let (validate_ok, actual_hash) =
+            run_validate_and_hash(store_root, repo_root, Some(&target.todo_id))?;
         let expected = expected_hash.unwrap_or_default();
 
         if !validate_ok {

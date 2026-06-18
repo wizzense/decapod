@@ -4413,7 +4413,8 @@ pub fn run_todo_cli(store: &Store, cli: TodoCli) -> Result<(), error::DecapodErr
             let task_id = resolve_task_id_arg(id, id_positional, "todo done")?;
             let project_root = crate::core::store::find_decapod_project_root(
                 &std::env::current_dir().map_err(error::DecapodError::IoError)?,
-            ).unwrap_or_else(|_| {
+            )
+            .unwrap_or_else(|_| {
                 store
                     .root
                     .parent()
