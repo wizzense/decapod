@@ -4411,12 +4411,16 @@ pub fn run_todo_cli(store: &Store, cli: TodoCli) -> Result<(), error::DecapodErr
             artifact,
         } => {
             let task_id = resolve_task_id_arg(id, id_positional, "todo done")?;
-            let project_root = store
-                .root
-                .parent()
-                .and_then(|p| p.parent())
-                .map(|p| p.to_path_buf())
-                .unwrap_or(std::env::current_dir().map_err(error::DecapodError::IoError)?);
+            let project_root = crate::core::store::find_decapod_project_root(
+                &std::env::current_dir().map_err(error::DecapodError::IoError)?,
+            ).unwrap_or_else(|_| {
+                store
+                    .root
+                    .parent()
+                    .and_then(|p| p.parent())
+                    .map(|p| p.to_path_buf())
+                    .unwrap_or(std::env::current_dir().unwrap())
+            });
             if crate::core::plan_governance::load_plan(&project_root)?.is_some() {
                 crate::core::plan_governance::ensure_execute_ready(
                     crate::core::plan_governance::ExecuteCheckInput {
