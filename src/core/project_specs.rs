@@ -172,9 +172,7 @@ pub fn hash_text(text: &str) -> String {
 }
 
 fn repo_signal_requires_content_hash(rel_path: &str) -> bool {
-    rel_path == ".decapod/config.toml"
-        || rel_path == ".decapod/OVERRIDE.md"
-        || rel_path == "AGENTS.md"
+    rel_path == "AGENTS.md"
         || rel_path == "CLAUDE.md"
         || rel_path == "CODEX.md"
         || rel_path == "GEMINI.md"
@@ -193,7 +191,6 @@ fn repo_signal_requires_content_hash(rel_path: &str) -> bool {
         || rel_path == "compose.yaml"
         || rel_path == "README.md"
         || rel_path == "Makefile"
-        || rel_path.starts_with(".github/workflows/")
         || rel_path.starts_with("infra/")
         || rel_path.starts_with("deploy/")
         || rel_path.starts_with("k8s/")
@@ -209,15 +206,6 @@ fn collect_significant_repo_paths(
         return Ok(());
     }
     let name = dir.file_name().and_then(|s| s.to_str()).unwrap_or("");
-    if name == ".decapod" {
-        for rel in [".decapod/config.toml", ".decapod/OVERRIDE.md"] {
-            let path = root.join(rel);
-            if path.is_file() {
-                out.push(path);
-            }
-        }
-        return Ok(());
-    }
     if matches!(
         name,
         ".git" | ".decapod" | "target" | "node_modules" | ".venv"
