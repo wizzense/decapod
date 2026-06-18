@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.59.0](https://github.com/DecapodLabs/decapod/compare/v0.58.5...v0.59.0) - 2026-06-18
+
+### Added
+
+- *(specs)* generate richer live project docs
+- auto-refresh project specs when stale during validation
+
+### Fixed
+
+- *(specs)* ignore init-local workflow churn in fingerprints
+- *(specs)* avoid fingerprint churn for source-only edits
+- *(specs)* distinguish generated specs from raw templates
+
+### Other
+
+- *(validate)* pass explicit specs refresh flag
+- interlink book files with relative cross-references
+- add Jekyll landing page index.md and cross-reference book files
+
 ## [0.58.5](https://github.com/DecapodLabs/decapod/compare/v0.58.4...v0.58.5) - 2026-06-18
 
 ### Other
