@@ -220,12 +220,54 @@ fn test_verify_deadlock_prevention() {
         val_normal_combined
     );
 
-    // 2. Validate with skip flag should PASS!
-    let val_skip = run_cmd(&wt_path, &["validate", "--skip-todo-verification"], &[]);
+    // 2. Prune verification of task 1 (reverts status to 'open' and deletes verification record)
+    let prune_1 = run_cmd(&wt_path, &["qa", "verify", "prune", &todo_id_1], &[]);
     assert!(
-        val_skip.status.success(),
-        "validate --skip-todo-verification failed: stdout:\n{}\nstderr:\n{}",
-        String::from_utf8_lossy(&val_skip.stdout),
-        String::from_utf8_lossy(&val_skip.stderr)
+        prune_1.status.success(),
+        "prune 1 failed: {}",
+        String::from_utf8_lossy(&prune_1.stderr)
+    );
+
+    // 3. Prune verification of task 2
+    let prune_2 = run_cmd(&wt_path, &["qa", "verify", "prune", &todo_id_2], &[]);
+    assert!(
+        prune_2.status.success(),
+        "prune 2 failed: {}",
+        String::from_utf8_lossy(&prune_2.stderr)
+    );
+
+    // 4. Standard validate should now PASS since both tasks are 'open' again!
+    let val_post_prune = run_cmd(&wt_path, &["validate"], &[]);
+    assert!(
+        val_post_prune.status.success(),
+        "validate failed post-prune: stdout:\n{}\nstderr:\n{}",
+        String::from_utf8_lossy(&val_post_prune.stdout),
+        String::from_utf8_lossy(&val_post_prune.stderr)
+    );
+
+    // 5. Mark task 1 done again
+    let done_again_1 = run_cmd(&wt_path, &["todo", "done", "--id", &todo_id_1], &[]);
+    assert!(
+        done_again_1.status.success(),
+        "done again 1 failed: {}",
+        String::from_utf8_lossy(&done_again_1.stderr)
+    );
+
+    // 6. Regenerate verification baseline for task 1
+    let regen_1 = run_cmd(&wt_path, &["qa", "verify", "regen", &todo_id_1], &[]);
+    assert!(
+        regen_1.status.success(),
+        "regen 1 failed: stdout:\n{}\nstderr:\n{}",
+        String::from_utf8_lossy(&regen_1.stdout),
+        String::from_utf8_lossy(&regen_1.stderr)
+    );
+
+    // 7. Verify task 1 is indeed in 'pass' verification state now
+    let verify_status_1 = run_cmd(&wt_path, &["qa", "verify", "todo", &todo_id_1], &[]);
+    assert!(
+        verify_status_1.status.success(),
+        "verify status 1 check failed: stdout:\n{}\nstderr:\n{}",
+        String::from_utf8_lossy(&verify_status_1.stdout),
+        String::from_utf8_lossy(&verify_status_1.stderr)
     );
 }

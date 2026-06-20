@@ -4425,11 +4425,7 @@ fn run_validate_command(
 ) -> Result<(), error::DecapodError> {
     use crate::core::workspace;
 
-    if validate_cli.skip_todo_verification {
-        unsafe {
-            std::env::set_var("DECAPOD_IGNORE_TODO_VERIFICATION", "1");
-        }
-    }
+
 
     if std::env::var("DECAPOD_VALIDATE_SKIP_GIT_GATES").is_ok() {
         // Skip workspace check if gates are explicitly skipped
@@ -4547,11 +4543,7 @@ fn run_validate_command(
         render_validation_text(&report, &heal_actions, validate_cli.verbose);
     }
 
-    if validate_cli.skip_todo_verification {
-        unsafe {
-            std::env::remove_var("DECAPOD_IGNORE_TODO_VERIFICATION");
-        }
-    }
+
 
     if report.fail_count > 0 {
         std::process::exit(1);

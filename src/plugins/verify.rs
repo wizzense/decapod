@@ -34,6 +34,19 @@ pub enum VerifyCommand {
         #[clap(value_name = "ID")]
         id: String,
     },
+    /// Regenerate/re-capture the verification baseline for a completed TODO.
+    Regen {
+        #[clap(value_name = "ID")]
+        id: String,
+        /// File path(s) to hash for drift detection. Defaults to AGENTS.md.
+        #[clap(long = "artifact")]
+        artifact: Vec<String>,
+    },
+    /// Prune/reset verification record for a TODO, returning its status to 'open'.
+    Prune {
+        #[clap(value_name = "ID")]
+        id: String,
+    },
 }
 
 #[derive(Debug)]
@@ -224,18 +237,20 @@ fn run_validate_and_hash(
     repo_root: &Path,
     todo_id: Option<&str>,
 ) -> Result<(bool, String), error::DecapodError> {
+    let mut old_verifying_todo = None;
     if let Some(id) = todo_id {
-        // SAFETY: Setting env var is safe here because:
-        // 1. This is a CLI tool that runs single-threaded by default
-        // 2. We immediately scope the env var to the validate call below
-        // 3. We remove the var right after the call, ensuring no leakage
-        // 4. No concurrent threads are spawned that might race on this env var
+        let existing = std::env::var("DECAPOD_VERIFYING_TODO").unwrap_or_default();
+        old_verifying_todo = Some(existing.clone());
+        let new_val = if existing.is_empty() {
+            id.to_string()
+        } else if existing.split(',').any(|x| x.trim() == id) {
+            existing
+        } else {
+            format!("{},{}", existing, id)
+        };
         unsafe {
-            std::env::set_var("DECAPOD_VERIFYING_TODO", id);
+            std::env::set_var("DECAPOD_VERIFYING_TODO", new_val);
         }
-    }
-    unsafe {
-        std::env::set_var("DECAPOD_IGNORE_TODO_VERIFICATION", "1");
     }
     let exe = std::env::current_exe()?;
     let exe_str = exe.to_string_lossy().to_string();
@@ -247,17 +262,14 @@ fn run_validate_and_hash(
         &["validate", "--format", "json"],
         repo_root,
     );
-    if todo_id.is_some() {
-        // SAFETY: Removing env var is safe here because:
-        // 1. We only remove the var we set above
-        // 2. No other part of the code depends on this var during validation
-        // 3. This restores the environment to its original state
+    if let Some(old_val) = old_verifying_todo {
         unsafe {
-            std::env::remove_var("DECAPOD_VERIFYING_TODO");
+            if old_val.is_empty() {
+                std::env::remove_var("DECAPOD_VERIFYING_TODO");
+            } else {
+                std::env::set_var("DECAPOD_VERIFYING_TODO", old_val);
+            }
         }
-    }
-    unsafe {
-        std::env::remove_var("DECAPOD_IGNORE_TODO_VERIFICATION");
     }
     let output = output?;
 
@@ -886,15 +898,68 @@ pub fn capture_baseline_for_todo(
     Ok(())
 }
 
+pub fn prune_verification_for_todo(
+    store: &Store,
+    todo_id: &str,
+) -> Result<(), error::DecapodError> {
+    let ts = now_iso();
+    let db_path = todo::todo_db_path(&store.root);
+    let broker = DbBroker::new(&store.root);
+
+    broker.with_conn(&db_path, "decapod", None, "verify.prune", |conn| {
+        conn.execute("DELETE FROM task_verification WHERE todo_id = ?1", [todo_id])?;
+        conn.execute(
+            "UPDATE tasks SET status = 'open', completed_at = NULL, updated_at = ?1 WHERE id = ?2",
+            rusqlite::params![ts, todo_id],
+        )?;
+        Ok(())
+    })?;
+
+    todo::record_task_event(
+        &store.root,
+        "task.verify.prune",
+        Some(todo_id),
+        serde_json::json!({}),
+    )?;
+    Ok(())
+}
+
 pub fn run_verify_cli(
     store: &Store,
     repo_root: &Path,
     cli: VerifyCli,
 ) -> Result<(), error::DecapodError> {
+    if let Some(cmd) = &cli.command {
+        match cmd {
+            VerifyCommand::Regen { id, artifact } => {
+                capture_baseline_for_todo(store, repo_root, id, artifact.clone())?;
+                if !cli.json {
+                    println!("Successfully regenerated verification baseline for task {id}.");
+                } else {
+                    println!("{}", serde_json::json!({ "status": "ok", "todo_id": id }));
+                }
+                return Ok(());
+            }
+            VerifyCommand::Prune { id } => {
+                prune_verification_for_todo(store, id)?;
+                if !cli.json {
+                    println!("Successfully pruned verification record and reverted task {id} to status 'open'.");
+                } else {
+                    println!("{}", serde_json::json!({ "status": "ok", "todo_id": id }));
+                }
+                return Ok(());
+            }
+            VerifyCommand::Todo { .. } => {}
+        }
+    }
+
     let single_id = cli
         .command
         .as_ref()
-        .map(|VerifyCommand::Todo { id }| id.as_str());
+        .map(|cmd| match cmd {
+            VerifyCommand::Todo { id } => id.as_str(),
+            _ => unreachable!(),
+        });
 
     let targets = load_targets(store, single_id)?;
     if single_id.is_some() && targets.is_empty() {
@@ -942,6 +1007,13 @@ pub fn run_verify_cli(
 
     let run_id = crate::core::ulid::new_ulid();
     let mut results = Vec::new();
+
+    let old_verifying = std::env::var("DECAPOD_VERIFYING_TODO").ok();
+    let target_ids: Vec<String> = targets.iter().map(|t| t.todo_id.clone()).collect();
+    let target_ids_str = target_ids.join(",");
+    unsafe {
+        std::env::set_var("DECAPOD_VERIFYING_TODO", &target_ids_str);
+    }
 
     for target in &targets {
         let result = verify_target(target, &store.root, repo_root)?;
@@ -1037,6 +1109,14 @@ pub fn run_verify_cli(
             report.summary.unknown,
             report.summary.stale
         );
+    }
+
+    unsafe {
+        if let Some(val) = old_verifying {
+            std::env::set_var("DECAPOD_VERIFYING_TODO", val);
+        } else {
+            std::env::remove_var("DECAPOD_VERIFYING_TODO");
+        }
     }
 
     if report.summary.failed > 0 {
