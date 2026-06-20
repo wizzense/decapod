@@ -4425,8 +4425,6 @@ fn run_validate_command(
 ) -> Result<(), error::DecapodError> {
     use crate::core::workspace;
 
-
-
     if std::env::var("DECAPOD_VALIDATE_SKIP_GIT_GATES").is_ok() {
         // Skip workspace check if gates are explicitly skipped
     } else {
@@ -4542,8 +4540,6 @@ fn run_validate_command(
     } else {
         render_validation_text(&report, &heal_actions, validate_cli.verbose);
     }
-
-
 
     if report.fail_count > 0 {
         std::process::exit(1);

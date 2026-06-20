@@ -907,7 +907,10 @@ pub fn prune_verification_for_todo(
     let broker = DbBroker::new(&store.root);
 
     broker.with_conn(&db_path, "decapod", None, "verify.prune", |conn| {
-        conn.execute("DELETE FROM task_verification WHERE todo_id = ?1", [todo_id])?;
+        conn.execute(
+            "DELETE FROM task_verification WHERE todo_id = ?1",
+            [todo_id],
+        )?;
         conn.execute(
             "UPDATE tasks SET status = 'open', completed_at = NULL, updated_at = ?1 WHERE id = ?2",
             rusqlite::params![ts, todo_id],
@@ -943,7 +946,9 @@ pub fn run_verify_cli(
             VerifyCommand::Prune { id } => {
                 prune_verification_for_todo(store, id)?;
                 if !cli.json {
-                    println!("Successfully pruned verification record and reverted task {id} to status 'open'.");
+                    println!(
+                        "Successfully pruned verification record and reverted task {id} to status 'open'."
+                    );
                 } else {
                     println!("{}", serde_json::json!({ "status": "ok", "todo_id": id }));
                 }
@@ -953,13 +958,10 @@ pub fn run_verify_cli(
         }
     }
 
-    let single_id = cli
-        .command
-        .as_ref()
-        .map(|cmd| match cmd {
-            VerifyCommand::Todo { id } => id.as_str(),
-            _ => unreachable!(),
-        });
+    let single_id = cli.command.as_ref().map(|cmd| match cmd {
+        VerifyCommand::Todo { id } => id.as_str(),
+        _ => unreachable!(),
+    });
 
     let targets = load_targets(store, single_id)?;
     if single_id.is_some() && targets.is_empty() {
