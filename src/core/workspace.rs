@@ -902,7 +902,8 @@ pub fn is_worktree(repo_root: &Path) -> Result<bool, DecapodError> {
     let git_dir = String::from_utf8_lossy(&output.stdout).trim().to_string();
     // In a worktree, git-dir is usually <main-repo>/.git/worktrees/<name>
     // A local-clone workspace under .decapod/workspaces is also treated as a worktree context
-    Ok(git_dir.contains("/worktrees/") || repo_root.to_string_lossy().contains(".decapod/workspaces"))
+    Ok(git_dir.contains("/worktrees/")
+        || repo_root.to_string_lossy().contains(".decapod/workspaces"))
 }
 
 fn has_local_modifications(repo_root: &Path) -> Result<bool, DecapodError> {
