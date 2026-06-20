@@ -3796,12 +3796,7 @@ fn validate_plan_governed_execution_gate(
         }
     }
 
-    let unverified = if std::env::var("DECAPOD_IGNORE_TODO_VERIFICATION").unwrap_or_default() == "1"
-    {
-        Vec::new()
-    } else {
-        plan_governance::collect_unverified_done_todos(&store.root)?
-    };
+    let unverified = plan_governance::collect_unverified_done_todos(&store.root)?;
 
     if !unverified.is_empty() {
         fail(
