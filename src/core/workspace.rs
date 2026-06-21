@@ -1462,8 +1462,7 @@ pub fn prune_workspaces(
                     }
 
                     if potential_stale {
-                        let mut is_merged = false;
-                        if let Ok(commit_out) = Command::new("git")
+                        let is_merged = Command::new("git")
                             .args([
                                 "-C",
                                 main_repo.to_str().unwrap_or("."),
@@ -1471,16 +1470,14 @@ pub fn prune_workspaces(
                                 ref_name,
                             ])
                             .output()
-                        {
-                            if commit_out.status.success() {
-                                let commit_hash = String::from_utf8_lossy(&commit_out.stdout)
-                                    .trim()
-                                    .to_string();
-                                if is_commit_in_protected_branch(&main_repo, &commit_hash) {
-                                    is_merged = true;
-                                }
-                            }
-                        }
+                            .ok()
+                            .filter(|o| o.status.success())
+                            .map(|o| {
+                                let commit_hash =
+                                    String::from_utf8_lossy(&o.stdout).trim().to_string();
+                                is_commit_in_protected_branch(&main_repo, &commit_hash)
+                            })
+                            .unwrap_or(false);
                         if is_merged {
                             is_stale = true;
                         }
@@ -1517,12 +1514,9 @@ pub fn prune_workspaces(
                 }
 
                 if potential_stale {
-                    let mut is_merged = false;
-                    if let Some(commit_hash) = &wt.head {
-                        if is_commit_in_protected_branch(&main_repo, commit_hash) {
-                            is_merged = true;
-                        }
-                    }
+                    let is_merged = wt.head.as_ref().is_some_and(|commit_hash| {
+                        is_commit_in_protected_branch(&main_repo, commit_hash)
+                    });
                     if is_merged {
                         is_stale = true;
                     }
