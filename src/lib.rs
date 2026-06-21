@@ -549,6 +549,31 @@ const ARCH_DIRECTIONS: &[(&str, &str)] = &[
     ("multiarch", "Multi-platform (Rust, C/C++)"),
     ("infra", "Infrastructure/Terraform (HCL, Python)"),
     ("data", "Data pipeline (Python, SQL)"),
+    (
+        "script",
+        "Utility script/automation (Shell, Python, Node.js)",
+    ),
+    (
+        "migration",
+        "Database migrations/schema definition (SQL, migration DSLs)",
+    ),
+    (
+        "research",
+        "Research/exploratory coding (Jupyter, Python, R)",
+    ),
+    (
+        "documentation",
+        "Documentation/specs (Markdown, mdBook, Sphinx)",
+    ),
+    (
+        "configurations",
+        "System/app configurations (YAML, JSON, TOML)",
+    ),
+    ("monorepo", "Monorepo/multi-project (Cargo, npm/pnpm, Nx)"),
+    ("game", "Game/interactive (Bevy, Godot, Unity, Unreal)"),
+    ("embedded", "Embedded systems/firmware (C/C++, Zig, Rust)"),
+    ("addon", "Plugin/extension (VS Code, Browser, Figma)"),
+    ("playground", "Playground/sandbox (scratchpad, learning)"),
 ];
 
 const DIAGRAM_NOTATION_OPTIONS: &[&str] = &["ascii", "mermaid"];
@@ -1049,6 +1074,16 @@ fn infer_language_from_architecture(arch: &str) -> Vec<String> {
         "multiarch" => vec!["Rust".to_string()],
         "infra" => vec!["HCL".to_string()],
         "data" => vec!["Python".to_string()],
+        "script" => vec!["Shell".to_string()],
+        "migration" => vec!["SQL".to_string()],
+        "research" => vec!["Python".to_string()],
+        "documentation" => vec!["Other".to_string()],
+        "configurations" => vec!["Other".to_string()],
+        "monorepo" => vec!["TypeScript".to_string()],
+        "game" => vec!["Rust".to_string()],
+        "embedded" => vec!["C".to_string()],
+        "addon" => vec!["TypeScript".to_string()],
+        "playground" => vec!["Rust".to_string()],
         _ if arch.contains("web") || arch.contains("frontend") => vec!["TypeScript".to_string()],
         _ if arch.contains("microservice") || arch.contains("backend") || arch.contains("api") => {
             vec!["Go".to_string()]
@@ -1060,6 +1095,14 @@ fn infer_language_from_architecture(arch: &str) -> Vec<String> {
         _ if arch.contains("embedded") || arch.contains("systems") => vec!["Zig".to_string()],
         _ if arch.contains("infra") || arch.contains("terraform") => vec!["HCL".to_string()],
         _ if arch.contains("data") || arch.contains("ml") => vec!["Python".to_string()],
+        _ if arch.contains("script") || arch.contains("automation") => vec!["Shell".to_string()],
+        _ if arch.contains("migration") || arch.contains("database") => vec!["SQL".to_string()],
+        _ if arch.contains("research") || arch.contains("experiment") => vec!["Python".to_string()],
+        _ if arch.contains("doc") => vec!["Other".to_string()],
+        _ if arch.contains("config") => vec!["Other".to_string()],
+        _ if arch.contains("monorepo") => vec!["TypeScript".to_string()],
+        _ if arch.contains("game") => vec!["Rust".to_string()],
+        _ if arch.contains("playground") || arch.contains("sandbox") => vec!["Rust".to_string()],
         _ => vec![],
     }
 }
@@ -8619,7 +8662,7 @@ mod init_prompt_tests {
         assert_eq!(
             lines
                 .iter()
-                .filter(|line| line.contains("webapp -> Web application"))
+                .filter(|line| line.contains("lambda -> Lambda/Serverless"))
                 .count(),
             1
         );
