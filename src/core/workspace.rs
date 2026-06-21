@@ -844,6 +844,50 @@ fn is_branch_protected(branch: &str) -> bool {
     false
 }
 
+fn clean_branch_name(name: &str) -> &str {
+    let mut s = name.trim();
+    if s.starts_with('*') {
+        s = s[1..].trim();
+    }
+    if let Some(suffix) = s.strip_prefix("remotes/origin/") {
+        s = suffix;
+    } else if let Some(suffix) = s.strip_prefix("remotes/") {
+        s = suffix;
+    } else if let Some(suffix) = s.strip_prefix("origin/") {
+        s = suffix;
+    }
+    s
+}
+
+fn is_commit_in_protected_branch(main_repo: &Path, commit_hash: &str) -> bool {
+    let output = Command::new("git")
+        .args([
+            "-C",
+            main_repo.to_str().unwrap_or("."),
+            "branch",
+            "-a",
+            "--contains",
+            commit_hash,
+        ])
+        .output();
+
+    let Ok(output) = output else {
+        return false;
+    };
+    if !output.status.success() {
+        return false;
+    }
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    for line in stdout.lines() {
+        let clean = clean_branch_name(line);
+        if is_branch_protected(clean) {
+            return true;
+        }
+    }
+    false
+}
+
 fn is_external_tracker_config(repo_root: &Path) -> bool {
     let main_repo = get_main_repo_root(repo_root).unwrap_or_else(|_| repo_root.to_path_buf());
     let config_path = main_repo.join(".decapod").join("config.toml");
@@ -1289,7 +1333,7 @@ pub fn prune_workspaces(
     struct WorktreeInfo {
         path: PathBuf,
         branch: Option<String>,
-        _head: Option<String>,
+        head: Option<String>,
     }
 
     let mut worktrees = Vec::new();
@@ -1303,7 +1347,7 @@ pub fn prune_workspaces(
                 worktrees.push(WorktreeInfo {
                     path,
                     branch: current_branch.take(),
-                    _head: current_head.take(),
+                    head: current_head.take(),
                 });
             }
             current_path = Some(PathBuf::from(p.trim()));
@@ -1317,7 +1361,7 @@ pub fn prune_workspaces(
         worktrees.push(WorktreeInfo {
             path,
             branch: current_branch,
-            _head: current_head,
+            head: current_head,
         });
     }
 
@@ -1396,8 +1440,9 @@ pub fn prune_workspaces(
                         }
                     }
 
+                    let mut potential_stale = false;
                     if matched_tasks.is_empty() {
-                        is_stale = true;
+                        potential_stale = true;
                         prune_reason = "no_matching_task".to_string();
                     } else {
                         // Check status of matched tasks
@@ -1408,11 +1453,33 @@ pub fn prune_workspaces(
                             matched_tasks.iter().all(|t| t.assigned_to.is_empty());
 
                         if all_completed {
-                            is_stale = true;
+                            potential_stale = true;
                             prune_reason = "task_completed".to_string();
                         } else if no_active_claim {
-                            is_stale = true;
+                            potential_stale = true;
                             prune_reason = "no_active_claim".to_string();
+                        }
+                    }
+
+                    if potential_stale {
+                        let is_merged = Command::new("git")
+                            .args([
+                                "-C",
+                                main_repo.to_str().unwrap_or("."),
+                                "rev-parse",
+                                ref_name,
+                            ])
+                            .output()
+                            .ok()
+                            .filter(|o| o.status.success())
+                            .map(|o| {
+                                let commit_hash =
+                                    String::from_utf8_lossy(&o.stdout).trim().to_string();
+                                is_commit_in_protected_branch(&main_repo, &commit_hash)
+                            })
+                            .unwrap_or(false);
+                        if is_merged {
+                            is_stale = true;
                         }
                     }
                 }
@@ -1428,8 +1495,9 @@ pub fn prune_workspaces(
                         }
                     }
                 }
+                let mut potential_stale = false;
                 if matched_tasks.is_empty() {
-                    is_stale = true;
+                    potential_stale = true;
                     prune_reason = "no_matching_task".to_string();
                 } else {
                     let all_completed = matched_tasks
@@ -1437,11 +1505,20 @@ pub fn prune_workspaces(
                         .all(|t| t.status == "done" || t.status == "archived");
                     let no_active_claim = matched_tasks.iter().all(|t| t.assigned_to.is_empty());
                     if all_completed {
-                        is_stale = true;
+                        potential_stale = true;
                         prune_reason = "task_completed".to_string();
                     } else if no_active_claim {
-                        is_stale = true;
+                        potential_stale = true;
                         prune_reason = "no_active_claim".to_string();
+                    }
+                }
+
+                if potential_stale {
+                    let is_merged = wt.head.as_ref().is_some_and(|commit_hash| {
+                        is_commit_in_protected_branch(&main_repo, commit_hash)
+                    });
+                    if is_merged {
+                        is_stale = true;
                     }
                 }
             }

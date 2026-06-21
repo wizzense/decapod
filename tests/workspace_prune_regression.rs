@@ -259,3 +259,104 @@ fn test_workspace_prune() {
             .any(|p| p.path == wt_e_path.to_string_lossy() && p.reason == "not_registered")
     );
 }
+
+#[test]
+fn test_workspace_prune_unmerged_prevention() {
+    let tmp = tempdir().expect("tempdir");
+    let main_root = tmp.path().join("main_repo");
+    fs::create_dir_all(&main_root).expect("create main_repo");
+
+    git_init(&main_root);
+    git_commit(&main_root, "init");
+
+    // Initialize todo db in main_root/.decapod/data
+    let store_root = main_root.join(".decapod").join("data");
+    fs::create_dir_all(&store_root).expect("create data dir");
+    initialize_todo_db(&store_root).expect("init todo db");
+
+    let store = Store {
+        kind: StoreKind::Repo,
+        root: store_root.clone(),
+    };
+
+    // Task F (Done / Completed, but has unmerged commit)
+    let task_f_res = add_task(
+        &store_root,
+        &TodoCommand::Add {
+            title: "Task F".to_string(),
+            description: "".to_string(),
+            tags: "".to_string(),
+            owner: "test-agent".to_string(),
+            due: None,
+            r#ref: "".to_string(),
+            scope: "".to_string(),
+            dir: Some(main_root.to_string_lossy().to_string()),
+            priority: "medium".to_string(),
+            depends_on: "".to_string(),
+            blocks: "".to_string(),
+            parent: None,
+            one_shot: 0,
+        },
+    )
+    .expect("add task f");
+    let id_f = task_f_res.get("id").unwrap().as_str().unwrap();
+
+    let db_path = decapod::core::todo::todo_db_path(&store_root);
+    let conn = rusqlite::Connection::open(&db_path).expect("open db");
+    conn.execute("UPDATE tasks SET hash = 'hashff' WHERE id = ?", [id_f])
+        .expect("update f");
+
+    let hash_f = "hashff";
+    claim_task(&store_root, id_f, "test-agent", ClaimMode::Exclusive).expect("claim task f");
+    update_status(&store, id_f, "done", "task.done", serde_json::json!({})).expect("done task f");
+
+    let workspaces_dir = main_root.join(".decapod").join("workspaces");
+    fs::create_dir_all(&workspaces_dir).expect("create workspaces dir");
+
+    let wt_f_path = workspaces_dir.join(format!("test-agent-todo-{}-todo-f", hash_f));
+    let wt_f_branch = format!("agent/test-agent/todo-{}", hash_f);
+    run_git_cmd(
+        &main_root,
+        &[
+            "worktree",
+            "add",
+            "-b",
+            &wt_f_branch,
+            wt_f_path.to_str().unwrap(),
+        ],
+    );
+
+    // Commit a change inside wt_f to diverge it from master
+    fs::write(wt_f_path.join("unmerged_file.txt"), "divergent content")
+        .expect("write divergent file");
+    run_git_cmd(&wt_f_path, &["add", "unmerged_file.txt"]);
+    run_git_cmd(&wt_f_path, &["commit", "-m", "unmerged work"]);
+
+    // Execute prune!
+    let pruned = workspace::prune_workspaces(&main_root, true).expect("prune_workspaces");
+
+    // Since the commit on wt_f_branch is NOT in master/main, it should NOT be pruned!
+    assert!(
+        wt_f_path.exists(),
+        "Worktree F must not be pruned since its HEAD commit is unmerged"
+    );
+    assert!(!pruned.iter().any(|p| p.path == wt_f_path.to_string_lossy()));
+
+    // Now, merge wt_f_branch into master
+    run_git_cmd(&main_root, &["merge", &wt_f_branch]);
+
+    // Execute prune again!
+    let pruned_after_merge =
+        workspace::prune_workspaces(&main_root, true).expect("prune_workspaces");
+
+    // Now it should be pruned!
+    assert!(
+        !wt_f_path.exists(),
+        "Worktree F should be pruned after its branch is merged"
+    );
+    assert!(
+        pruned_after_merge
+            .iter()
+            .any(|p| p.path == wt_f_path.to_string_lossy() && p.reason == "task_completed")
+    );
+}

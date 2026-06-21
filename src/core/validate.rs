@@ -3940,6 +3940,138 @@ fn validate_git_protected_branch(
     Ok(())
 }
 
+fn validate_git_push_pr_gate(
+    ctx: &ValidationContext,
+    repo_root: &Path,
+) -> Result<(), error::DecapodError> {
+    info("Git Push & PR Gate");
+
+    if std::env::var("DECAPOD_VALIDATE_SKIP_GIT_GATES").is_ok() {
+        skip(
+            "Git push & PR gate skipped (DECAPOD_VALIDATE_SKIP_GIT_GATES set)",
+            ctx,
+        );
+        return Ok(());
+    }
+
+    if !is_inside_git_work_tree(repo_root) {
+        skip(
+            "Git push & PR gate skipped: initialized project is not a git repository",
+            ctx,
+        );
+        return Ok(());
+    }
+
+    let current_branch = {
+        let output = std::process::Command::new("git")
+            .args(["rev-parse", "--abbrev-ref", "HEAD"])
+            .current_dir(repo_root)
+            .output();
+        match output {
+            Ok(o) if o.status.success() => String::from_utf8_lossy(&o.stdout).trim().to_string(),
+            _ => {
+                warn("Unable to determine current git branch", ctx);
+                return Ok(());
+            }
+        }
+    };
+
+    if is_protected_git_branch(&current_branch) {
+        pass("On protected branch (nothing to push or PR)", ctx);
+        return Ok(());
+    }
+
+    // Resolve local branch HEAD commit hash
+    let local_commit = {
+        let output = std::process::Command::new("git")
+            .args(["rev-parse", "HEAD"])
+            .current_dir(repo_root)
+            .output();
+        match output {
+            Ok(o) if o.status.success() => String::from_utf8_lossy(&o.stdout).trim().to_string(),
+            _ => {
+                warn("Unable to resolve local HEAD commit hash", ctx);
+                return Ok(());
+            }
+        }
+    };
+
+    // Check remote tracking branch or origin/<branch> commit hash
+    let remote_ref = format!("origin/{}", current_branch);
+    let remote_commit = {
+        let output = std::process::Command::new("git")
+            .args(["rev-parse", &remote_ref])
+            .current_dir(repo_root)
+            .output();
+        match output {
+            Ok(o) if o.status.success() => {
+                Some(String::from_utf8_lossy(&o.stdout).trim().to_string())
+            }
+            _ => None,
+        }
+    };
+
+    let is_pushed = match remote_commit {
+        Some(rc) => rc == local_commit,
+        None => false,
+    };
+
+    if !is_pushed {
+        warn(
+            &format!(
+                "Workspace branch '{}' has unpushed commits or does not exist on origin. Run `git push origin {}`.",
+                current_branch, current_branch
+            ),
+            ctx,
+        );
+        return Ok(());
+    }
+
+    // Check if PR exists on GitHub using `gh` CLI
+    let pr_exists = check_gh_pr_exists(repo_root, &current_branch).unwrap_or(false);
+    if !pr_exists {
+        warn(
+            &format!(
+                "No open pull request found on GitHub for branch '{}'. Create a pull request to submit changes.",
+                current_branch
+            ),
+            ctx,
+        );
+    } else {
+        pass(
+            &format!(
+                "Workspace branch '{}' is pushed and matching PR exists on GitHub.",
+                current_branch
+            ),
+            ctx,
+        );
+    }
+
+    Ok(())
+}
+
+fn check_gh_pr_exists(repo_root: &Path, branch: &str) -> Result<bool, error::DecapodError> {
+    let output = std::process::Command::new("gh")
+        .args(["pr", "list", "--head", branch, "--json", "number"])
+        .current_dir(repo_root)
+        .output();
+
+    let Ok(output) = output else {
+        return Ok(false);
+    };
+    if !output.status.success() {
+        return Ok(false);
+    }
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let parsed: serde_json::Value = serde_json::from_str(&stdout).unwrap_or(serde_json::json!([]));
+    if let Some(arr) = parsed.as_array() {
+        Ok(!arr.is_empty())
+    } else {
+        Ok(false)
+    }
+}
+
 fn is_protected_git_branch(branch: &str) -> bool {
     matches!(branch, "master" | "main" | "production" | "stable") || branch.starts_with("release/")
 }
@@ -5045,6 +5177,13 @@ pub fn run_validation(
             ctx,
             "validate_git_protected_branch",
             validate_git_protected_branch(ctx, working_root)
+        );
+        gate!(
+            s,
+            timings,
+            ctx,
+            "validate_git_push_pr_gate",
+            validate_git_push_pr_gate(ctx, working_root)
         );
         gate!(
             s,
