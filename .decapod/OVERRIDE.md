@@ -396,3 +396,9 @@ over the embedded JSON constitution.
 ### metadata/skills/INTENT_REFINEMENT
 
 ---
+
+<!-- --- NEW SECTIONS FROM UPDATE --- -->
+### core/RESEARCH
+### methodology/QA
+### data/DATA_ENGINEERING
+### docs/agent/mcp.md
