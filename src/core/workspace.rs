@@ -1223,11 +1223,11 @@ pub fn publish_workspace(
 }
 
 fn extract_task_ids_from_branch(branch: &str) -> Vec<String> {
-    let re = Regex::new(r"(?i)(?:r_|test_|docs_|fix_|feat_)[a-z0-9]+").expect("static regex");
+    let re = Regex::new(r"(?i)(?:feat|fend|lang|perf|plat|proj|refa|root|secu|spec|test|bugs|docs|cicd|infr|bend|reft|tool|arch|apis|data|r|todo)[_-][a-z0-9]{6,}").expect("static regex");
     let mut out: Vec<String> = re
         .find_iter(branch)
         .filter_map(|m| m.ok())
-        .map(|m| m.as_str().to_string())
+        .map(|m| m.as_str().replace('-', "_").to_lowercase())
         .collect();
     out.sort();
     out.dedup();
@@ -1559,4 +1559,33 @@ pub fn prune_workspaces(
     let _ = prune_stale_worktree_config(repo_root);
 
     Ok(pruned)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_extract_task_ids_from_branch() {
+        assert_eq!(
+            extract_task_ids_from_branch("agent/unknown/bugs-01kvtvsvteg1t4ds"),
+            vec!["bugs_01kvtvsvteg1t4ds".to_string()]
+        );
+        assert_eq!(
+            extract_task_ids_from_branch("agent/unknown/feat-01kvtvsvteg1t4ds-1782239277"),
+            vec!["feat_01kvtvsvteg1t4ds".to_string()]
+        );
+        assert_eq!(
+            extract_task_ids_from_branch("agent/unknown/todo-01kvtr-plus-2-1782239277"),
+            vec!["todo_01kvtr".to_string()]
+        );
+        assert_eq!(
+            extract_task_ids_from_branch("agent/unknown/bugs_01kvtvsvteg1t4ds"),
+            vec!["bugs_01kvtvsvteg1t4ds".to_string()]
+        );
+        assert_eq!(
+            extract_task_ids_from_branch("agent/unknown/some-feature-branch"),
+            Vec::<String>::new()
+        );
+    }
 }
