@@ -7,6 +7,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.60.2](https://github.com/DecapodLabs/decapod/compare/v0.60.1...v0.60.2) - 2026-06-21
+
+### Added
+
+- *(init)* expand architecture choices to 20 project types and update language inference
+
+### Other
+
+- Reorder and clean up project categories in lib.rs
+
+## [0.60.1](https://github.com/DecapodLabs/decapod/compare/v0.60.0...v0.60.1) - 2026-06-21
+
+### Added
+
+- *(validate)* validate git branch push and PR status, and restrict workspace prune to merged branches
+
+### Fixed
+
+- *(workspace)* resolve clippy collapsible_if warnings
+- *(issue-721)* remove global skip backdoor, implement secure multi-task verification, and verify prune/regen commands
+
+### Other
+
+- format files with cargo fmt
+
+## [0.60.0](https://github.com/DecapodLabs/decapod/compare/v0.59.6...v0.60.0) - 2026-06-20
+
+### Fixed
+
+- *(issue-721)* remove global skip backdoor, implement secure multi-task verification, and verify prune/regen commands
+
+### Other
+
+- format files with cargo fmt
+
 ## [0.59.6](https://github.com/DecapodLabs/decapod/compare/v0.59.5...v0.59.6) - 2026-06-20
 
 ### Fixed

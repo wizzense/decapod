@@ -4231,6 +4231,18 @@ pub fn rebuild_db_from_events(events: &Path, out_db: &Path) -> Result<u64, error
                         ],
                     )?;
                 }
+                "task.verify.prune" => {
+                    let id = ev.task_id.clone().ok_or_else(|| {
+                        error::DecapodError::ValidationError(
+                            "task.verify.prune missing task_id".to_string(),
+                        )
+                    })?;
+                    conn.execute("DELETE FROM task_verification WHERE todo_id = ?1", [&id])?;
+                    conn.execute(
+                        "UPDATE tasks SET status = 'open', completed_at = NULL, updated_at = ?1 WHERE id = ?2",
+                        rusqlite::params![ev.ts, id],
+                    )?;
+                }
                 "task.proof.claimed" => {
                     let id = ev.task_id.clone().ok_or_else(|| {
                         error::DecapodError::ValidationError(

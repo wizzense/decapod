@@ -4,7 +4,8 @@
   "intent": "Make decapod validation converge toward green via safe self-heal actions, structured reporting, and environment-aware gating in the claimed workspace.",
   "state": "APPROVED",
   "todo_ids": [
-    "bugs_01kk3wktkzarkbqb"
+    "bugs_01kk3wktkzarkbqb",
+    "bugs_01kvk66syc16hehs"
   ],
   "proof_hooks": [
     "decapod validate",
