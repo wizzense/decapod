@@ -549,11 +549,26 @@ const ARCH_DIRECTIONS: &[(&str, &str)] = &[
     ("multiarch", "Multi-platform (Rust, C/C++)"),
     ("infra", "Infrastructure/Terraform (HCL, Python)"),
     ("data", "Data pipeline (Python, SQL)"),
-    ("script", "Utility script/automation (Shell, Python, Node.js)"),
-    ("migration", "Database migrations/schema definition (SQL, migration DSLs)"),
-    ("research", "Research/exploratory coding (Jupyter, Python, R)"),
-    ("documentation", "Documentation/specs (Markdown, mdBook, Sphinx)"),
-    ("configurations", "System/app configurations (YAML, JSON, TOML)"),
+    (
+        "script",
+        "Utility script/automation (Shell, Python, Node.js)",
+    ),
+    (
+        "migration",
+        "Database migrations/schema definition (SQL, migration DSLs)",
+    ),
+    (
+        "research",
+        "Research/exploratory coding (Jupyter, Python, R)",
+    ),
+    (
+        "documentation",
+        "Documentation/specs (Markdown, mdBook, Sphinx)",
+    ),
+    (
+        "configurations",
+        "System/app configurations (YAML, JSON, TOML)",
+    ),
     ("monorepo", "Monorepo/multi-project (Cargo, npm/pnpm, Nx)"),
     ("game", "Game/interactive (Bevy, Godot, Unity, Unreal)"),
     ("embedded", "Embedded systems/firmware (C/C++, Zig, Rust)"),
