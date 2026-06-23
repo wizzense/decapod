@@ -2292,7 +2292,7 @@ fn branch_contains_todo_ticket_id(branch: &str) -> bool {
     }
     for i in 0..=(chars.len() - 21) {
         let type_ok = chars[i..i + 4].iter().all(|c| c.is_ascii_lowercase());
-        let sep_ok = chars[i + 4] == '_';
+        let sep_ok = chars[i + 4] == '_' || chars[i + 4] == '-';
         let body_ok = chars[i + 5..i + 21]
             .iter()
             .all(|c| c.is_ascii_alphanumeric());
@@ -8760,5 +8760,14 @@ mod init_prompt_tests {
         assert!(ctx.primary_languages.contains(&"shell".to_string()));
         assert!(ctx.primary_languages.contains(&"typescript".to_string()));
         assert_ne!(ctx.primary_languages, vec!["rust".to_string()]);
+    }
+
+    #[test]
+    fn test_branch_contains_todo_ticket_id() {
+        assert!(branch_contains_todo_ticket_id("agent/unknown/bugs_01kvtvsvteg1t4ds"));
+        assert!(branch_contains_todo_ticket_id("agent/unknown/bugs-01kvtvsvteg1t4ds"));
+        assert!(branch_contains_todo_ticket_id("agent/unknown/feat-01kvtvsvteg1t4ds"));
+        assert!(branch_contains_todo_ticket_id("agent/unknown/todo-01kvtr-plus-2-1782239277"));
+        assert!(!branch_contains_todo_ticket_id("agent/unknown/some-feature-branch"));
     }
 }
