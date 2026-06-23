@@ -705,7 +705,8 @@ fn ensure_dockerfile(workspace_path: &Path) -> Result<(), DecapodError> {
     let dockerfile_path = generated_dir.join("Dockerfile");
 
     // Dynamically generate and maintain the Dockerfile over time
-    let dockerfile_content = crate::plugins::container::generated_dockerfile_for_repo(workspace_path);
+    let dockerfile_content =
+        crate::plugins::container::generated_dockerfile_for_repo(workspace_path);
     std::fs::write(&dockerfile_path, dockerfile_content).map_err(DecapodError::IoError)?;
 
     Ok(())
@@ -714,7 +715,10 @@ fn ensure_dockerfile(workspace_path: &Path) -> Result<(), DecapodError> {
 /// Build workspace container image
 fn build_workspace_image(workspace_path: &Path, image_tag: &str) -> Result<(), DecapodError> {
     let runtime = container_runtime::find_container_runtime()?;
-    let dockerfile_path = workspace_path.join(".decapod").join("generated").join("Dockerfile");
+    let dockerfile_path = workspace_path
+        .join(".decapod")
+        .join("generated")
+        .join("Dockerfile");
     let output = Command::new(runtime)
         .args([
             "build",
