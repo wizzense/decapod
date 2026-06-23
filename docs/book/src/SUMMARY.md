@@ -1,5 +1,6 @@
 # Summary
 
+- [Welcome](index.md)
 - [Introduction](introduction.md)
 - [Quickstart](quickstart.md)
 - [Mental Model](mental-model.md)
