@@ -700,40 +700,12 @@ fn normalize_path_for_compare(path: &Path) -> String {
 
 /// Ensure Dockerfile exists in workspace
 fn ensure_dockerfile(workspace_path: &Path) -> Result<(), DecapodError> {
-    let dockerfile_path = workspace_path.join("Dockerfile");
+    let generated_dir = workspace_path.join(".decapod").join("generated");
+    std::fs::create_dir_all(&generated_dir).map_err(DecapodError::IoError)?;
+    let dockerfile_path = generated_dir.join("Dockerfile");
 
-    if dockerfile_path.exists() {
-        return Ok(());
-    }
-
-    // Generate standard Decapod workspace Dockerfile
-    let dockerfile_content = r#"# Decapod Workspace Dockerfile
-# Auto-generated for reproducible agent environments
-
-FROM rust:1.91-slim
-
-# Install essential tools
-RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    build-essential \
-    pkg-config \
-    libsqlite3-dev \
-    libssl-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install decapod
-RUN cargo install decapod
-
-# Set up workspace
-WORKDIR /workspace
-ENV DECAPOD_IN_CONTAINER=true
-ENV DECAPOD_WORKSPACE_IMAGE=decapod-workspace
-
-# Default command
-CMD ["/bin/bash"]
-"#;
-
+    // Dynamically generate and maintain the Dockerfile over time
+    let dockerfile_content = crate::plugins::container::generated_dockerfile_for_repo(workspace_path);
     std::fs::write(&dockerfile_path, dockerfile_content).map_err(DecapodError::IoError)?;
 
     Ok(())
@@ -742,11 +714,14 @@ CMD ["/bin/bash"]
 /// Build workspace container image
 fn build_workspace_image(workspace_path: &Path, image_tag: &str) -> Result<(), DecapodError> {
     let runtime = container_runtime::find_container_runtime()?;
+    let dockerfile_path = workspace_path.join(".decapod").join("generated").join("Dockerfile");
     let output = Command::new(runtime)
         .args([
             "build",
             "-t",
             image_tag,
+            "-f",
+            dockerfile_path.to_str().unwrap_or("Dockerfile"),
             workspace_path.to_str().unwrap_or("."),
         ])
         .output()

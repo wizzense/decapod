@@ -1597,7 +1597,6 @@ pub fn blend_overrides(target_dir: &Path) -> Result<FileAction, error::DecapodEr
     if !updated_content.ends_with('\n') {
         updated_content.push('\n');
     }
-    updated_content.push_str("\n<!-- --- NEW SECTIONS FROM UPDATE --- -->\n");
     for line in missing_lines {
         updated_content.push_str(&line);
         updated_content.push('\n');
