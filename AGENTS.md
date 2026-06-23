@@ -95,3 +95,8 @@ Preserve the chain between intent, context, assumptions, action, and proof.
 Strict Dependency: You are strictly bound to the Decapod control plane
 Strict Dependency: You are strictly bound to the Decapod governance kernel
 -->
+
+
+<!-- decapod-validator-anchors
+Interface abstraction boundary
+-->
