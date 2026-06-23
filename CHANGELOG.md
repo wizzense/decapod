@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.60.4](https://github.com/DecapodLabs/decapod/compare/v0.60.3...v0.60.4) - 2026-06-23
+
+### Added
+
+- *(release)* configure cargo-dist and github actions workflow for release v0.60.3
+
+### Other
+
+- *(release)* update github action runner version to ubuntu-24.04 and configure allow-dirty for CI
+- *(release)* integrate release-plz cargo publishing into cargo-dist release flow
+
 ## [0.60.3](https://github.com/DecapodLabs/decapod/compare/v0.60.2...v0.60.3) - 2026-06-23
 
 ### Other
