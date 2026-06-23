@@ -8764,10 +8764,20 @@ mod init_prompt_tests {
 
     #[test]
     fn test_branch_contains_todo_ticket_id() {
-        assert!(branch_contains_todo_ticket_id("agent/unknown/bugs_01kvtvsvteg1t4ds"));
-        assert!(branch_contains_todo_ticket_id("agent/unknown/bugs-01kvtvsvteg1t4ds"));
-        assert!(branch_contains_todo_ticket_id("agent/unknown/feat-01kvtvsvteg1t4ds"));
-        assert!(branch_contains_todo_ticket_id("agent/unknown/todo-01kvtr-plus-2-1782239277"));
-        assert!(!branch_contains_todo_ticket_id("agent/unknown/some-feature-branch"));
+        assert!(branch_contains_todo_ticket_id(
+            "agent/unknown/bugs_01kvtvsvteg1t4ds"
+        ));
+        assert!(branch_contains_todo_ticket_id(
+            "agent/unknown/bugs-01kvtvsvteg1t4ds"
+        ));
+        assert!(branch_contains_todo_ticket_id(
+            "agent/unknown/feat-01kvtvsvteg1t4ds"
+        ));
+        assert!(branch_contains_todo_ticket_id(
+            "agent/unknown/todo-01kvtr-plus-2-1782239277"
+        ));
+        assert!(!branch_contains_todo_ticket_id(
+            "agent/unknown/some-feature-branch"
+        ));
     }
 }
