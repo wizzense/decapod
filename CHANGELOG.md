@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.60.3](https://github.com/DecapodLabs/decapod/compare/v0.60.2...v0.60.3) - 2026-06-23
+
+### Other
+
+- format src/lib.rs with cargo fmt
+- Solve GitHub Issue #733 docs and styling
+
 ## [0.60.2](https://github.com/DecapodLabs/decapod/compare/v0.60.1...v0.60.2) - 2026-06-21
 
 ### Added
