@@ -4,11 +4,9 @@ on:
   push:
     branches:
       - master
-    paths:
-      - 'docs/book/**'
   pull_request:
-    paths:
-      - 'docs/book/**'
+    branches:
+      - master
 
 permissions:
   contents: read
