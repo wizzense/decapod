@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.60.7](https://github.com/DecapodLabs/decapod/compare/v0.60.6...v0.60.7) - 2026-06-24
+
+### Other
+
+- Merge branch 'master' into agent/unknown/code-01kvv9czgh47307y
+
 ## [0.60.6](https://github.com/DecapodLabs/decapod/compare/v0.60.5...v0.60.6) - 2026-06-24
 
 ### Fixed
