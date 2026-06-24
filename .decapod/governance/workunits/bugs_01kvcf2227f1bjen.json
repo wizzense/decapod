@@ -1,0 +1,17 @@
+{
+  "task_id": "bugs_01kvcf2227f1bjen",
+  "intent_ref": ".decapod/generated/specs/INTENT.md",
+  "spec_refs": [],
+  "state_refs": [],
+  "proof_plan": [
+    "validate_passes"
+  ],
+  "proof_results": [
+    {
+      "gate": "validate_passes",
+      "status": "pass",
+      "artifact_ref": "README.md"
+    }
+  ],
+  "status": "VERIFIED"
+}
