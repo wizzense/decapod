@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.60.9](https://github.com/DecapodLabs/decapod/compare/v0.60.8...v0.60.9) - 2026-06-24
+
+### Fixed
+
+- *(entrypoint)* sync template assets with Interface abstraction boundary anchor
+
 ## [0.60.8](https://github.com/DecapodLabs/decapod/compare/v0.60.7...v0.60.8) - 2026-06-24
 
 ### Other
