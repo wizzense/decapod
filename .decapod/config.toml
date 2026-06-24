@@ -21,3 +21,12 @@ primary_languages = ["Rust"]
 detected_surfaces = ["cargo"]
 external_tracker = false
 container_workspaces = true
+mode = "local"
+
+[cloud]
+enabled = false
+experimental = true
+provider = "decapod"
+api_url = "https://api.decapodlabs.com"
+project_id = ""
+repo_id = ""
