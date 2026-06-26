@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.60.12](https://github.com/DecapodLabs/decapod/compare/v0.60.11...v0.60.12) - 2026-06-26
+
+### Other
+
+- Solve GitHub Issue #738 task ID regex
+- *(entrypoint)* sync template assets and shims
+
 ## [0.60.11](https://github.com/DecapodLabs/decapod/compare/v0.60.10...v0.60.11) - 2026-06-26
 
 ### Other
