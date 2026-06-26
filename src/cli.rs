@@ -340,11 +340,11 @@ pub struct CloudConfigSection {
 }
 
 fn default_cloud_provider() -> String {
-    "decapod".to_string()
+    "vercel".to_string()
 }
 
 fn default_cloud_api_url() -> String {
-    "https://api.decapodlabs.com".to_string()
+    "https://decapod-cloud.vercel.app".to_string()
 }
 
 impl Default for CloudConfigSection {

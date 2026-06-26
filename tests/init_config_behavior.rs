@@ -40,12 +40,12 @@ fn init_with_backend_cloud_saves_to_config() {
         "cloud should be marked experimental: {config}"
     );
     assert!(
-        config.contains("provider = \"decapod\""),
-        "cloud provider should be non-secret Decapod wiring: {config}"
+        config.contains("provider = \"vercel\""),
+        "cloud provider should be non-secret Vercel wiring: {config}"
     );
     assert!(
-        config.contains("api_url = \"https://api.decapodlabs.com\""),
-        "cloud API URL should use Decapod Labs default: {config}"
+        config.contains("api_url = \"https://decapod-cloud.vercel.app\""),
+        "cloud API URL should use the Vercel backend default: {config}"
     );
     assert!(
         config.contains("mode = \"local\""),
@@ -54,6 +54,27 @@ fn init_with_backend_cloud_saves_to_config() {
     assert!(
         !config.contains("supabase") && !config.contains("token") && !config.contains("secret"),
         "repo config must not contain credentials or legacy backend secrets: {config}"
+    );
+
+    let registration_path = tmp
+        .path()
+        .join(".decapod/generated/cloud/init-registration.json");
+    let registration =
+        fs::read_to_string(registration_path).expect("read cloud init registration payload");
+    let registration: serde_json::Value =
+        serde_json::from_str(&registration).expect("parse cloud init registration");
+    assert_eq!(registration["provider"], "vercel");
+    assert_eq!(
+        registration["route"], "POST /api/decapod/init/register",
+        "registration should target the modeled Vercel init route"
+    );
+    assert!(
+        registration["writes"]
+            .as_array()
+            .expect("writes array")
+            .iter()
+            .any(|write| write["table"] == "repositories" && write["operation"] == "upsert"),
+        "registration should model repository upsert"
     );
 }
 
@@ -95,6 +116,15 @@ fn init_cloud_opt_in_does_not_store_secret_environment_values() {
     assert!(!config.contains("repo-config-must-not-store-this"));
     assert!(!config.contains("supabase_key"));
     assert!(!config.contains("access_token"));
+
+    let registration = fs::read_to_string(
+        tmp.path()
+            .join(".decapod/generated/cloud/init-registration.json"),
+    )
+    .expect("read cloud init registration");
+    assert!(!registration.contains("private.supabase.local"));
+    assert!(!registration.contains("super-secret-service-role"));
+    assert!(!registration.contains("repo-config-must-not-store-this"));
 }
 
 #[test]
