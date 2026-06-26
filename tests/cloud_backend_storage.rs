@@ -110,9 +110,28 @@ fn test_cloud_init_records_opt_in_without_auth_or_repo_credentials() {
     assert!(config.contains("[cloud]"));
     assert!(config.contains("enabled = true"));
     assert!(config.contains("experimental = true"));
+    assert!(config.contains("provider = \"vercel\""));
+    assert!(config.contains("api_url = \"https://decapod-cloud.vercel.app\""));
     assert!(config.contains("mode = \"local\""));
     assert!(!config.contains("SUPABASE"));
     assert!(!config.contains("supabase"));
     assert!(!config.contains("token"));
     assert!(!dir.join(".decapod/session_token").exists());
+
+    let registration_path = dir.join(".decapod/generated/cloud/init-registration.json");
+    let registration = std::fs::read_to_string(registration_path)
+        .expect("cloud opt-in should create a mock init registration payload");
+    let registration: serde_json::Value =
+        serde_json::from_str(&registration).expect("parse cloud init registration");
+    assert_eq!(registration["provider"], "vercel");
+    assert_eq!(registration["api_url"], "https://decapod-cloud.vercel.app");
+    assert_eq!(registration["route"], "POST /api/decapod/init/register");
+    assert!(
+        registration["writes"]
+            .as_array()
+            .expect("writes array")
+            .iter()
+            .any(|write| write["table"] == "init_events" && write["operation"] == "insert"),
+        "registration should model backend-owned init event insert"
+    );
 }

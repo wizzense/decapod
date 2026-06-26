@@ -15,8 +15,8 @@ pub(crate) mod subsystems;
 use cli::*;
 
 use core::{
-    db, docs, docs_cli, error, flight_recorder, migration, obligation, plan_governance, proof,
-    repomap, scaffold, state_commit,
+    cloud_backend, db, docs, docs_cli, error, flight_recorder, migration, obligation,
+    plan_governance, proof, repomap, scaffold, state_commit,
     store::{Store, StoreKind, find_decapod_project_root, find_governance_root},
     todo, trace, validate, workspace,
 };
@@ -107,6 +107,33 @@ fn write_project_config(
         error::DecapodError::ValidationError(format!("AUTOREMEDIABLE_VALIDATION_ERROR code=CONFIG_SERIALIZE_FAILED severity=transient auto_remediable=true audience=agent agent_action=\"ensure the .decapod/config.toml data can be serialized (e.g., fix data types)\" user_note=\"Failed to serialize configuration; the agent should adjust the config content or report the issue.\"\nFailed to serialize config.toml: {e}"))
     })?;
     fs::write(config_path, serialized).map_err(error::DecapodError::IoError)?;
+    Ok(())
+}
+
+fn record_cloud_init_registration(
+    target_dir: &Path,
+    config: &DecapodProjectConfig,
+    dry_run: bool,
+) -> Result<(), error::DecapodError> {
+    if !config.cloud.enabled {
+        return Ok(());
+    }
+
+    let registration = cloud_backend::CloudInitRegistration::for_init(
+        &config.cloud.provider,
+        &config.cloud.api_url,
+        &config.cloud.project_id,
+        &config.cloud.repo_id,
+        target_dir,
+    );
+    if let Some(path) =
+        cloud_backend::write_mock_init_registration(target_dir, &registration, dry_run)?
+    {
+        println!(
+            "Cloud: recorded mock init registration payload at {}",
+            path.display()
+        );
+    }
     Ok(())
 }
 
@@ -1951,6 +1978,7 @@ pub fn run() -> Result<(), error::DecapodError> {
             let target_dir = run_init_apply(&init_with, &current_dir, &repo_ctx)?;
             let config = config_from_init_with(&init_with, repo_ctx);
             write_project_config(&target_dir, &config, init_with.dry_run)?;
+            record_cloud_init_registration(&target_dir, &config, init_with.dry_run)?;
             seed_init_generated_state(&target_dir, init_with.dry_run)?;
         }
         Command::Session(session_cli) => {

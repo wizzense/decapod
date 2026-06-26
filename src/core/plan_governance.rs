@@ -295,12 +295,11 @@ pub fn collect_unverified_done_todos(
     let rows = stmt
         .query_map([], |row| row.get::<_, String>(0))
         .map_err(error::DecapodError::RusqliteError)?;
-    let verifying_todo = std::env::var("DECAPOD_VERIFYING_TODO").unwrap_or_default();
-    let verifying_ids: Vec<&str> = verifying_todo.split(',').map(|s| s.trim()).collect();
+    let verifying_ids = verifying_todo_ids();
     let mut out = Vec::new();
     for row in rows {
         let id = row.map_err(error::DecapodError::RusqliteError)?;
-        if !verifying_ids.contains(&id.as_str()) {
+        if !verifying_ids.iter().any(|verifying_id| verifying_id == &id) {
             out.push(id);
         }
     }
@@ -313,6 +312,24 @@ pub fn count_done_todos(store_root: &Path) -> Result<usize, error::DecapodError>
         return Ok(0);
     }
     let conn = Connection::open(db_path).map_err(error::DecapodError::RusqliteError)?;
+    let verifying_ids = verifying_todo_ids();
+    if !verifying_ids.is_empty() {
+        let mut stmt = conn
+            .prepare("SELECT id FROM tasks WHERE status = 'done'")
+            .map_err(error::DecapodError::RusqliteError)?;
+        let rows = stmt
+            .query_map([], |row| row.get::<_, String>(0))
+            .map_err(error::DecapodError::RusqliteError)?;
+        let mut count = 0usize;
+        for row in rows {
+            let id = row.map_err(error::DecapodError::RusqliteError)?;
+            if !verifying_ids.iter().any(|verifying_id| verifying_id == &id) {
+                count += 1;
+            }
+        }
+        return Ok(count);
+    }
+
     let count: i64 = conn
         .query_row(
             "SELECT COUNT(*) FROM tasks WHERE status = 'done'",
@@ -321,6 +338,16 @@ pub fn count_done_todos(store_root: &Path) -> Result<usize, error::DecapodError>
         )
         .map_err(error::DecapodError::RusqliteError)?;
     Ok(count.max(0) as usize)
+}
+
+fn verifying_todo_ids() -> Vec<String> {
+    std::env::var("DECAPOD_VERIFYING_TODO")
+        .unwrap_or_default()
+        .split(',')
+        .map(str::trim)
+        .filter(|id| !id.is_empty())
+        .map(ToOwned::to_owned)
+        .collect()
 }
 
 pub fn marker_error(
