@@ -1202,7 +1202,7 @@ pub fn publish_workspace(
 }
 
 fn extract_task_ids_from_branch(branch: &str) -> Vec<String> {
-    let re = Regex::new(r"(?i)(?:feat|fend|lang|perf|plat|proj|refa|root|secu|spec|test|bugs|docs|cicd|infr|bend|reft|tool|arch|apis|data|r|todo)[_-][a-z0-9]{6,}").expect("static regex");
+    let re = Regex::new(r"(?i)(?:aiml|apis|appl|arch|bend|bugs|cicd|code|data|desn|devx|docs|feat|fend|infr|lang|perf|plat|proj|r|refa|reft|root|secu|spec|test|todo|tool)[_-][a-z0-9]{6,}").expect("static regex");
     let mut out: Vec<String> = re
         .find_iter(branch)
         .filter_map(|m| m.ok())
@@ -1561,6 +1561,14 @@ mod tests {
         assert_eq!(
             extract_task_ids_from_branch("agent/unknown/bugs_01kvtvsvteg1t4ds"),
             vec!["bugs_01kvtvsvteg1t4ds".to_string()]
+        );
+        assert_eq!(
+            extract_task_ids_from_branch("agent/unknown/code-01kvw852x5g72pmc"),
+            vec!["code_01kvw852x5g72pmc".to_string()]
+        );
+        assert_eq!(
+            extract_task_ids_from_branch("agent/unknown/aiml-01kvw852x5g72pmc"),
+            vec!["aiml_01kvw852x5g72pmc".to_string()]
         );
         assert_eq!(
             extract_task_ids_from_branch("agent/unknown/some-feature-branch"),
