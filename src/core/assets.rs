@@ -286,19 +286,12 @@ decapod data schema --deterministic
 
 ## Operating Mode
 
-- Use Docker git workspaces and execute in `.decapod/workspaces/*`.
-- Call `decapod workspace status` at startup and before implementation work.
-- External task managers are allowed, but Decapod still requires its own todo layer for isolation, proof, and exclusive cross-agent ownership.
-- Create and claim a Decapod todo before `decapod workspace ensure`, `decapod workspace ensure --container`, or any container run.
+- Use Docker git workspaces and execute in `.decapod/workspaces/*`. Call `decapod workspace status` at startup.
+- Claim a Decapod todo before `decapod workspace ensure`, `decapod workspace ensure --container`, or any container run.
 - request elevated permissions before Docker/container workspace commands.
-- `.decapod files are accessed only via decapod CLI`.
-- Read and update `.decapod/config.toml` as project context; use Decapod CLI for other `.decapod/` state.
-- Read `.decapod/OVERRIDE.md` for repo-local constitution overrides when present.
+- `.decapod files are accessed only via decapod CLI`. Read `.decapod/config.toml` and `.decapod/OVERRIDE.md` for context.
 - `DECAPOD_SESSION_PASSWORD` is required for session-scoped operations.
-- Read canonical router: `decapod constitution get core/DECAPOD`.
-- Operator reference: `decapod constitution get docs/PLAYBOOK`.
-- Capability authority: `decapod capabilities --format json`.
--- Scoped context feature: `decapod rpc --op context.scope --params '{"query":"<problem>","op":"<op>"}'` or `decapod constitution search --query "<problem>"`.
+- Read canonical router: `decapod constitution get core/DECAPOD`. Reference `docs/PLAYBOOK`, capabilities, or context.scope RPC.
 
 Treat `.decapod/generated/specs/*` as living documents. Adjust specs as intent and code change over time.
 
@@ -407,6 +400,11 @@ Preserve the chain between intent, context, assumptions, action, and proof.
 <!-- decapod-validator-anchors
 Strict Dependency: You are strictly bound to the Decapod control plane
 Strict Dependency: You are strictly bound to the Decapod governance kernel
+-->
+
+
+<!-- decapod-validator-anchors
+Interface abstraction boundary
 -->
 "#
         .to_string()
