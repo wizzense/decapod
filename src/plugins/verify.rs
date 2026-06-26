@@ -172,7 +172,9 @@ fn normalize_json_value(value: &serde_json::Value) -> serde_json::Value {
                         key.clone(),
                         serde_json::Value::Number(serde_json::Number::from(0)),
                     );
-                } else if key == "failures" || key == "warnings" || key == "self_heal" {
+                } else if key == "self_heal" {
+                    normalized.insert(key.clone(), serde_json::Value::Array(Vec::new()));
+                } else if key == "failures" || key == "warnings" {
                     if let Some(arr) = map[key].as_array() {
                         let mut sorted_arr = arr.clone();
                         sorted_arr.sort_by_key(|a| a.to_string());
