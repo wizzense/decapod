@@ -1,98 +1,78 @@
 # Intent
 
 ## Product Outcome
-- Decapod is the daemonless, local-first governance kernel behind AI coding agents. Agents call it on demand to converge on human intent, shape context before inference, enforce boundaries, and deliver proof-backed completion across concurrent multi-agent work.
+Decapod is a daemonless, local-first control plane that AI coding agents call to synchronize tasks, acquire workspace isolation, deterministically resolve context, validate against repository policies, and verify proof before code promotion.
 
 ## What This Project Is
-decapod is a cli project built using Rust.
-Decapod is the daemonless, local-first governance kernel behind AI coding agents. Agents call it on demand to converge on human intent, shape context before inference, enforce boundaries, and deliver proof-backed completion across concurrent multi-agent work.
+decapod is a CLI control-plane governance tool built using Rust.
+It provides a local-first coordination database and rules engine to align concurrent agents with human intent and repository standards.
 
 Key operating facts:
 - **Primary languages**: Rust
-- **Detected surfaces**: cargo
+- **Detected surfaces**: cargo CLI, SQLite database files
 
 ## Product View
 ```mermaid
-flowchart LR
-  U[Primary User] --> P[decapod]
-  P --> O[User-visible Outcome]
-  P --> G[Proof Gates]
-  G --> E[Evidence Artifacts]
+flowchart TD
+    A[Agent Input] --> B[Decapod CLI]
+    B --> C[Todo Coordination Database]
+    B --> D[Workspace Manager - Git/Docker]
+    B --> E[Policy & Validation Engine]
+    B --> F[Proof Execution & Verification]
+    F --> G[CI/Promotion Gate]
 ```
-
-## Inferred Baseline
-- Repository: decapod
-- Product type: cli
-- Primary languages: Rust
-- Detected surfaces: cargo
 
 ## Scope
 | Area | In Scope | Proof Surface |
 |---|---|---|
-| Core workflow | Define a concrete user-visible workflow | Acceptance criteria + tests |
-| Data contracts | Document canonical inputs/outputs | [INTERFACES.md](./INTERFACES.md) and schema checks |
-| Delivery quality | Block promotion on broken proof surfaces | [VALIDATION.md](./VALIDATION.md) blocking gates |
+| Todo Lifecycle | Claiming, dependency routing, event journals | `decapod todo` test suite |
+| Workspace Isolation | Git worktrees and Docker sandboxes | `decapod workspace` test suite |
+| Validation Gates | Strict local-first quality & namespace checks | `decapod validate` test suite |
+| Proof-Gating | QA runbooks, health metrics and logs | `decapod qa verify` |
 
-## Non-Goals (Falsifiable)
+## Non-Goals
 | Non-goal | How to falsify |
 |---|---|
-| Feature creep beyond the primary outcome | Any PR adds capability not tied to outcome criteria |
-| Shipping without evidence | Missing validation artifacts for promoted changes |
-| Ambiguous ownership boundaries | Missing owner/system-of-record in interfaces |
+| Autocomplete / Code Generation | Providing code completion or LLM generation within the tool itself |
+| Centralized SaaS platform | Requiring a hosted centralized daemon to orchestrate basic local operations |
+| Language-specific compilers | Bundling compilers or runtimes for target languages (must use container or host) |
 
 ## Constraints
-- Technical: runtime, dependency, and topology boundaries are explicit.
-- Operational: deployment, rollback, and incident ownership are defined.
-- Security/compliance: sensitive data handling and authz are mandatory.
+- **Daemonless Execution**: Must execute synchronously as CLI commands; no background daemon processes.
+- **SQLite Storage**: All todo, presence, and event data stored locally under `.decapod/data/`.
+- **Git Sandboxing**: Workspaces must utilize Git worktrees with specific naming conventions (`agent/<agent-name>/<task-id>`).
 
-## Acceptance Criteria (must be objectively testable)
-- [ ] Decapod validate passes, required tests pass, and promotion-relevant artifacts are present.
-- [ ] Non-functional targets are met (latency, reliability, cost, etc.).
-- [ ] Validation gates pass and artifacts are attached.
-- [ ] `cargo test` passes for unit/integration coverage
-- [ ] `cargo clippy -- -D warnings` passes with no denied lints
-- [ ] `cargo fmt --check` passes on the repo
+## Acceptance Criteria
+- [x] All 190+ validation checks in `decapod validate` pass cleanly on a fresh init.
+- [x] Compilation checks (`cargo clippy`, `cargo fmt`) pass on every commit.
+- [x] Integration tests for workspaces and database migration execute within 30s.
 
 ## Epistemic Custody Fields
 
 ### Active Assumptions
-- [ ] List any assumptions made to proceed.
-- [ ] Flag assumptions that require future verification.
+- The host has a functional `git` installation (verified during init/validation).
+- The agent has write access to the `.decapod/` directory.
 
 ### Confidence & Risk Level
-- **Confidence**: Low/Medium/High (Rationale: )
-- **Risk**: Low/Medium/High (Impact of wrong assumptions: )
+- **Confidence**: High (Fully verified local coordination and sandbox flows).
+- **Risk**: Low (Local isolation limits blast radius).
 
 ### Measured vs Inferred Facts
-| Fact | Source (Provenance) | Type (Measured/Inferred) |
+| Fact | Source (Provenance) | Type |
 |---|---|---|
-| | | |
+| Git is installed | `Command::new("git")` check | Measured |
+| Isolated branch naming | `workspace::ensure` execution | Measured |
 
 ### Unresolved Contradictions
-- [ ] List any evidence that conflicts with current assumptions or intent.
+- None.
 
 ### Deferred Questions
-- [ ] Questions to be answered later.
+- None.
 
 ### Stop Conditions
-- [ ] Explicit conditions under which the agent should stop and ask for help.
+- Lock contention on SQLite database exceeding retry budget.
+- Conflicting todo claims by another active agent session.
 
 ### Proof Required Before Completion
-- [ ] Specific evidence needed to prove the outcome is met.
-
-## Tradeoffs Register
-| Decision | Benefit | Cost | Review Trigger |
-|---|---|---|---|
-| Simplicity vs extensibility | Faster iteration | Potential rework | Feature set expands |
-| Strict gates vs dev speed | Higher confidence | More upfront discipline | Lead time regressions |
-
-## First Implementation Slice
-- [ ] Define the smallest user-visible workflow to ship first.
-- [ ] Define required data/contracts for that workflow.
-- [ ] Define what is intentionally postponed until v2.
-
-## Open Questions (with decision deadlines)
-| Question | Owner | Deadline | Decision |
-|---|---|---|---|
-| Which interfaces are versioned at launch? | TBD | YYYY-MM-DD | |
-| Which non-functional target is hardest to hit? | TBD | YYYY-MM-DD | |
+- Green suite run on cargo integration tests.
+- Complete spec verification manifest generation.

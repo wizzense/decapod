@@ -115,15 +115,17 @@ fn record_cloud_init_registration(
     config: &DecapodProjectConfig,
     dry_run: bool,
 ) -> Result<(), error::DecapodError> {
-    if !config.cloud.enabled {
+    let cloud_enabled = config.cloud.as_ref().map(|c| c.enabled).unwrap_or(false);
+    if !cloud_enabled {
         return Ok(());
     }
 
+    let cloud = config.cloud.clone().unwrap_or_default();
     let registration = cloud_backend::CloudInitRegistration::for_init(
-        &config.cloud.provider,
-        &config.cloud.api_url,
-        &config.cloud.project_id,
-        &config.cloud.repo_id,
+        &cloud.provider,
+        &cloud.api_url,
+        &cloud.project_id,
+        &cloud.repo_id,
         target_dir,
     );
     if let Some(path) =
@@ -1382,7 +1384,7 @@ fn init_with_from_config(
         primary_languages: config.repo.primary_languages.clone(),
         detected_surfaces: config.repo.detected_surfaces.clone(),
         container_workspaces: config.repo.container_workspaces,
-        mode: if config.cloud.enabled || config.repo.mode == crate::cli::BackendType::Cloud {
+        mode: if config.cloud.as_ref().map(|c| c.enabled).unwrap_or(false) || config.repo.mode == crate::cli::BackendType::Cloud {
             crate::cli::BackendType::Cloud
         } else {
             crate::cli::BackendType::Local
@@ -1423,9 +1425,13 @@ fn config_from_init_with(init: &InitWithCli, repo: RepoContext) -> DecapodProjec
             entrypoints,
         },
         repo,
-        cloud: crate::cli::CloudConfigSection {
-            enabled: cloud_enabled,
-            ..crate::cli::CloudConfigSection::default()
+        cloud: if cloud_enabled {
+            Some(crate::cli::CloudConfigSection {
+                enabled: true,
+                ..crate::cli::CloudConfigSection::default()
+            })
+        } else {
+            None
         },
     }
 }
