@@ -1384,7 +1384,9 @@ fn init_with_from_config(
         primary_languages: config.repo.primary_languages.clone(),
         detected_surfaces: config.repo.detected_surfaces.clone(),
         container_workspaces: config.repo.container_workspaces,
-        mode: if config.cloud.as_ref().map(|c| c.enabled).unwrap_or(false) || config.repo.mode == crate::cli::BackendType::Cloud {
+        mode: if config.cloud.as_ref().map(|c| c.enabled).unwrap_or(false)
+            || config.repo.mode == crate::cli::BackendType::Cloud
+        {
             crate::cli::BackendType::Cloud
         } else {
             crate::cli::BackendType::Local

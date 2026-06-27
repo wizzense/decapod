@@ -27,5 +27,5 @@ jobs:
         env:
           DECAPOD_VALIDATE_SKIP_GIT_GATES: 1
         run: |
-          decapod init --proof
-          decapod validate
+          cargo run --bin decapod -- init --proof
+          cargo run --bin decapod -- validate
