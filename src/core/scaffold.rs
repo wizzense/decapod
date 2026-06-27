@@ -1247,15 +1247,14 @@ pub fn refresh_project_specs(
 
         let mut is_customized = false;
         let mut final_content_hash = content_hash;
-        if let Some(ref existing) = existing_manifest {
-            if let Some(entry) = existing.files.iter().find(|f| f.path == spec.path) {
-                if let Some(ref existing_str) = existing_content {
-                    let disk_hash = hash_text(existing_str);
-                    if disk_hash != entry.template_hash {
-                        is_customized = true;
-                        final_content_hash = disk_hash;
-                    }
-                }
+        if let Some(ref existing) = existing_manifest
+            && let Some(entry) = existing.files.iter().find(|f| f.path == spec.path)
+            && let Some(ref existing_str) = existing_content
+        {
+            let disk_hash = hash_text(existing_str);
+            if disk_hash != entry.template_hash {
+                is_customized = true;
+                final_content_hash = disk_hash;
             }
         }
 
