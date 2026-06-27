@@ -61,7 +61,7 @@ Decapod-generated architecture documentation must be detailed enough for a new a
 2. **Todo Subsystem**: The todo.rs implementation features rich task properties (dependencies, blocking, ownership, claims, verification), event journaling for deterministic rebuild, and sophisticated claiming mechanisms for agent isolation.
 3. **Validation Harness**: The validate.rs module implements a comprehensive, extensible validation suite with clear pass/fail/warn semantics and auto-remediation hints.
 4. **Workspace Isolation**: The workspace.rs module provides sophisticated git worktree management with branch protection, containerization support, and todo-scoped branch naming.
-5. **Specs as Living Contracts**: The project_specs.rs system creates a feedback loop between generated specs and user intent, with manifest-based change detection and update guidance.
+5. **Specs as Living Contracts**: The project_specs.rs system (and scaffold.rs/validate.rs modules) creates a feedback loop between generated specs and user intent, featuring manifest-based change detection, automatic validation-driven refresh, and customization preservation that allows agents to enhance specs with project changes without losing manual edits.
 6. **Proof System**: The proof.rs module enables configurable, auditable proof execution with health claim synchronization and event logging.
 7. **Embedded Agent Contract**: The AGENTS.md file (and templates in assets.rs) provides a comprehensive, machine-readable contract that agents must follow, reducing ambiguity.
 

@@ -13,15 +13,17 @@ The validate.rs module implements a comprehensive, extensible validation suite w
 - **Constitution Integration**: Validates adherence to embedded constitution directives
 
 ## Generated Spec Refresh Gates
-Decapod must keep generated specs synchronized at governance pressure points. When repository surfaces change, validation should either fail with a concrete refresh instruction or, when explicitly requested through a refresh path, regenerate the existing spec files and update the manifest fingerprint. Refresh must update the canonical spec set rather than creating one-off analysis files.
+Decapod must keep generated specs synchronized at governance pressure points. When repository surfaces change, validation automatically refreshes and regenerates the spec templates inline and updates the manifest fingerprint and file hashes.
+
+To ensure that hand-written enhancements are not lost, Decapod compares the disk hash of each spec file against its recorded template hash. If a spec file has been customized, its content is preserved on disk, and its updated content hash is stored in the manifest, allowing agents to continuously enrich specifications with relevant project details.
 
 Refresh-capable paths:
-- `decapod validate --refresh-specs`
+- `decapod validate` (automatically refreshes specs on template version or fingerprint drift)
 - `decapod rpc --op specs.refresh`
 - initialization or scaffold refresh paths that regenerate `.decapod/generated/specs/*.md`
 
 Refresh output requirements:
-- Preserve hand-maintained epistemic custody fields where possible.
+- Preserve hand-maintained customized spec files.
 - Blend repo context into the existing canonical spec files.
 - Update `.decapod/generated/specs/.manifest.json` after writing files.
 - Avoid adding parallel project-state or architecture-survey documents outside the canonical spec set.

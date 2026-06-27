@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0.0",
   "template_version": "scaffold-v3",
-  "generated_at": "1782537244Z",
+  "generated_at": "1782537642Z",
   "repo_signal_fingerprint": "21424c82e3ab32b9576b9c1581a25aa381699875c8897df7c21e16a4206dd7ae",
   "files": [
     {
@@ -17,7 +17,7 @@
     {
       "path": ".decapod/generated/specs/ARCHITECTURE.md",
       "template_hash": "f81224214db72e367670029174b0b69cf21ea2240d14ba936257324f2a9449d7",
-      "content_hash": "4dfffe5e5c9441a8c405645546aa8278b1dbdaf517614761ffe879b6c8897f6b"
+      "content_hash": "ef616d24e93d79e377da6676c300ffddf808498676273028ad4f5b4d1f007259"
     },
     {
       "path": ".decapod/generated/specs/INTERFACES.md",
@@ -27,7 +27,7 @@
     {
       "path": ".decapod/generated/specs/VALIDATION.md",
       "template_hash": "2779e85d72593f90b0f8f79fcbf4e382daf59b49610e821b9704cd0e26862c18",
-      "content_hash": "1f8320e858caf5f2d122ea0b06d82a80c9ef259f147bd16fdd09de10ac87cb2b"
+      "content_hash": "a7bb118bc967be20afc8adc3c44f7285b7e860f5f95e7499bb441836d58a46a7"
     },
     {
       "path": ".decapod/generated/specs/SEMANTICS.md",
