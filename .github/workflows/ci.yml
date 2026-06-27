@@ -131,7 +131,7 @@ jobs:
           chmod +x target/debug/decapod
           echo "$PWD/target/debug" >> "$GITHUB_PATH"
       - name: Initialize Decapod
-        run: decapod init --force
+        run: decapod init
         env:
           DECAPOD_VALIDATE_SKIP_GIT_GATES: "1"
       - name: Acquire Decapod session

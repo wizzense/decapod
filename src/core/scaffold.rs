@@ -1741,7 +1741,9 @@ Agents operating in this repo MUST maintain these artifacts to ensure long-horiz
                 let disk_hash = hash_text(existing_str);
                 if disk_hash != entry.template_hash {
                     is_customized = true;
-                    final_content_hash = disk_hash;
+                    if !opts.force {
+                        final_content_hash = disk_hash;
+                    }
                 }
             }
 
