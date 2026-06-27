@@ -5,7 +5,7 @@ pub struct DecapodProjectConfig {
     pub schema_version: String,
     pub init: InitConfigSection,
     pub repo: RepoContext,
-    #[serde(default)]
-    pub cloud: CloudConfigSection,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub cloud: Option<CloudConfigSection>,
 }
 ```

@@ -494,16 +494,12 @@ fn specs_intent_template(seed: Option<&SpecsSeed>) -> String {
 - {product_outcome}
 
 ## What This Project Is
-Decapod is a daemonless, local-first governance kernel for AI coding agents. It is not a passive checklist or a documentation folder. Agents invoke Decapod at governance boundaries to turn human intent into explicit local contracts, refresh generated context, enforce workspace and policy boundaries, coordinate mutable work, and require proof-backed completion.
+{product_name} is a {product_type} project built using {languages}.
+{product_outcome}
 
 Key operating facts:
-- **Agent control plane**: Agents call Decapod before inference-heavy work, before workspace mutation, before validation, and before claiming completion.
-- **Repo-native state**: Canonical mutable state lives under `.decapod/`, including todos, generated specs, context capsules, proof artifacts, policy, and isolated workspaces.
-- **Constitution-driven context**: The embedded constitution and project overrides provide queryable doctrine for architecture, interfaces, security, testing, delivery, and agent behavior.
-- **Generated specs as live contracts**: `.decapod/generated/specs/*.md` are generated from repo context and refreshed by Decapod execution so agents receive current architecture, interface, validation, operational, and security context.
-- **Todo-based coordination**: `decapod todo` provides claim ownership, dependencies, and event journaling for concurrent agents.
-- **Validation and proof**: `decapod validate`, proof plans, health claims, and provenance artifacts form the promotion boundary.
-- **Workspace isolation**: Todo-scoped git worktrees and optional containers keep agent changes out of the human root checkout.
+- **Primary languages**: {languages}
+- **Detected surfaces**: {surfaces}
 
 ## Product View
 ```mermaid
@@ -609,6 +605,9 @@ fn specs_architecture_template(style: DiagramStyle, seed: Option<&SpecsSeed>) ->
     let product_type = seed
         .and_then(|s| s.product_type.as_deref())
         .unwrap_or("to be confirmed");
+    let product_name = seed
+        .and_then(|s| s.product_name.as_deref())
+        .unwrap_or("this repository");
 
     format!(
         r#"# Architecture
@@ -617,14 +616,13 @@ fn specs_architecture_template(style: DiagramStyle, seed: Option<&SpecsSeed>) ->
 {summary}
 
 ## What This Project Is
-Decapod is a daemonless, local-first governance kernel for AI coding agents. Its architecture centers on an explicit control plane: agents call Decapod to refine intent, resolve context, claim exclusive work, generate living specs, execute inside isolated workspaces, and emit proof before promotion.
+{product_name} is a {product_type} project built using {runtime_langs}.
+{summary}
 
 Architectural principles:
-- **Daemonless invocation**: Decapod should run only when invoked and must not require a background service to enforce governance.
-- **Local-first authority**: The repository carries the operational truth under `.decapod/`; external systems may reference work but do not replace Decapod's coordination state.
-- **Generated architecture custody**: Generated specs are the agent-facing architecture map. They should be refreshed from current repo facts instead of relying on a stale manually maintained design note.
-- **Explicit boundaries**: CLI/RPC contracts, store ownership, validation gates, workspace isolation, and proof artifacts are separate surfaces with documented responsibilities.
-- **Proof before promotion**: Completion claims are only credible when validation gates and artifacts support them.
+- **Simplicity**: Keep components focused and reusable.
+- **Modularity**: Clearly defined interface boundaries and dependency separation.
+- **Reliability**: Graceful failure handling and thorough verification.
 
 ## Current Facts
 - Runtime/languages: {runtime_langs}
@@ -632,51 +630,17 @@ Architectural principles:
 - Product type: {product_type}
 
 ## Architecture Map
-This project's architecture consists of several interconnected subsystems:
-1. **CLI Layer** (`src/cli.rs`): Defines command-line interface and argument parsing for all Decapod commands (init, todo, validate, proof, workspace, etc.).
-2. **Core Runtime** (`src/core/`):
-   - **Todo System** (`todo.rs`): SQLite-backed task management with claims, ownership, dependencies, and event journaling.
-   - **Validation** (`validate.rs`): Intent-driven methodology validation harness with numerous gates (namespace purge, embedded self-contained, repo map, etc.).
-   - **Proof** (`proof.rs`): Configurable proof execution from `proofs.toml` with health claim synchronization.
-   - **Workspace** (`workspace.rs`): Git worktree and Docker container management for isolated agent workspaces.
-   - **Constitution Access** (`assets.rs`): Embedded constitution retrieval and merging with project overrides (OVERRIDE.md).
-   - **Specs Generation** (`project_specs.rs`): Scaffolding and manifest management for `.decapod/generated/specs/`.
-   - **Storage** (`store.rs`, `db.rs`): Store abstraction and SQLite database access.
-   - **Broker** (`broker.rs`): Audit log mutation broker with replay verification.
-   - **Workunit** (`workunit.rs`): Work unit manifests linking tasks to specs, state, and proof.
-   - **Plan Governance** (`plan_governance.rs`): Governed PLAN artifacts with state transitions.
-   - **Context Capsules** (`context_capsule.rs`): Deterministic context resolution from embedded constitution.
-   - **Obligation Graph** (`obligation.rs`): Obligation tracking for governance.
-   - **Flight Recorder** (`flight_recorder.rs`): Timeline rendering from event logs.
-3. **Plugins** (`src/plugins/`): Extensible subsystems (aptitude, federation, health, knowledge, policy, verify, workflow, etc.).
-4. **Constitution** (`src/constitution/`): Core constitution nodes (core, interfaces, methodology, specs) re-exported via `src/constitution/core.rs`.
-5. **Agent Interface**: Agent-facing documentation (AGENTS.md, CLAUDE.md, etc.) and the Universal Agent Contract (AGENTS.md) that mandates Decapod usage patterns.
-
-## Generated Architecture Contract
-Decapod-generated architecture documentation must be detailed enough for a new agent to orient without reading an external architecture note. It should describe:
-- What the project is and what it is not.
-- The control-plane entrypoints agents call and when those calls are required.
-- Core subsystems, storage locations, and event journals.
-- Data flows from agent invocation through CLI/RPC, core execution, persistence, validation, and proof emission.
-- Current strongest primitives and the extension seams they imply.
-- Known limitations, architectural risks, and traps to avoid.
-- Candidate follow-up work as design issues, not hidden notes.
+This project's architecture consists of the following key layers/directories:
+- `src/`: Main source directory containing primary logic.
+- `tests/`: Integration and unit test suite.
 
 ## Data Flows
-- Agent → Decapod CLI → Core subsystems (todo, validate, proof, workspace, etc.) → `.decapod/` storage
-- Constitution access via `assets.rs` → embedded JSON or merged with OVERRIDE.md
-- Specs generated via `project_specs.rs` → `.decapod/generated/specs/`
-- Workspaces created via `workspace.rs` → `.decapod/workspaces/` (git worktrees)
-- Events journaled via todo and proof subsystems → `.decapod/data/todo.events.jsonl` and `proof.events.jsonl`
+- Inbound request/command parses and validates at the entrypoint.
+- Core runtime handles business logic and initiates queries or state changes.
+- Storage adapter reads or writes data to the underlying persistence layers.
 
 ## Strongest Existing Primitives
-1. **Constitution Access System**: The assets module provides robust, versioned access to embedded constitution documents with override capability via OVERRIDE.md. This is a mature, well-tested system for declarative governance.
-2. **Todo Subsystem**: The todo.rs implementation features rich task properties (dependencies, blocking, ownership, claims, verification), event journaling for deterministic rebuild, and sophisticated claiming mechanisms for agent isolation.
-3. **Validation Harness**: The validate.rs module implements a comprehensive, extensible validation suite with clear pass/fail/warn semantics and auto-remediation hints.
-4. **Workspace Isolation**: The workspace.rs module provides sophisticated git worktree management with branch protection, containerization support, and todo-scoped branch naming.
-5. **Specs as Living Contracts**: The project_specs.rs system creates a feedback loop between generated specs and user intent, with manifest-based change detection and update guidance.
-6. **Proof System**: The proof.rs module enables configurable, auditable proof execution with health claim synchronization and event logging.
-7. **Embedded Agent Contract**: The AGENTS.md file (and templates in assets.rs) provides a comprehensive, machine-readable contract that agents must follow, reducing ambiguity.
+- Define the strongest existing primitives in the codebase (e.g., helper utilities, base controllers, data access layers).
 
 ## Topology
 {topology}
@@ -684,11 +648,9 @@ Decapod-generated architecture documentation must be detailed enough for a new a
 ## Store Boundaries
 ```mermaid
 flowchart LR
-  I[Inbound Requests] --> C[Core Runtime]
+  I[Inbound Requests] --> C[Core Logic]
   C --> W[(Write Store)]
   C --> R[(Read Store)]
-  C --> E[External Dependency]
-  E --> DLQ[(DLQ / Retry Queue)]
 ```
 
 ## Happy Path Sequence
@@ -698,12 +660,12 @@ flowchart LR
 ```mermaid
 sequenceDiagram
   participant Client
-  participant API
-  participant Upstream
-  Client->>API: Request
-  API->>Upstream: Call with timeout budget
-  Upstream--xAPI: Timeout / failure
-  API-->>Client: Typed error + retry guidance + trace_id
+  participant Service
+  participant Store
+  Client->>Service: Request
+  Service->>Store: Database Query
+  Store--xService: Error/Timeout
+  Service-->>Client: Typed Error / Recovery Instructions
 ```
 
 ## Execution Path
@@ -769,20 +731,12 @@ fn specs_interfaces_template(seed: Option<&SpecsSeed>) -> String {
 - Every mutating interface defines idempotency semantics.
 - Every failure path maps to a typed, documented error code.
 
-## CLI Layer
-Defines command-line interface and argument parsing for all Decapod commands. CLI contracts should describe command purpose, preconditions, expected side effects, output shape, recovery path, and whether the command may mutate `.decapod/` state.
-
-## Agent Interface
-Agent-facing documentation (AGENTS.md, CLAUDE.md, etc.) and the Universal Agent Contract mandate Decapod usage patterns. Product docs under `docs/agent` and `docs/book` teach Decapod itself; generated specs under `.decapod/generated/specs/` teach the current repository to active agents.
-
 ## Generated Contract Depth
-Generated interface specs should include more than endpoint names:
-- Command/RPC trigger conditions and required prior Decapod calls.
-- Read/write ownership for each store and generated artifact path.
+Generated interface specs should include:
+- API/CLI contracts with request/response schemas.
+- Read/write ownership for each storage path.
 - Idempotency and retry behavior for mutations.
-- Typed failure classes and concrete recovery instructions.
-- Compatibility expectations for existing agent workflows.
-- Evidence an agent must attach before claiming an interface change complete.
+- Typed failure classes and recovery instructions.
 
 ## API / RPC Contracts
 | Interface | Method | Request Schema | Response Schema | Errors | Idempotency |
@@ -853,13 +807,11 @@ fn specs_validation_template(seed: Option<&SpecsSeed>) -> String {
 > Validation is a release gate, not documentation theater.
 
 ## Validation Harness
-The validate.rs module implements a comprehensive, extensible validation suite with clear pass/fail/warn semantics and auto-remediation hints. Key features include:
-- **Methodology Gates**: Numerous validation gates enforce intent-driven development practices
-- **Auto-Remediation Hints**: Provides specific guidance on how to fix validation failures
-- **Workspace Enforcement**: Ensures agents work in isolated git worktrees or containers
-- **Specs Integrity**: Validates that living specs match repository state
-- **Proof Requirements**: Requires evidence artifacts for promotion gates
-- **Constitution Integration**: Validates adherence to embedded constitution directives
+Define the test and verification harness used by this project.
+Key features:
+- **Automated Tests**: Unit and integration test suites.
+- **Linting & Formatting**: Static analysis tools and checkers.
+- **CI/CD Integration**: Automatic execution of validation gates on push.
 
 ## Generated Spec Refresh Gates
 Decapod must keep generated specs synchronized at governance pressure points. When repository surfaces change, validation should either fail with a concrete refresh instruction or, when explicitly requested through a refresh path, regenerate the existing spec files and update the manifest fingerprint. Refresh must update the canonical spec set rather than creating one-off analysis files.
@@ -1007,38 +959,6 @@ stateDiagram-v2
 
 ## Language Note
 - Primary language inferred: {lang}
-
-## Trajectory Concepts
-The current todo-centric model shows signs of strain when representing complex, evolving work:
-- **Atomic Task Bias**: Treating work as discrete tickets loses the narrative of how intent evolves over time through iterations, pivots, and discoveries.
-- **Context Loss**: Each todo is an isolated unit; there's no inherent mechanism to carry forward assumptions, context summaries, or learned lessons across a sequence of related work.
-- **Manual Coordination**: Agents must manually maintain epistemic custody (preserving intent-context-assumptions-action-proof chains) across multiple todos, which is error-prone.
-- **Limited Retrospection**: While the worker loop records lessons, there's no first-class construct for representing the evolutionary path of a feature or system.
-- **Overloading Todo Fields**: Current attempts to store trajectory-like data (e.g., in description, tags, or custom fields) fight against the todo subsystem's primary purpose as a task tracker.
-- **Missing Abstractions**: Concepts like "work streams," "feature branches," "evolutionary trajectories," or "custody chains" lack explicit representation, forcing agents to encode them implicitly in todo relationships or external documentation.
-
-Trajectories as first-class entities would provide:
-- Explicit modeling of work sequences with temporal ordering and state evolution.
-- Built-in mechanisms for preserving uncertainty and recursive continuity of assumptions.
-- Natural encapsulation of intent-context-specs-state-proof chains.
-- Improved tooling for visualizing and navigating work histories.
-- Better alignment with how humans and agents actually work in iterative, discovery-driven processes.
-
-## Recommended Redesign Seam for Trajectories
-The most appropriate seam for introducing trajectories is at the intersection of the todo, spec, and workunit subsystems, without replacing any existing functionality:
-1. **Extend the Workunit Concept**: Elevate workunit.rs from a per-task manifest to a potential trajectory container. A trajectory could be a linked series of workunits representing the evolution of a feature, architectural decision, or system component.
-2. **Trajectory Spec**: Introduce a new spec type (e.g., `TRAJECTORY.md`) in `.decapod/generated/specs/` that documents the evolutionary path, key decisions, and state transitions of a coherent work effort.
-3. **Minimal Core Changes**:
-   - Add a `trajectory_id` field to the workunit model (optional, for grouping).
-   - Create a new `trajectory.rs` subsystem for trajectory-specific operations (creation, linking, state transitions).
-   - Extend the validation harness to check trajectory integrity (e.g., monotonic state progression, proof linkage).
-   - Add CLI commands under `decapod trajectory` for trajectory management (init, list, show, transition).
-4. **Preserve Existing Todos**: Keep the todo subsystem unchanged for atomic task tracking. Trajectories would coordinate or group todos but not replace them.
-5. **Leverage Existing Mechanisms**:
-   - Use the existing event journaling pattern for trajectory mutations.
-   - Reuse the spec manifest system for trajectory specs.
-   - Utilize the workspace subsystem for trajectory-scoped isolation (optional).
-   - Depend on the constitution for trajectory-related directives (e.g., methodology/trajectory_lifecycle).
 "#
     )
 }
@@ -1056,15 +976,8 @@ fn specs_operations_template(seed: Option<&SpecsSeed>) -> String {
 - [ ] Rollback plan validated.
 - [ ] Capacity guardrails documented.
 
-## Workspace Isolation
-Git worktrees and optional Docker containers provide isolated workspaces scoped to specific todos, preventing interference with the main repository checkout. Key features:
-- **Todo-scoped Worktrees**: Each todo gets an isolated git worktree with branch naming that includes todo IDs/hashes
-- **Exclusive Agent Ownership**: Claiming mechanism ensures only one agent can work on a todo at a time
-- **Event Journaling**: Todo state changes are journaled for deterministic rebuild
-- **Health Subsystem Integration**: Proof events can be associated with todos via health claims
-
-## Generated Artifact Operations
-Generated artifacts are operational outputs, not static docs. Agents should expect Decapod to refresh `.decapod/generated/specs/*.md` during explicit refresh operations and validation-assisted refresh. The operation is bounded: product docs under `docs/` remain the human learning surface for Decapod itself, while generated specs carry repo-specific live architecture, interface, validation, semantic, operational, and security facts.
+## Deployment Model
+Describe the operational runtime model, scheduling, and system deployment architecture.
 
 ## Service Level Objectives
 | SLI | SLO Target | Measurement Window | Owner |
@@ -1217,12 +1130,12 @@ flowchart LR
 - [ ] No unresolved critical/high security findings.
 
 ## Strongest Security Primitives
-1. **Constitution Access System**: The assets module provides robust, versioned access to embedded constitution documents with override capability via OVERRIDE.md. This is a mature, well-tested system for declarative governance.
-2. **Proof System**: The proof.rs module enables configurable, auditable proof execution with health claim synchronization and event logging.
-3. **Workspace Isolation**: The workspace.rs module provides sophisticated git worktree management with branch protection, containerization support, and todo-scoped branch naming.
+Describe the security primitives and security controls implemented in this repository.
 
-## Generated Security Analysis
-Generated security specs should document the active trust boundaries exposed by repository facts: local state stores, generated artifacts, session tokens, workspace paths, command execution surfaces, policy gates, proof artifacts, and any external service integrations. Security output must distinguish confirmed repo facts from inferred risks and leave unresolved questions visible for future agents.
+## Security Practices
+- **Least Privilege**: Ensure minimal access permissions for all subsystems and roles.
+- **Input Validation**: Strictly validate all inputs at trust boundaries.
+- **Secure Storage**: Encrypt sensitive data at rest and in transit.
 "#
     )
 }
@@ -1331,13 +1244,28 @@ pub fn refresh_project_specs(
         let content_hash = hash_text(&content);
         let dest = project_root.join(spec.path);
         let existing_content = fs::read_to_string(&dest).ok();
-        if existing_content.as_deref() != Some(content.as_str()) {
+
+        let mut is_customized = false;
+        let mut final_content_hash = content_hash;
+        if let Some(ref existing) = existing_manifest
+            && let Some(entry) = existing.files.iter().find(|f| f.path == spec.path)
+            && let Some(ref existing_str) = existing_content
+        {
+            let disk_hash = hash_text(existing_str);
+            if disk_hash != entry.template_hash {
+                is_customized = true;
+                final_content_hash = disk_hash;
+            }
+        }
+
+        if !is_customized && existing_content.as_deref() != Some(content.as_str()) {
             file_writes.push((dest, content));
         }
+
         manifest_entries.push(ProjectSpecManifestEntry {
             path: spec.path.to_string(),
             template_hash,
-            content_hash,
+            content_hash: final_content_hash,
         });
     }
 
@@ -1679,13 +1607,18 @@ pub fn scaffold_project_entrypoints(
 
     if opts.generate_ci {
         let github_workflow_rel = ".github/workflows/decapod-validate.yml";
-        let github_workflow_content = assets::get_template("decapod-validate.yml")
-            .expect("Missing template: decapod-validate.yml");
+        let dest = opts.target_dir.join(github_workflow_rel);
+        if dest.exists() && !opts.force {
+            ci_preserved += 1;
+        } else {
+            let github_workflow_content = assets::get_template("decapod-validate.yml")
+                .expect("Missing template: decapod-validate.yml");
 
-        match write_file(opts, github_workflow_rel, &github_workflow_content)? {
-            FileAction::Created => ci_created += 1,
-            FileAction::Unchanged => ci_unchanged += 1,
-            FileAction::Preserved => ci_preserved += 1,
+            match write_file(opts, github_workflow_rel, &github_workflow_content)? {
+                FileAction::Created => ci_created += 1,
+                FileAction::Unchanged => ci_unchanged += 1,
+                FileAction::Preserved => ci_preserved += 1,
+            }
         }
     }
 
@@ -1787,6 +1720,7 @@ Agents operating in this repo MUST maintain these artifacts to ensure long-horiz
             specs_files.push((spec.path, content));
         }
 
+        let existing_manifest = read_specs_manifest(&opts.target_dir)?;
         for (rel_path, mut content) in specs_files {
             // Epistemic Custody Preservation:
             // If we are regenerating INTENT.md and it already exists, try to preserve the Epistemic Custody Fields section.
@@ -1794,15 +1728,39 @@ Agents operating in this repo MUST maintain these artifacts to ensure long-horiz
 
             let template_hash = project_spec_scaffold_hash(rel_path, opts.diagram_style)
                 .unwrap_or_else(|| hash_text(&content));
-            match write_file(opts, rel_path, &content)? {
-                FileAction::Created => created += 1,
-                FileAction::Unchanged => unchanged += 1,
-                FileAction::Preserved => preserved += 1,
+
+            let dest = opts.target_dir.join(rel_path);
+            let existing_content = fs::read_to_string(&dest).ok();
+
+            let mut is_customized = false;
+            let mut final_content_hash = hash_text(&content);
+            if let Some(ref existing) = existing_manifest
+                && let Some(entry) = existing.files.iter().find(|f| f.path == rel_path)
+                && let Some(ref existing_str) = existing_content
+            {
+                let disk_hash = hash_text(existing_str);
+                if disk_hash != entry.template_hash {
+                    is_customized = true;
+                    if !opts.force {
+                        final_content_hash = disk_hash;
+                    }
+                }
             }
+
+            if is_customized && !opts.force {
+                preserved += 1;
+            } else {
+                match write_file(opts, rel_path, &content)? {
+                    FileAction::Created => created += 1,
+                    FileAction::Unchanged => unchanged += 1,
+                    FileAction::Preserved => preserved += 1,
+                }
+            }
+
             manifest_entries.push(ProjectSpecManifestEntry {
                 path: rel_path.to_string(),
                 template_hash,
-                content_hash: hash_text(&content),
+                content_hash: final_content_hash,
             });
         }
 

@@ -11,9 +11,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-          
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
       - name: Cache Decapod
@@ -22,14 +19,13 @@ jobs:
           path: ~/.cargo/bin/decapod
           key: ${{ runner.os }}-decapod
       - name: Install Decapod
-        env:
-          CARGO_NET_GIT_FETCH_WITH_CLI: "true"
-          GIT_TERMINAL_PROMPT: "0"
         run: |
-          cargo install --path . --all-features --force
+          if ! command -v decapod &> /dev/null; then
+            cargo install decapod
+          fi
       - name: Decapod Validate
         env:
           DECAPOD_VALIDATE_SKIP_GIT_GATES: 1
         run: |
-          decapod init --force --proof
-          decapod validate
+          cargo run --bin decapod -- init --proof
+          cargo run --bin decapod -- validate
