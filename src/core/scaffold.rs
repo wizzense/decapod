@@ -1720,6 +1720,7 @@ Agents operating in this repo MUST maintain these artifacts to ensure long-horiz
             specs_files.push((spec.path, content));
         }
 
+        let existing_manifest = read_specs_manifest(&opts.target_dir)?;
         for (rel_path, mut content) in specs_files {
             // Epistemic Custody Preservation:
             // If we are regenerating INTENT.md and it already exists, try to preserve the Epistemic Custody Fields section.
@@ -1727,15 +1728,37 @@ Agents operating in this repo MUST maintain these artifacts to ensure long-horiz
 
             let template_hash = project_spec_scaffold_hash(rel_path, opts.diagram_style)
                 .unwrap_or_else(|| hash_text(&content));
-            match write_file(opts, rel_path, &content)? {
-                FileAction::Created => created += 1,
-                FileAction::Unchanged => unchanged += 1,
-                FileAction::Preserved => preserved += 1,
+
+            let dest = opts.target_dir.join(rel_path);
+            let existing_content = fs::read_to_string(&dest).ok();
+
+            let mut is_customized = false;
+            let mut final_content_hash = hash_text(&content);
+            if let Some(ref existing) = existing_manifest
+                && let Some(entry) = existing.files.iter().find(|f| f.path == rel_path)
+                && let Some(ref existing_str) = existing_content
+            {
+                let disk_hash = hash_text(existing_str);
+                if disk_hash != entry.template_hash {
+                    is_customized = true;
+                    final_content_hash = disk_hash;
+                }
             }
+
+            if is_customized && !opts.force {
+                preserved += 1;
+            } else {
+                match write_file(opts, rel_path, &content)? {
+                    FileAction::Created => created += 1,
+                    FileAction::Unchanged => unchanged += 1,
+                    FileAction::Preserved => preserved += 1,
+                }
+            }
+
             manifest_entries.push(ProjectSpecManifestEntry {
                 path: rel_path.to_string(),
                 template_hash,
-                content_hash: hash_text(&content),
+                content_hash: final_content_hash,
             });
         }
 
