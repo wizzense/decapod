@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.60.14](https://github.com/DecapodLabs/decapod/compare/v0.60.13...v0.60.14) - 2026-06-27
+
+### Fixed
+
+- *(ci)* preserve specs and update manifest logic when force-initializing
+- *(scaffold)* skip overwriting customized spec files during init
+- *(scaffold)* skip workflow overwrites during init if file exists
+- *(ci)* use local binary in validate action and format code
+- *(validate)* fail on stale template or fingerprint unless refresh-specs is true
+- *(scaffold,validate)* make spec templates generic and auto-refresh specs on validate
+
+### Other
+
+- collapse nested if let blocks
+- autogenerate/sync command contracts
+- *(specs)* populate detailed specification content for decapod project
+- *(specs)* regenerate specs from new generic templates for decapod project
+
 ## [0.60.13](https://github.com/DecapodLabs/decapod/compare/v0.60.12...v0.60.13) - 2026-06-27
 
 ### Other
