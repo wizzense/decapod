@@ -1607,13 +1607,18 @@ pub fn scaffold_project_entrypoints(
 
     if opts.generate_ci {
         let github_workflow_rel = ".github/workflows/decapod-validate.yml";
-        let github_workflow_content = assets::get_template("decapod-validate.yml")
-            .expect("Missing template: decapod-validate.yml");
+        let dest = opts.target_dir.join(github_workflow_rel);
+        if dest.exists() && !opts.force {
+            ci_preserved += 1;
+        } else {
+            let github_workflow_content = assets::get_template("decapod-validate.yml")
+                .expect("Missing template: decapod-validate.yml");
 
-        match write_file(opts, github_workflow_rel, &github_workflow_content)? {
-            FileAction::Created => ci_created += 1,
-            FileAction::Unchanged => ci_unchanged += 1,
-            FileAction::Preserved => ci_preserved += 1,
+            match write_file(opts, github_workflow_rel, &github_workflow_content)? {
+                FileAction::Created => ci_created += 1,
+                FileAction::Unchanged => ci_unchanged += 1,
+                FileAction::Preserved => ci_preserved += 1,
+            }
         }
     }
 
