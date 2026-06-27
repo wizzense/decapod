@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  Decapod is a daemonless, local-first governance kernel for looping agentic coding fleets. Users stay inside Cursor, Claude Code, Codex, Gemini CLI, and other agent tools while agents 
+  Decapod is a daemonless, local-first governance kernel for looping agentic coding fleets. Users stay inside Cursor, Claude Code, Codex, Antigravity, and other agent tools while agents 
   call Decapod on demand to enrich context, turn natural-language intent into explicit specs, enforce workspace and policy boundaries, coordinate mutable state, and require 
   proof-backed completion concurrently.
 </p>
